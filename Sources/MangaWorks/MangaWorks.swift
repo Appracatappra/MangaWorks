@@ -48,4 +48,14 @@ open class MangaWorks {
         
         CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
     }
+    
+    /// Returns a `UIImage` from the package's bundle.
+    /// - Parameters:
+    ///   - name: The name of the image file to return.
+    ///   - withExtension: The extension of the file to return.
+    /// - Returns: Returns the `UIImage` if found, else returns `nil`.
+    public static func image(name:String, withExtension:String = "png") -> UIImage? {
+        let url = MangaWorks.urlTo(resource: name, withExtension: withExtension)
+        return UIImage.scaledImage(bundleURL: url, scale: 1.0)
+    }
 }

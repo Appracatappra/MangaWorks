@@ -14,6 +14,37 @@ import SpeechManager
 /// Displays the contents of a speech ballon in a manga page.
 public struct MangaSheechBalloonView: View {
     
+    // MARK: - Initializers
+    /// Creates a new instance.
+    public init() {
+        
+    }
+    
+    /// Creates a new instance
+    /// - Parameters:
+    ///   - type: Defines the type of speech balloon to display.
+    ///   - caption: The caption to display in the speech balloon.
+    ///   - tail: Where the tail of the speech balloon should be displayed.
+    ///   - font: The font to display the caption in.
+    ///   - fontSize: The caption font size.
+    ///   - fontColor: The caption font color.
+    ///   - backgroundColor: The caption background color.
+    ///   - boxWidth: The caption box width.
+    ///   - xOffset: The caption X offset.
+    ///   - yOffset: The caption Y offset.
+    public init(type: MangaSpeechBalloon.BalloonType = .talk, caption: String, tail: MangaSpeechBalloon.TailOrientation = .bottomTrailing, font: ComicFonts = .KomikaTight, fontSize: Float = 24, fontColor: Color = Color.black, backgroundColor: Color = Color.white, boxWidth: Float = 200.0, xOffset: Float = 0.0, yOffset: Float = 0.0) {
+        self.type = type
+        self.caption = caption
+        self.tail = tail
+        self.font = font
+        self.fontSize = fontSize
+        self.fontColor = fontColor
+        self.backgroundColor = backgroundColor
+        self.boxWidth = boxWidth
+        self.xOffset = xOffset
+        self.yOffset = yOffset
+    }
+    
     // MARK: - Properties
     /// Defines the type of speech balloon to display.
     public var type:MangaSpeechBalloon.BalloonType = .talk
@@ -36,13 +67,13 @@ public struct MangaSheechBalloonView: View {
     /// The caption background color.
     public var backgroundColor:Color = Color.white
     
-    /// The caption box width
+    /// The caption box width.
     public var boxWidth:Float = 200.0
     
     /// The caption X offset.
     public var xOffset:Float = 0.0
     
-    /// The caption X offset.
+    /// The caption Y offset.
     public var yOffset:Float = 0.0
     
     // MARK: - Environmental Properties
@@ -254,12 +285,6 @@ public struct MangaSheechBalloonView: View {
         return CGFloat(value * HardwareInformation.deviceRatioWidth)
     }
     
-    /// Read the image from the package bundle
-    private var image:UIImage? {
-        let url = MangaWorks.urlTo(resource: type.rawValue, withExtension: "png")
-        return UIImage.scaledImage(bundleURL: url, scale: 1.0)
-    }
-    
     // MARK: - Control Body
     /// The body of the control.
     public var body: some View {
@@ -302,8 +327,9 @@ public struct MangaSheechBalloonView: View {
     }
     
     // MARK: - Functions
-    @ViewBuilder
-    func contents() -> some View {
+    /// Creates the body of the control.
+    /// - Returns: Returns a view containing the body of the control.
+    @ViewBuilder func contents() -> some View {
         ZStack {
             Text(markdown: text)
                 .font(font.ofSize(fontSize))
@@ -315,7 +341,7 @@ public struct MangaSheechBalloonView: View {
                 .padding(.trailing, paddingTrailing)
                 .background(.clear)
                 .background() {
-                    if let image {
+                    if let image = MangaWorks.image(name: type.rawValue) {
                         Image(uiImage: image)
                             .resizable()
                             .rotation3DEffect(.degrees(180), axis: (x: tail.x, y: 0, z: 0))
