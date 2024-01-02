@@ -9,6 +9,7 @@ import LogManager
 /// A utility for working with resources stored inside of this Swift Package.
 open class MangaWorks {
     
+    // MARK: - Enumerations
     /// Defines the source of a file.
     public enum Source {
         /// The file is from the App's Bundle.
@@ -18,6 +19,10 @@ open class MangaWorks {
         case packageBundle
     }
     
+    // MARK: Static Properties
+    public static var simulatediPhoneNotification:MangaDashboardNotification? = nil
+    
+    // MARK: - Static Functions
     /// Gets the path to the requested resource stored in the Swift Package's Bundle.
     /// - Parameters:
     ///   - resource: The name of the resource to locate.
@@ -39,7 +44,7 @@ open class MangaWorks {
     }
     
     /// Registers the given font with the Core Text Font Manager so that it can be used in a SwiftUI `View`.
-    /// - Parameter name: <#name description#>
+    /// - Parameter name: The name of the font to register.
     public static func registerFont(name:String) {
         guard let url = urlTo(resource: name) else {
             Log.error(subsystem: "MangaWorks", category: "Fonts", "Unable to find font: \(name)")

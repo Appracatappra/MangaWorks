@@ -367,6 +367,6 @@ public struct MangaSheechBalloonView: View {
 }
 
 #Preview {
-    MangaSheechBalloonView(type: .electronic, caption: "This is a long caption that describes something in the scene... It must continue on multiple lines.")
+    MangaSheechBalloonView(type: .talk, caption: "This is a long caption that describes something in the scene... It must continue on multiple lines.")
         .environmentObject(MangaAnimation())
 }

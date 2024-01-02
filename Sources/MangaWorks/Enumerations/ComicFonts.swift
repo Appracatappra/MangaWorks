@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-public enum ComicFonts:String, Codable {
+public enum ComicFonts:String {
     // MARK: - Cases and values
     case Komika = "KomikaText"
     case KomikaItalic = "KomikaText-Italic"

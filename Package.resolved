@@ -55,6 +55,15 @@
       }
     },
     {
+      "identity" : "swiftuigamepad",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Appracatappra/SwiftUIGamepad.git",
+      "state" : {
+        "revision" : "872aa9d66ede36c31231e02970af255e31051bd2",
+        "version" : "1.0.3"
+      }
+    },
+    {
       "identity" : "swiftuikit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Appracatappra/SwiftUIKit.git",
