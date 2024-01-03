@@ -13,7 +13,7 @@ import GraceLanguage
 import SwiftUIPanoramaViewer
 
 /// Holds a user interaction that can be attached to a Manga Panorama Page.
-open class MapInteraction {
+open class MangaPageInteraction {
     
     // MARK: - Enumerations
     /// The type of action that the user can take at a given pitch and yaw in a manga panorama page.

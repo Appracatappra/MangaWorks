@@ -31,7 +31,7 @@ let package = Package(
         .target(
             name: "MangaWorks",
             dependencies: ["LogManager", "SwiftletUtilities", "SoundManager", "SimpleSerializer", "GraceLanguage", "SwiftUIKit", "SpeechManager", "SwiftUIGamepad", "SwiftUIPanoramaViewer"],
-            resources: [.process("Resources"), .process("Fonts")]
+            resources: [.process("Resources"), .process("Fonts"), .process("Sprites")]
         ),
         .testTarget(
             name: "MangaWorksTests",

@@ -15,6 +15,7 @@ open class MangaLayerManager {
     // MARK: - Enumerations
     /// Defines the condition that must be met to display an element in the layout system.
     public enum ElementVisibility {
+        case empty
         case displayNothing
         case displayAlways
         case displaySearch
@@ -50,6 +51,8 @@ open class MangaLayerManager {
         /// - remark: This was written this way because the compiler was getting confused if I attached the `Int` value to each case andtried to pass it as a parameter to a func.
         public var value:Int {
             switch self {
+            case .empty:
+                return 0
             case .displayNothing:
                 return -1
             case .displayAlways:

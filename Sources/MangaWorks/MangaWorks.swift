@@ -113,4 +113,16 @@ open class MangaWorks {
             return false
         }
     }
+    
+    /// Expands the macros in the text field.
+    /// - Parameter text: The text to expand macros in.
+    /// - Returns: The text with any Grace Macros expanded.
+    public static func expandMacros(in text:String) -> String {
+        do {
+            return try GraceRuntime.shared.expandMacros(in: text)
+        } catch {
+            Log.error(subsystem: "MangaWorks", category: "ExpandMacros", "Error: \(error)")
+            return text
+        }
+    }
 }

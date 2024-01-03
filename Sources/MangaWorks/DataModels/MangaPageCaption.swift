@@ -12,49 +12,67 @@ import SwiftletUtilities
 import GraceLanguage
 import SwiftUIPanoramaViewer
 
+/// Holds a caption that can be displayed on a Manga Page.
 @Observable open class MangaPageCaption {
     
     // MARK: - Properties
-    var caption:String = ""
+    /// The caption to display.
+    public var caption:String = ""
     
-    var font:ComicFonts = .KomikaTight
+    /// The font to display the caption in.
+    public var font:ComicFonts = .KomikaTight
     
-    var fontSize:Float = 24
+    /// The font size to display the caption in.
+    public var fontSize:Float = 24
     
-    var fontColor:Color = Color.black
+    /// The font color to display the caption in.
+    public var fontColor:Color = Color.black
     
-    var backgroundColor:Color = Color.white
+    /// The background color for the caption.
+    public var backgroundColor:Color = Color.white
     
-    var boxWidth:Float = 200.0
+    /// The box width for the caption.
+    public var boxWidth:Float = 200.0
     
-    var xOffset:Float = 0.0
+    /// The X offset for the caption.
+    public var xOffset:Float = 0.0
     
-    var yOffset:Float = 0.0
+    /// The Y offset for the caption.
+    public var yOffset:Float = 0.0
     
-    var layerVisibility:MangaLayerManager.ElementVisibility = .displayAlways
+    /// The layer visibility for the caption.
+    public var layerVisibility:MangaLayerManager.ElementVisibility = .displayAlways
     
-    var condition:String = ""
+    /// A condition written in the Grace Language that must be met before the caption is displayed.
+    public var condition:String = ""
     
-    var pitchLeading:Float = 0.0
+    /// The leading pitch for displaying the caption.
+    public var pitchLeading:Float = 0.0
     
-    var pitchTrailing:Float = 0.0
+    /// The trailing pitch for displaying the caption.
+    public var pitchTrailing:Float = 0.0
     
-    var yawLeading:Float = 0.0
+    /// The leading yaw for displaying the caption.
+    public var yawLeading:Float = 0.0
     
-    var yawTrailing:Float = 0.0
+    /// The trailing yaw for displaying the caption.
+    public var yawTrailing:Float = 0.0
     
-    var animation:MangaAnimation = MangaAnimation()
+    ///  The animation for the caption.
+    public var animation:MangaAnimation = MangaAnimation()
     
-    var actor:MangaVoiceActors = .narrator
+    /// The voice to read the caption in.
+    public var actor:MangaVoiceActors = .narrator
     
     // MARK: - Computed Properties
-    var view:some View {
+    /// Returns a `MangaCaptionView` representing the caption.
+    public var view:some View {
         animation.reset()
         return MangaCaptionView(caption: caption, font:font, fontSize: fontSize * HardwareInformation.deviceRatioWidth, fontColor: fontColor, backgroundColor: backgroundColor, boxWidth: boxWidth * HardwareInformation.deviceRatioWidth, xOffset: xOffset * HardwareInformation.deviceRatioWidth, yOffset: yOffset * HardwareInformation.deviceRatioHeight).environmentObject(animation)
     }
     
     // MARK: - Initializers
-    init(actor:MangaVoiceActors = .narrator, caption:String, font:ComicFonts = .KomikaTight, fontSize:Float = 24, fontColor:Color = Color.black, backgroundColor:Color = Color.white, boxWidth:Float = 200.0, xOffset:Float = 0.0, yOffset:Float = 0.0, layerVisibility:MangaLayerManager.ElementVisibility = .displayAlways, pitch:Float = 0.0, yaw:Float = 0.0, animation:MangaAnimation = MangaAnimation(), condition:String = "") {
+    public init(actor:MangaVoiceActors = .narrator, caption:String, font:ComicFonts = .KomikaTight, fontSize:Float = 24, fontColor:Color = Color.black, backgroundColor:Color = Color.white, boxWidth:Float = 200.0, xOffset:Float = 0.0, yOffset:Float = 0.0, layerVisibility:MangaLayerManager.ElementVisibility = .displayAlways, pitch:Float = 0.0, yaw:Float = 0.0, animation:MangaAnimation = MangaAnimation(), condition:String = "") {
         // Initialize
         self.actor = actor
         self.caption = caption
