@@ -5,6 +5,7 @@
 import Foundation
 import SwiftUI
 import LogManager
+import GraceLanguage
 
 /// A utility for working with resources stored inside of this Swift Package.
 open class MangaWorks {
@@ -20,7 +21,29 @@ open class MangaWorks {
     }
     
     // MARK: Static Properties
+    /// A notification to display in the simulated iPhone on the landscape view.
     public static var simulatediPhoneNotification:MangaDashboardNotification? = nil
+    
+    /// The default font color for Manga Actions.
+    public static var actionFontColor:Color = .white
+    
+    /// The default background color for Manga Actions.
+    public static var actionBackgroundColor:Color = Color(fromHex: "#8D52AF") ?? .systemGray
+    
+    /// The default selected color for Manga Actions.
+    public static var actionSelectedBackgroundColor:Color = Color(fromHex: "#EB244F") ?? .systemGray2
+    
+    /// The default border color for Manga Actions.
+    public static var actionBorderColor:Color = Color(fromHex: "#533169") ?? .systemGray3
+    
+    /// The default selected border color for Manga Actions.
+    public static var actionSelectedBorderColor:Color = .white
+    
+    /// The default foreground color for Manga Actions.
+    public static var actionForegroundColor:Color = Color(fromHex: "#8D52AF") ?? .systemGray5
+    
+    /// The default highlight color for Manga Actions.
+    public static var actionHighlightColor:Color = Color(fromHex: "#EB004F") ?? .systemGray6
     
     // MARK: - Static Functions
     /// Gets the path to the requested resource stored in the Swift Package's Bundle.
@@ -62,5 +85,32 @@ open class MangaWorks {
     public static func image(name:String, withExtension:String = "png") -> UIImage? {
         let url = MangaWorks.urlTo(resource: name, withExtension: withExtension)
         return UIImage.scaledImage(bundleURL: url, scale: 1.0)
+    }
+    
+    /// Evaluates the given condition written as a Grace Language macro or script.
+    /// - Parameter condition: The script to evaluate.
+    /// - Returns: Returns the result of the condition or `true` if no condition is provided.
+    public static func evaluateCondition(_ condition:String) -> Bool {
+        
+        // No condition presented, assume true.
+        guard condition != "" else {
+            return true
+        }
+        
+        // Try to evaluate the condition.
+        do {
+            // Get the result of the condition.
+            if let result = try GraceRuntime.shared.evaluate(script: condition) {
+                // Return the result to the caller.
+                return result.bool
+            } else {
+                // Unable to evaluate.
+                return false
+            }
+        } catch {
+            // An error occurred, return false.
+            Log.error(subsystem: "MangaWorks", category: "evaluateCondition", "Error: \(error)")
+            return false
+        }
     }
 }

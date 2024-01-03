@@ -32,7 +32,7 @@ public struct MangaSheechBalloonView: View {
     ///   - boxWidth: The caption box width.
     ///   - xOffset: The caption X offset.
     ///   - yOffset: The caption Y offset.
-    public init(type: MangaSpeechBalloon.BalloonType = .talk, caption: String, tail: MangaSpeechBalloon.TailOrientation = .bottomTrailing, font: ComicFonts = .KomikaTight, fontSize: Float = 24, fontColor: Color = Color.black, backgroundColor: Color = Color.white, boxWidth: Float = 200.0, xOffset: Float = 0.0, yOffset: Float = 0.0) {
+    public init(type: MangaPageSpeechBalloon.BalloonType = .talk, caption: String, tail: MangaPageSpeechBalloon.TailOrientation = .bottomTrailing, font: ComicFonts = .KomikaTight, fontSize: Float = 24, fontColor: Color = Color.black, backgroundColor: Color = Color.white, boxWidth: Float = 200.0, xOffset: Float = 0.0, yOffset: Float = 0.0) {
         self.type = type
         self.caption = caption
         self.tail = tail
@@ -47,13 +47,13 @@ public struct MangaSheechBalloonView: View {
     
     // MARK: - Properties
     /// Defines the type of speech balloon to display.
-    public var type:MangaSpeechBalloon.BalloonType = .talk
+    public var type:MangaPageSpeechBalloon.BalloonType = .talk
     
     /// The caption to display in the speech balloon.
     public var caption:String = ""
     
     /// Where the tail of the speech balloon should be displayed.
-    public var tail:MangaSpeechBalloon.TailOrientation = .bottomTrailing
+    public var tail:MangaPageSpeechBalloon.TailOrientation = .bottomTrailing
     
     /// The font to display the caption in.
     public var font:ComicFonts = .KomikaTight

@@ -71,6 +71,15 @@
         "revision" : "1de9b2747f7bf415b9b93ed976208e090ff162cf",
         "version" : "1.0.11"
       }
+    },
+    {
+      "identity" : "swiftuipanoramaviewer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Appracatappra/SwiftUIPanoramaViewer.git",
+      "state" : {
+        "revision" : "dc4e0ffaa79f77863aaf645dc50899168d1fd6e0",
+        "version" : "1.0.1"
+      }
     }
   ],
   "version" : 2

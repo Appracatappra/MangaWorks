@@ -50,7 +50,7 @@ public struct MangaPageContainerView<Content: View>: View {
     public var backgroundColor:Color = .white
     
     /// The contents to display in the manga page.
-    @ViewBuilder public var content: Content
+    @ViewBuilder public var content: Content 
     
     /// Holds the current device screen orientation.
     @State private var orientation = HardwareInformation.deviceOrientation
