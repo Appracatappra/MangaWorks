@@ -11,15 +11,16 @@ import Observation
 import SwiftletUtilities
 import GraceLanguage
 import SwiftUIPanoramaViewer
+import SimpleSerializer
 
 /// Holds a user interaction that can be attached to a Manga Panorama Page.
-open class MangaPageInteraction {
+open class MangaPageInteraction: SimpleSerializeable {
     
     // MARK: - Enumerations
     /// The type of action that the user can take at a given pitch and yaw in a manga panorama page.
-    public enum ActionType {
+    public enum ActionType: Int {
         /// Search the given position.
-        case search
+        case search = 0
         
         /// Use an item at the given position.
         case use
@@ -42,6 +43,7 @@ open class MangaPageInteraction {
         /// Place a call from the given position.
         case call
         
+        // MARK: - Computed Properties
         /// Returns the icon to display for the given interaction.
         public var icon:String {
             switch self {
@@ -61,6 +63,17 @@ open class MangaPageInteraction {
                 return "desktopcomputer.trianglebadge.exclamationmark"
             case .call:
                 return "iphone.homebutton.radiowaves.left.and.right"
+            }
+        }
+        
+        // MARK: - Functions
+        /// Gets the value from an `Int` and defaults to `search` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = ActionType(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .search
             }
         }
     }
@@ -102,6 +115,26 @@ open class MangaPageInteraction {
     /// The trailing yaw for the interaction target.
     public var yawTrailing:Float = 0.0
     
+    // MARK: - Computed Properties
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.interaction)
+            .append(action)
+            .append(title)
+            .append(displayElement)
+            .append(notebook)
+            .append(notebookTitle)
+            .append(notebookEntry)
+            .append(condition, isBase64Encoded: true)
+            .append(handler, isBase64Encoded: true)
+            .append(pitchLeading)
+            .append(pitchTrailing)
+            .append(yawLeading)
+            .append(yawTrailing)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
@@ -129,5 +162,24 @@ open class MangaPageInteraction {
         self.notebookEntry = notebookEntry
         self.handler = handler
         self.condition = condition
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.interaction)
+        
+        self.action.from(deserializer.int())
+        self.title = deserializer.string()
+        self.displayElement.from(deserializer.int())
+        self.notebook = deserializer.string()
+        self.notebookTitle = deserializer.string()
+        self.notebookEntry = deserializer.string()
+        self.condition = deserializer.string(isBase64Encoded: true)
+        self.handler = deserializer.string(isBase64Encoded: true)
+        self.pitchLeading = deserializer.float()
+        self.pitchTrailing = deserializer.float()
+        self.yawLeading = deserializer.float()
+        self.yawTrailing = deserializer.float()
     }
 }

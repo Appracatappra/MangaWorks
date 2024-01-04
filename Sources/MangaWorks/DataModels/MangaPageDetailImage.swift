@@ -11,9 +11,10 @@ import Observation
 import SwiftletUtilities
 import GraceLanguage
 import SwiftUIPanoramaViewer
+import SimpleSerializer
 
 /// Defines a detailed image that can be displayed on a manga page.
-@Observable open class MangaPageDetailImage {
+@Observable open class MangaPageDetailImage: SimpleSerializeable {
     
     // MARK: - Properties
     /// The name of the image to display.
@@ -71,6 +72,29 @@ import SwiftUIPanoramaViewer
         return MangaImageView(imageName: imageName, width: width * HardwareInformation.deviceRatioWidth, height: height * HardwareInformation.deviceRatioHeight, scale: scale * HardwareInformation.deviceRatioWidth, hasBackground: hasBackground, background: backgroundColor, shadowed: shadowed, xOffset: xOffset * HardwareInformation.deviceRatioWidth, yOffset: yOffset * HardwareInformation.deviceRatioHeight).environmentObject(animation)
     }
     
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.detailImage)
+            .append(imageName)
+            .append(width)
+            .append(height)
+            .append(scale)
+            .append(hasBackground)
+            .append(backgroundColor)
+            .append(shadowed)
+            .append(xOffset)
+            .append(yOffset)
+            .append(layerVisibility)
+            .append(condition, isBase64Encoded: true)
+            .append(pitchLeading)
+            .append(pitchTrailing)
+            .append(yawLeading)
+            .append(yawTrailing)
+            .append(animation)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
@@ -106,5 +130,28 @@ import SwiftUIPanoramaViewer
         self.yawTrailing = PanoramaManager.trailingTarget(yaw)
         self.animation = animation
         self.condition = condition
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.detailImage)
+        
+        self.imageName = deserializer.string()
+        self.width = deserializer.float()
+        self.height = deserializer.float()
+        self.scale = deserializer.float()
+        self.hasBackground = deserializer.bool()
+        self.backgroundColor = deserializer.color()
+        self.shadowed = deserializer.bool()
+        self.xOffset = deserializer.float()
+        self.yOffset = deserializer.float()
+        self.layerVisibility.from(deserializer.int())
+        self.condition = deserializer.string(isBase64Encoded: true)
+        self.pitchLeading = deserializer.float()
+        self.pitchTrailing = deserializer.float()
+        self.yawLeading = deserializer.float()
+        self.yawTrailing = deserializer.float()
+        self.animation = deserializer.child()
     }
 }

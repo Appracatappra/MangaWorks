@@ -11,9 +11,10 @@ import Observation
 import SwiftletUtilities
 import GraceLanguage
 import SwiftUIPanoramaViewer
+import SimpleSerializer
 
 /// Holds information about a hint that can be attached to a manga page.
-@Observable open class MangaPageHint: Identifiable {
+@Observable open class MangaPageHint: Identifiable, SimpleSerializeable {
     
     // MARK: - Properties
     /// The unique ID of the hint.
@@ -28,6 +29,18 @@ import SwiftUIPanoramaViewer
     /// The credit cost for the hint.
     public var creditCost:Int = 0
     
+    // MARK: - Computed Properties
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.hint)
+            .append(id)
+            .append(text)
+            .append(pointCost)
+            .append(creditCost)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
@@ -40,5 +53,16 @@ import SwiftUIPanoramaViewer
         self.text = text
         self.pointCost = pointCost
         self.creditCost = creditCost
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.hint)
+        
+        self.id = deserializer.int()
+        self.text = deserializer.string()
+        self.pointCost = deserializer.int()
+        self.creditCost = deserializer.int()
     }
 }

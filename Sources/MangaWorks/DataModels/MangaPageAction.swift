@@ -8,9 +8,10 @@
 import Foundation
 import SwiftUI
 import Observation
+import SimpleSerializer
 
 /// Class to hold an action that a user can take on a Manga Page.
-@Observable open class MangaPageAction: Identifiable {
+@Observable open class MangaPageAction: Identifiable, SimpleSerializeable {
     
     // MARK: - Properties
     /// The unique ID of the action.
@@ -31,6 +32,17 @@ import Observation
         return MangaActionView(text: text, action: excute)
     }
     
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.action)
+            .append(id)
+            .append(text)
+            .append(condition, isBase64Encoded: true)
+            .append(excute, isBase64Encoded: true)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
@@ -44,5 +56,16 @@ import Observation
         self.text = text
         self.excute = excute
         self.condition = condition
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.action)
+        
+        self.id = deserializer.int()
+        self.text = deserializer.string()
+        self.condition = deserializer.string(isBase64Encoded: true)
+        self.excute = deserializer.string(isBase64Encoded: true)
     }
 }

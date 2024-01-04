@@ -16,4 +16,9 @@ public enum Divider:String, Codable {
     case pagePin = "˜"
     case pagePanel = "µ"
     case navigationPoint = "≤"
+    case interaction = "≥"
+    case hint = "÷"
+    case detailImage = "æ"
+    case action = "¬"
+    case conversation = "˚"
 }

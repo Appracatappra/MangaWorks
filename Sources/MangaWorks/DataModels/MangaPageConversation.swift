@@ -16,12 +16,23 @@ import GraceLanguage
     
     // MARK: - Enumerations
     /// Defines which side of the `MangaConversationView` box the item appears.
-    public enum ActionChoiceSide {
+    public enum ActionChoiceSide: Int {
         /// The action will appear on the left side.
-        case left
+        case left = 0
         
         /// The action will appear on the right side.
         case right
+        
+        // MARK: - Functions
+        /// Gets the value from an `Int` and defaults to `left` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = ActionChoiceSide(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .left
+            }
+        }
     }
     
     // MARK: - Properties
