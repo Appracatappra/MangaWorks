@@ -11,9 +11,10 @@ import Observation
 import SwiftletUtilities
 import GraceLanguage
 import SwiftUIPanoramaViewer
+import SimpleSerializer
 
 /// Hods a speech balloon that can be displayed on a manga page.
-@Observable open class MangaPageSpeechBalloon {
+@Observable open class MangaPageSpeechBalloon: SimpleSerializeable {
     
     // MARK: - Enumerations
     /// The type of balloon to display.
@@ -44,12 +45,23 @@ import SwiftUIPanoramaViewer
         
         /// A character speaking in a weak voice.
         case weak = "BalloonWeak"
+        
+        // MARK: - Functions
+        /// Gets the value from a string and defaults to `talk` if the conversion is invalid.
+        /// - Parameter value: The string to convert.
+        public mutating func from(_ value:String) {
+            if let enumeration = BalloonType(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .talk
+            }
+        }
     }
     
     /// Defines the location of the speech balloon tail.
-    public enum TailOrientation {
+    public enum TailOrientation:Int {
         /// On the top leading edge.
-        case topLeading
+        case topLeading = 0
         
         /// On the top trailing edge.
         case topTrailing
@@ -60,6 +72,7 @@ import SwiftUIPanoramaViewer
         /// On the bottom trailing edge.
         case bottomTrailing
         
+        // MARK: - Computed Properties
         /// The X offset for the tail.
         public var x:CGFloat {
             if self == .topLeading || self == .topTrailing {
@@ -89,6 +102,17 @@ import SwiftUIPanoramaViewer
                 return .topLeading
             case .bottomTrailing:
                 return.topLeading
+            }
+        }
+        
+        // MARK: - Functions
+        /// Gets the value from an `Int` and defaults to `bottomTrailing` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = TailOrientation(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .bottomTrailing
             }
         }
     }
@@ -152,6 +176,30 @@ import SwiftUIPanoramaViewer
         return MangaSheechBalloonView(type: type, caption: caption, tail:tail, font: font, fontSize: fontSize * HardwareInformation.deviceRatioWidth, fontColor: fontColor, boxWidth: boxWidth * HardwareInformation.deviceRatioWidth, xOffset: xOffset * HardwareInformation.deviceRatioWidth, yOffset: yOffset * HardwareInformation.deviceRatioHeight).environmentObject(animation)
     }
     
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.speechBalloon)
+            .append(type)
+            .append(caption)
+            .append(tail)
+            .append(font)
+            .append(fontSize)
+            .append(fontColor)
+            .append(boxWidth)
+            .append(xOffset)
+            .append(yOffset)
+            .append(layerVisibility)
+            .append(condition, isBase64Encoded: true)
+            .append(pitchLeading)
+            .append(pitchTrailing)
+            .append(yawLeading)
+            .append(yawTrailing)
+            .append(animation)
+            .append(actor)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
@@ -189,5 +237,29 @@ import SwiftUIPanoramaViewer
         self.yawTrailing = PanoramaManager.trailingTarget(yaw)
         self.animation = animation
         self.condition = condition
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.speechBalloon)
+        
+        self.type.from(deserializer.string())
+        self.caption = deserializer.string()
+        self.tail.from(deserializer.int())
+        self.font.from(deserializer.string())
+        self.fontSize = deserializer.float()
+        self.fontColor = deserializer.color()
+        self.boxWidth = deserializer.float()
+        self.xOffset = deserializer.float()
+        self.yOffset = deserializer.float()
+        self.layerVisibility.from(deserializer.int())
+        self.condition = deserializer.string(isBase64Encoded: true)
+        self.pitchLeading = deserializer.float()
+        self.pitchTrailing = deserializer.float()
+        self.yawLeading = deserializer.float()
+        self.yawTrailing = deserializer.float()
+        self.animation = deserializer.child()
+        self.actor.from(deserializer.int())
     }
 }

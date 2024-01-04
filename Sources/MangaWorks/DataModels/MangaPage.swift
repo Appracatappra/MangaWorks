@@ -12,7 +12,9 @@ import SpeechManager
 import GraceLanguage
 import SwiftUIPanoramaViewer
 import SwiftUI
+import SoundManager
 
+/// Holds all of the information about a Manga Page that can be display and interacted with using MangaWorks tools.
 open class MangaPage: Identifiable {
     
     // MARK: - Static Properties
@@ -546,7 +548,7 @@ open class MangaPage: Identifiable {
             call @playSoundEffect('\(soundEffect)', 3);
             call @adjustPoints(\(points));
             call @changePage('\(nextMangaPageID)');
-            call @changeLayerVisibility('\(visibility.value)');
+            call @changeLayerVisibility('\(visibility.rawValue)');
         }
         """
         
@@ -1009,4 +1011,309 @@ open class MangaPage: Identifiable {
     }
     
     // !!!: Word Art
+    /// Creates new word art at the given placement with the given parameters.
+    /// - Parameters:
+    ///   - placement: Where the word art is to be placed on the comic page.
+    ///   - title: The title of the word art.
+    ///   - fontName: The font name.
+    ///   - fontSize: The font size.
+    ///   - gradientColors: The color that make of the graident to fill the word art.
+    ///   - rotationDegrees: The angle to rotate the word art too.
+    ///   - shadowed: If `true`, display and shadow under the word art.
+    ///   - key: A rotation key indicating when this caption should be displayed. The default is the always display the caption.
+    ///   - visibility: The key needed to make this element visible.
+    /// - Returns: Returns self.
+    @discardableResult public func addWordArt(placement:MangaPageElementPlacement, title:String, font:ComicFonts = .TrueCrimes, fontSize:Float = 128, gradientColors:[Color] = [.purple, .green], rotationDegrees:Double = 0, shadowed:Bool = true, xOffset:Float = 0.0, yOffset:Float = 0.0, visibility:MangaLayerManager.ElementVisibility = .displayAlways, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, animation:MangaAnimation = MangaAnimation(), condition:String = "") -> MangaPage {
+        
+        // decide which of the key values should be used
+        var isVisible = visibility
+        
+        if pitch != PanoramaManager.emptyPoint || yaw != PanoramaManager.emptyPoint {
+            isVisible = .displayNothing
+        }
+        
+        // Add Word Art to given location
+        wordArt[placement.rawValue] = MangaPageWordArt(title: title, font: font, fontSize: fontSize, gradientColors: gradientColors, rotationDegrees: rotationDegrees, shadowed: shadowed, xOffset: xOffset, yOffset: yOffset, layerVisibility: isVisible, pitch: pitch, yaw: yaw, animation: animation, condition: condition)
+        
+        return self
+    }
+    
+    /// Returns the Word Art Layout Pattern for the given key value. This is used to decide if the caption layer needs to be redrawn for the panorama rotation.
+    /// - Returns: A string representing the caption layout for the given roation key.
+    public func getWordArtLayout(for layerVisibility:MangaLayerManager.ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0) -> String {
+        var result = ""
+        
+        for word in wordArt {
+            var display = "0"
+            
+            if let word = word {
+                if word.layerVisibility == MangaLayerManager.ElementVisibility.displayAlways {
+                    if MangaWorks.evaluateCondition(word.condition) {
+                        display = "1"
+                    }
+                } else if word.layerVisibility == layerVisibility {
+                    display = "1"
+                } else if PanoramaManager.targetHit(pitch: pitch, yaw: yaw, pitchLeading: word.pitchLeading, pitchTrailing: word.pitchTrailing, yawLeading: word.yawLeading, yawTrailing: word.yawTrailing) {
+                    display = "1"
+                }
+            }
+            
+            result += display
+        }
+        
+        return result
+    }
+    
+    /// Returns the Word Art for the given location and rotation key.
+    /// - Parameters:
+    ///   - placement: The location of the Word Art.
+    ///   - key: The rotation key.
+    /// - Returns: The requested Word Art or `nil`
+    public func getWordArt(at placement:MangaPageElementPlacement, for layerVisibility:MangaLayerManager.ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0) -> MangaPageWordArt? {
+        
+        let index = placement.rawValue
+        
+        guard index >= 0 && index < wordArt.count else {
+            return nil
+        }
+        
+        guard let word = wordArt[index] else {
+            return nil
+        }
+        
+        if word.layerVisibility == MangaLayerManager.ElementVisibility.displayAlways {
+            if MangaWorks.evaluateCondition(word.condition) {
+                return word
+            }
+        } else if word.layerVisibility == layerVisibility {
+            return word
+        } else if PanoramaManager.targetHit(pitch: pitch, yaw: yaw, pitchLeading: word.pitchLeading, pitchTrailing: word.pitchTrailing, yawLeading: word.yawLeading, yawTrailing: word.yawTrailing) {
+            return word
+        }
+        
+        return nil
+    }
+    
+    // !!!: Detail Images
+    /// Creates a new detailed image at the given placement with the given parameters.
+    /// - Parameters:
+    ///   - placement: Where the detail image is to be placed on the comic page.
+    ///   - imageName: The name of the image to display.
+    ///   - width: The width of the image box.
+    ///   - height: The height of the image box.
+    ///   - scale: The scale of the image.
+    ///   - shadowed: If `true`, display and shadow under the box.
+    ///   - key: A rotation key indicating when this caption should be displayed. The default is the always display the caption.
+    ///   - visibility: The key needed to display this element.
+    /// - Returns: Returns self.
+    @discardableResult public func addDetailImage(placement:MangaPageElementPlacement, imageName:String, width:Float = 400.0, height:Float = 200.0, scale:Float = 0.20, scaleDimentions:Bool = false, hasBackground:Bool = true, backgroundColor:Color = .black, shadowed:Bool = false, xOffset:Float = 0.0, yOffset:Float = 0.0, visibility:MangaLayerManager.ElementVisibility = .displayAlways, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, animation:MangaAnimation = MangaAnimation(), condition:String = "") -> MangaPage {
+        
+        // decide which of the key values should be used
+        var isVisible = visibility
+        
+        if pitch != PanoramaManager.emptyPoint || yaw != PanoramaManager.emptyPoint {
+            isVisible = .displayNothing
+        }
+        
+        // Scale dimentions too?
+        var adjustedWidth:Float = width
+        var adjustedHeight:Float = height
+        
+        if scaleDimentions {
+            adjustedWidth = width * scale
+            adjustedHeight = adjustedHeight * scale
+        }
+       
+        // Add Detail Image to the given location
+        detailImages[placement.rawValue] = MangaPageDetailImage(imageName: imageName, width: adjustedWidth, height: adjustedHeight, scale: scale, hasBackground: hasBackground, backgroundColor: backgroundColor, shadowed: shadowed, xOffset:xOffset, yOffset: yOffset, layerVisibility: isVisible, pitch: pitch, yaw: yaw, animation: animation, condition: condition)
+        
+        return self
+    }
+    
+    /// Returns the Detail Image Layout Pattern for the given key value. This is used to decide if the caption layer needs to be redrawn for the panorama rotation.
+    /// - Parameter key: The panorama rotation key.
+    /// - Returns: A string representing the caption layout for the given roation key.
+    public func getDetailImageLayout(for layerVisibility:MangaLayerManager.ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0) -> String {
+        var result = ""
+        
+        for image in detailImages {
+            var display = "0"
+            
+            if let image = image {
+                if image.layerVisibility == MangaLayerManager.ElementVisibility.displayAlways {
+                    if MangaWorks.evaluateCondition(image.condition) {
+                        display = "1"
+                    }
+                } else if image.layerVisibility == layerVisibility {
+                    display = "1"
+                } else if PanoramaManager.targetHit(pitch: pitch, yaw: yaw, pitchLeading: image.pitchLeading, pitchTrailing: image.pitchTrailing, yawLeading: image.yawLeading, yawTrailing: image.yawTrailing) {
+                    display = "1"
+                }
+            }
+            
+            result += display
+        }
+        
+        return result
+    }
+    
+    /// Returns the Detail Image for the given location and rotation key.
+    /// - Parameters:
+    ///   - placement: The location of the Detail Image.
+    ///   - key: The rotation key.
+    /// - Returns: The requested Detail Image or `nil`
+    public func getDetailImage(at placement:MangaPageElementPlacement, for layerVisibility:MangaLayerManager.ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0) -> MangaPageDetailImage? {
+        
+        let index = placement.rawValue
+        
+        guard index >= 0 && index < detailImages.count else {
+            return nil
+        }
+        
+        guard let image = detailImages[index] else {
+            return nil
+        }
+        
+        if image.layerVisibility == MangaLayerManager.ElementVisibility.displayAlways {
+            if MangaWorks.evaluateCondition(image.condition) {
+                return image
+            }
+        } else if image.layerVisibility == layerVisibility {
+            return image
+        } else if PanoramaManager.targetHit(pitch: pitch, yaw: yaw, pitchLeading: image.pitchLeading, pitchTrailing: image.pitchTrailing, yawLeading: image.yawLeading, yawTrailing: image.yawTrailing) {
+            return image
+        }
+        
+        return nil
+    }
+    
+    // !!!: Weather
+    /// Adds the given weather effect to this location.
+    /// - Parameter weather: The type of weather desired at this location.
+    /// - Returns: Returns self.
+    @discardableResult public func addWeather(weather:WeatherSystem) -> MangaPage {
+        
+        // Set weather
+        self.weather = weather
+        
+        return self
+    }
+    
+    // !!!: Page Chapter
+    /// Adds the given level to this location.
+    /// - Parameter level: The level for this location.
+    /// - Returns: Returns self.
+    @discardableResult public func addChapter(chapter:String) -> MangaPage {
+        
+        // Set level
+        self.chapter = chapter
+        
+        return self
+    }
+    
+    // !!!: Music and Sound Effects
+    /// Adds the given background music to this location.
+    /// - Parameter name: The name of the music to add.
+    /// - Returns: Returns self.
+    @discardableResult public func addBackgroundMusic(name:String) -> MangaPage {
+        
+        // Set the background music
+        backgroundMusic = name
+        
+        return self
+    }
+    
+    /// Adds the given background sound to this location.
+    /// - Parameter name: The name of the sound to add.
+    /// - Returns: Returns self.
+    @discardableResult public func addBackgroundSound(name:String) -> MangaPage {
+        
+        // Set the background music
+        backgroundSound = name
+        
+        return self
+    }
+    
+    /// Adds the given sound effect to this location
+    /// - Parameter name: The name of the sound effect.
+    /// - Returns: Returns self.
+    @discardableResult public func addSoundEffect(name:String) -> MangaPage {
+        
+        // Set the background music
+        soundEffect = name
+        
+        return self
+    }
+    
+    /// Plays any music, sound and/or sound effect attached to this location.
+    func startLocationSounds() {
+        // Background music
+        switch backgroundMusic {
+        case "":
+            SoundManager.shared.stopBackgroundMusic()
+        case "<continue>":
+            // Continue playing the current sound
+            break
+        default:
+            SoundManager.shared.startBackgroundMusic(song: backgroundMusic)
+        }
+        
+        // ßackground sounds
+        switch backgroundSound {
+        case "":
+            SoundManager.shared.stopBackgroundSound()
+        case "<continue>":
+            // Continue playing the current sound
+            break
+        default:
+            SoundManager.shared.playBackgroundSound(sound: backgroundSound)
+        }
+        
+        // Background Weather
+        if hasRainSounds {
+            let path = MangaWorks.pathTo(resource: "RainThunder", ofType: "mp3")
+            SoundManager.shared.playBackgroundWeather(path: path)
+        } else if hasLightningSound {
+            let path = MangaWorks.pathTo(resource: "RainTLightninghunder", ofType: "mp3")
+            SoundManager.shared.playBackgroundWeather(path: path)
+        } else {
+            SoundManager.shared.stopBackgroundWeather()
+        }
+        
+        // Sound effect
+        if soundEffect == "" {
+            SoundManager.shared.stopSoundEffect(channel: .channel02)
+        } else {
+            SoundManager.shared.playSoundEffect(sound: soundEffect, channel: .channel02)
+        }
+        
+        // Inform location that it has loaded
+        locationLoaded()
+    }
+    
+    // !!!: Location loading event
+    /// Defines an action to take whenever the given location is loaded into a game UI.
+    /// - Parameter action: A Grace Language script hold the action to take when the page loads.
+    /// - Returns: Returns self.
+    @discardableResult func onLoad(_ script:String) -> MangaPage {
+        onLoadAction = script
+        
+        return self
+    }
+    
+    /// Inform a location that it has been loaded in the game UI.
+    private func locationLoaded() {
+        
+        guard onLoadAction != "" else {
+            return
+        }
+        
+        Execute.onMain {
+            do {
+                try GraceRuntime.shared.run(script: self.onLoadAction)
+            } catch {
+                Log.error(subsystem: "MangaWorks", category: "MangaPage Load", "Error: \(error)")
+            }
+        }
+    }
 }

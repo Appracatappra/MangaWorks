@@ -8,10 +8,11 @@
 import Foundation
 import SwiftUI
 import Observation
+import SimpleSerializer
 
 // TODO: Cannot remove `ObservableObject` from this class.
 /// Class that holds the definition and handling of animations for layer objects (Captions, Balloons, Word Art and Detail Images).
-@Observable open class MangaAnimation: ObservableObject {
+@Observable open class MangaAnimation: ObservableObject, SimpleSerializeable {
     
     // MARK: - Properties
     /// If `true` the current item needs to be animated when displayed.
@@ -69,11 +70,54 @@ import Observation
     /// The current rotation degrees during the animation
     public var currentRotationDegrees:Double = 0.0
     
+    // MARK: - Computed Properties
+    /// The `MangaAnimation` as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.animation)
+            .append(isAnimated)
+            .append(delay)
+            .append(opacityStart)
+            .append(opacityEnd)
+            .append(xOffsetStart)
+            .append(xOffsetEnd)
+            .append(yOffsetStart)
+            .append(yOffsetEnd)
+            .append(rotationDegreesStart)
+            .append(rotationDegreesEnd)
+            .append(repeats)
+            .append(cycles)
+            .append(autoReverse)
+            .append(duration)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new empty instance of the object.
     public init() {
         // Initialize
         self.isAnimated = false
+    }
+    
+    /// Creates a new instance
+    /// - Parameter value: A serialized string representing the `MangaAnimation`.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.animation)
+        
+        self.isAnimated = deserializer.bool()
+        self.delay = deserializer.double()
+        self.opacityStart = deserializer.double()
+        self.opacityEnd = deserializer.double()
+        self.xOffsetStart = deserializer.cgFloat()
+        self.xOffsetEnd = deserializer.cgFloat()
+        self.yOffsetStart = deserializer.cgFloat()
+        self.yOffsetEnd = deserializer.cgFloat()
+        self.rotationDegreesStart = deserializer.double()
+        self.rotationDegreesEnd = deserializer.double()
+        self.repeats = deserializer.bool()
+        self.cycles = deserializer.int()
+        self.autoReverse = deserializer.bool()
+        self.duration = deserializer.double()
     }
     
     /// Creates a new instance of the object with the given values.

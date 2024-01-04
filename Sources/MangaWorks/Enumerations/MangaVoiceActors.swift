@@ -8,9 +8,9 @@
 import Foundation
 
 /// The voice to read any text in for a manga page.
-public enum MangaVoiceActors {
+public enum MangaVoiceActors: Int {
     /// In the narrator's voice.
-    case narrator
+    case narrator = 0
     
     /// In the electronic voice.
     case electronics
@@ -26,4 +26,15 @@ public enum MangaVoiceActors {
     
     /// In the female two voice.
     case femaleTwo
+    
+    // MARK: - Functions
+    /// Gets the value from an `Int` and defaults to `narrator` if the conversion is invalid.
+    /// - Parameter value: The value holding the Int to convert.
+    public mutating func from(_ value:Int) {
+        if let enumeration = MangaVoiceActors(rawValue: value) {
+            self = enumeration
+        } else {
+            self = .narrator
+        }
+    }
 }

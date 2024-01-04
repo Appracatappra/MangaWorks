@@ -11,9 +11,10 @@ import Observation
 import SwiftletUtilities
 import GraceLanguage
 import SwiftUIPanoramaViewer
+import SimpleSerializer
 
 /// Hold information about a piece of word art that can be displayed on a manga page.
-@Observable open class MangaPageWordArt {
+@Observable open class MangaPageWordArt: SimpleSerializeable {
     
     // MARK: - Properties
     /// The text of the word art to display.
@@ -68,6 +69,28 @@ import SwiftUIPanoramaViewer
         return MangaWordArtView(title: title, font: font, fontSize: fontSize * HardwareInformation.deviceRatioWidth, gradientColors: gradientColors, rotationDegrees: rotationDegrees, shadowed: shadowed, xOffset: xOffset * HardwareInformation.deviceRatioWidth, yOffset: yOffset * HardwareInformation.deviceRatioWidth).environmentObject(animation)
     }
     
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.wordArt)
+            .append(title)
+            .append(font)
+            .append(fontSize)
+            .append(array: gradientColors, divider: Divider.colors)
+            .append(rotationDegrees)
+            .append(shadowed)
+            .append(xOffset)
+            .append(yOffset)
+            .append(layerVisibility)
+            .append(condition, isBase64Encoded: true)
+            .append(pitchLeading)
+            .append(pitchTrailing)
+            .append(yawLeading)
+            .append(yawTrailing)
+            .append(animation)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance
     /// - Parameters:
@@ -101,5 +124,27 @@ import SwiftUIPanoramaViewer
         self.yawTrailing = PanoramaManager.trailingTarget(yaw)
         self.animation = animation
         self.condition = condition
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A string representing the serialized object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.wordArt)
+        
+        self.title = deserializer.string()
+        self.font.from(deserializer.string())
+        self.fontSize = deserializer.float()
+        self.gradientColors = deserializer.array(divider: Divider.colors)
+        self.rotationDegrees = deserializer.double()
+        self.shadowed = deserializer.bool()
+        self.xOffset = deserializer.float()
+        self.yOffset = deserializer.float()
+        self.layerVisibility.from(deserializer.int())
+        self.condition = deserializer.string(isBase64Encoded: true)
+        self.pitchLeading = deserializer.float()
+        self.pitchTrailing = deserializer.float()
+        self.yawLeading = deserializer.float()
+        self.yawTrailing = deserializer.float()
+        self.animation = deserializer.child()
     }
 }

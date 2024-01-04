@@ -11,13 +11,14 @@ import Observation
 import SwiftletUtilities
 import GraceLanguage
 import SwiftUIPanoramaViewer
+import SimpleSerializer
 
 /// Holds information about a navigation point on a Manga Panorama Page.
-open class MangaPageNavigationPoint {
+open class MangaPageNavigationPoint: SimpleSerializeable {
     
     // MARK: - Properties
     /// A tag representing the action taken when this navigation point is triggered.
-    public var tag:String
+    public var tag:String = ""
     
     /// The layer visibility for this navigation point.
     public var layerVisibility:MangaLayerManager.ElementVisibility = .displayNothing
@@ -40,6 +41,22 @@ open class MangaPageNavigationPoint {
     /// A condition written in the Grace Language that must be met before the navigation is active.
     public var condition:String = ""
     
+    // MARK: - Computed Properties
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.navigationPoint)
+            .append(tag)
+            .append(layerVisibility)
+            .append(soundEffect)
+            .append(pitchLeading)
+            .append(pitchTrailing)
+            .append(yawLeading)
+            .append(yawTrailing)
+            .append(condition, isBase64Encoded: true)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
@@ -59,5 +76,20 @@ open class MangaPageNavigationPoint {
         self.yawLeading = PanoramaManager.leadingTarget(yaw)
         self.yawTrailing = PanoramaManager.trailingTarget(yaw)
         self.condition = condition
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.navigationPoint)
+        
+        self.tag = deserializer.string()
+        self.layerVisibility.from(deserializer.int())
+        self.soundEffect = deserializer.string()
+        self.pitchLeading = deserializer.float()
+        self.pitchTrailing = deserializer.float()
+        self.yawLeading = deserializer.float()
+        self.yawTrailing = deserializer.float()
+        self.condition = deserializer.string(isBase64Encoded: true)
     }
 }

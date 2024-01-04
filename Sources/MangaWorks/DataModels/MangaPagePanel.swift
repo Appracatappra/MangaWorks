@@ -10,9 +10,10 @@ import SwiftUI
 import Observation
 import SwiftletUtilities
 import GraceLanguage
+import SimpleSerializer
 
 /// Adds an image to a Manga Page Panel.
-@Observable open class MangaPagePanel {
+@Observable open class MangaPagePanel: SimpleSerializeable {
     
     // MARK: - Enumerations
     /// Where the Image should display inside of the panel.
@@ -43,6 +44,17 @@ import GraceLanguage
         
         /// The bottom trailing postion.
         case bottomTrailing
+        
+        // MARK: - Functions
+        /// Gets the value from an `Int` and defaults to `topLeading` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = ImagePlacement(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .topLeading
+            }
+        }
     }
     
     // MARK: - Properties
@@ -79,7 +91,7 @@ import GraceLanguage
     /// A condition written in Grace Language that must evaluate to `true` for this panel to display.
     public var condition:String = ""
     
-    // MARK: - Conditional Properties
+    // MARK: - Computed Properties
     /// The calculated image scale width.
     private var imageWidthScaleDraw:CGFloat {
         return CGFloat(imageWidthScale * HardwareInformation.deviceRatioWidth)
@@ -109,7 +121,38 @@ import GraceLanguage
         }
     }
     
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.pagePanel)
+            .append(title)
+            .append(imageName)
+            .append(imageWidthScale)
+            .append(imageHeightScale)
+            .append(imageAnchor)
+            .append(offsetHorizontal)
+            .append(offsetVertical)
+            .append(backgroundColor)
+            .append(widthScale)
+            .append(heightScale)
+            .append(condition, isBase64Encoded: true)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
+    /// Creates a new instance.
+    /// - Parameters:
+    ///   - title: The title of the panel.
+    ///   - imageName: The name  of the image to display in the panel.
+    ///   - imageWidthScale: The image scale width.
+    ///   - imageHeightScale: The image scale height.
+    ///   - imageAnchor: The image anchor point inside of the panel.
+    ///   - offsetHorizontal: The panel horizontal offset.
+    ///   - offsetVertical: The panel vertical offset.
+    ///   - backgroundColor: The panel background color.
+    ///   - widthScale: The panel width scale.
+    ///   - heightScale: The panel height scale.
+    ///   - condition: A condition written in Grace Language that must evaluate to `true` for this panel to display.
     public init(title:String = "", imageName:String = "", imageWidthScale:Float = 1.0, imageHeightScale:Float = 1.0, imageAnchor:ImagePlacement = .topLeading, offsetHorizontal:CGFloat = 0.0, offsetVertical:CGFloat = 0.0, backgroundColor:Color = .black, widthScale:Float = 1.0, heightScale:Float = 0.0, condition:String = "") {
         // Initialize
         self.title = title
@@ -123,6 +166,24 @@ import GraceLanguage
         self.offsetHorizontal = offsetHorizontal
         self.offsetVertical = offsetVertical
         self.condition = condition
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.pagePanel)
+        
+        self.title = deserializer.string()
+        self.imageName = deserializer.string()
+        self.imageWidthScale = deserializer.float()
+        self.imageHeightScale = deserializer.float()
+        self.imageAnchor.from(deserializer.int())
+        self.offsetHorizontal = deserializer.cgFloat()
+        self.offsetVertical = deserializer.cgFloat()
+        self.backgroundColor = deserializer.color()
+        self.widthScale = deserializer.cgFloat()
+        self.heightScale = deserializer.cgFloat()
+        self.condition = deserializer.string(isBase64Encoded: true)
     }
     
     // MARK: - Functions

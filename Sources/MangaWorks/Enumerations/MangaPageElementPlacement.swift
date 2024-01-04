@@ -44,4 +44,15 @@ public enum MangaPageElementPlacement: Int {
     
     /// Bottom trailing placement.
     case bottomTrailing
+    
+    // MARK: - Functions
+    /// Gets the value from an `Int` and defaults to `topLeading` if the conversion is invalid.
+    /// - Parameter value: The value holding the Int to convert.
+    public mutating func from(_ value:Int) {
+        if let enumeration = MangaPageElementPlacement(rawValue: value) {
+            self = enumeration
+        } else {
+            self = .topLeading
+        }
+    }
 }

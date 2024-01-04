@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Appracatappra/SimpleSerializer",
       "state" : {
-        "revision" : "2a204c6ecf9056d6b7ce206b095ccd871eeff0a7",
-        "version" : "1.0.5"
+        "revision" : "991992fa74858ab700f5edcad94e654c92feb0bf",
+        "version" : "1.0.8"
       }
     },
     {

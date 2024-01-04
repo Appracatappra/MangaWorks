@@ -39,6 +39,16 @@ public enum ComicFonts:String {
     case strasua = "Strasua-Regular"
     
     // MARK: - Functions
+    /// Gets the value from a string and defaults to `Komica` if the conversion is invalid.
+    /// - Parameter value: The string to convert.
+    public mutating func from(_ value:String) {
+        if let enumeration = ComicFonts(rawValue: value) {
+            self = enumeration
+        } else {
+            self = .Komika
+        }
+    }
+    
     /// Returns a custom font of the requested size.
     /// - Parameter size: The size of the font to return.
     /// - Returns: The requested font in the requested size.

@@ -9,11 +9,12 @@ import Foundation
 import SwiftUI
 import Observation
 import GraceLanguage
+import SimpleSerializer
 
 /// Holds a symbol that can be entered by the play to gain access to a feature of a given manga page.
 /// The symbol can be represented by a series of 1's and 0's in the form: "1111|0110|0110|1111".
-@Observable open class MangaPageSymbol {
-    
+@Observable open class MangaPageSymbol:SimpleSerializeable {
+   
     // MARK: - Properties
     /// The title to display in the symbol entry editor.
     public var title:String = ""
@@ -30,6 +31,19 @@ import GraceLanguage
     /// The Grace Langruage script to execute if the user enters the symbol correctly.
     public var action:String = ""
     
+    // MARK: - Computed Properties
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.pageSymbol)
+            .append(title)
+            .append(symbolValue)
+            .append(failMangaPageID)
+            .append(succeedMangaPageID)
+            .append(action, isBase64Encoded: true)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
@@ -45,5 +59,17 @@ import GraceLanguage
         self.failMangaPageID = failLocation
         self.succeedMangaPageID = succeedLocation
         self.action = action
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.pageSymbol)
+        
+        self.title = deserializer.string()
+        self.symbolValue = deserializer.string()
+        self.failMangaPageID = deserializer.string()
+        self.succeedMangaPageID = deserializer.string()
+        self.action = deserializer.string(isBase64Encoded: true)
     }
 }
