@@ -19,14 +19,14 @@ public struct MangaPageContainerView<Content: View>: View {
     /// Creates a new instance.
     /// - Parameters:
     ///   - uniqueID: The unique ID of the container used to tie in gamepad support.
-    ///   - isGamepadRequired: If `true`, a gamepad is required to run the app.
+    ///   - isGamepadConnected: If `true`, a gamepad is connected to this device.
     ///   - isFullPage: If `true` this is a "full page" view without the border, such as the cover or back page of the manga.
     ///   - borderColor: The page border color.
     ///   - backgroundColor: The page background color.
     ///   - content: The contents to display in the manga page.
-    public init(uniqueID: String = "MangaPage", isGamepadRequired: Bool = false, isFullPage: Bool = false, borderColor: Color = .black, backgroundColor: Color = .white, @ViewBuilder content: @escaping () -> Content) {
+    public init(uniqueID: String = "MangaPage", isGamepadConnected: Bool = false, isFullPage: Bool = false, borderColor: Color = .black, backgroundColor: Color = .white, @ViewBuilder content: @escaping () -> Content) {
         self.uniqueID = uniqueID
-        self.isGamepadRequired = isGamepadRequired
+        self.isGamepadConnected = isGamepadConnected
         self.isFullPage = isFullPage
         self.borderColor = borderColor
         self.backgroundColor = backgroundColor
@@ -37,8 +37,8 @@ public struct MangaPageContainerView<Content: View>: View {
     /// The unique ID of the container used to tie in gamepad support.
     public var uniqueID:String = "MangaPage"
     
-    /// If `true`, a gamepad is required to run the app.
-    public var isGamepadRequired:Bool = false
+    /// If `true`, a gamepad is connected to this device.
+    public var isGamepadConnected:Bool = false
     
     /// If `true` this is a "full page" view without the border, such as the cover or back page of the manga.
     public var isFullPage:Bool = false
@@ -54,12 +54,6 @@ public struct MangaPageContainerView<Content: View>: View {
     
     /// Holds the current device screen orientation.
     @State private var orientation = HardwareInformation.deviceOrientation
-    
-    /// If `true`, show the gamepad help screen.
-    @State private var showGamepadHelp:Bool = false
-    
-    /// if `true`, a gamepad is connected to the device the app is running on.
-    @State private var isGamepadConnected:Bool = false
     
     // MARK: - Computed Properties
     /// Gets the inset for the comic page.
@@ -80,26 +74,6 @@ public struct MangaPageContainerView<Content: View>: View {
             .onRotate { newOrientation in
                 Execute.onMain {
                     orientation = newOrientation
-                }
-            }
-            .onAppear {
-                connectGamepad(viewID: uniqueID, handler: { controller, gamepadInfo in
-                    isGamepadConnected = true
-                    buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
-                })
-            }
-            .onDisappear {
-                disconnectGamepad(viewID: uniqueID)
-            }
-            .onGampadAppBecomingActive(viewID: uniqueID) {
-                reconnectGamepad()
-            }
-            .onGamepadDisconnected(viewID: uniqueID) { controller, gamepadInfo in
-                isGamepadConnected = false
-            }
-            .onGamepadButtonA(viewID: uniqueID) { isPressed in
-                if isPressed {
-                    showGamepadHelp = !showGamepadHelp
                 }
             }
     }
@@ -154,28 +128,7 @@ public struct MangaPageContainerView<Content: View>: View {
             
             // Display the page view
             portraitBody()
-            
-            // Display gamepad help
-            if showGamepadHelp {
-                GamepadHelpOverlay()
-            }
-            
-            // Display gamepad required.
-            if isGamepadRequired && !isGamepadConnected {
-                GamepadRequiredOverlay()
-            }
         }
-        #if os(tvOS)
-        .onMoveCommand { direction in
-            //Debug.info(subsystem: "MangaPageContainerView", category: "mainContents", "AppleTV Move: \(direction)")
-        }
-        .onExitCommand {
-            //Debug.info(subsystem: "MangaPageContainerView", category: "mainContents", "AppleTV Exit")
-        }
-        .onPlayPauseCommand {
-            //Debug.info(subsystem: "MangaPageContainerView", category: "mainContents", "AppleTV Play/Pause")
-        }
-        #endif
     }
     
     /// Draws the portrait version of the manga page.

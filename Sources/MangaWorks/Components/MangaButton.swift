@@ -164,10 +164,10 @@ public struct MangaButton: View {
     /// - Returns: The `View` containing the button's contents.
     @ViewBuilder public func Contents() -> some View {
         MangaWordArtView(title: title, font: font, fontSize: fontSize, gradientColors: gradientColors, rotationDegrees: rotationDegrees, shadowed: shadowed)
+            .environmentObject(MangaAnimation())
     }
 }
 
 #Preview {
     MangaButton(title: "Test")
-        .environmentObject(MangaAnimation())
 }

@@ -29,22 +29,28 @@ open class MangaWorks {
     public static var actionFontColor:Color = .white
     
     /// The default background color for Manga Actions.
-    public static var actionBackgroundColor:Color = Color(fromHex: "#8D52AF") ?? .systemGray
+    public static var actionBackgroundColor:Color = Color(fromHex: "#8D52AF")!
     
     /// The default selected color for Manga Actions.
-    public static var actionSelectedBackgroundColor:Color = Color(fromHex: "#EB244F") ?? .systemGray2
+    public static var actionSelectedBackgroundColor:Color = Color(fromHex: "#EB244F")!
     
     /// The default border color for Manga Actions.
-    public static var actionBorderColor:Color = Color(fromHex: "#533169") ?? .systemGray3
+    public static var actionBorderColor:Color = Color(fromHex: "#533169")!
     
     /// The default selected border color for Manga Actions.
     public static var actionSelectedBorderColor:Color = .white
     
     /// The default foreground color for Manga Actions.
-    public static var actionForegroundColor:Color = Color(fromHex: "#8D52AF") ?? .systemGray5
+    public static var actionForegroundColor:Color = Color(fromHex: "#8D52AF")!
     
     /// The default highlight color for Manga Actions.
-    public static var actionHighlightColor:Color = Color(fromHex: "#EB004F") ?? .systemGray6
+    public static var actionHighlightColor:Color = Color(fromHex: "#EB004F")!
+    
+    /// The default menu gradient colors.
+    public static var menuGradient:[Color] = [Color(fromHex: "8D43C3")!, Color(fromHex: "8D43C3")!]
+    
+    /// The default menu selected gradient colors.
+    public static var menuSelectedGradient:[Color] = [Color(fromHex: "#EB004F")!, Color(fromHex: "#EB004F")!]
     
     // MARK: - Static Functions
     /// Gets the path to the requested resource stored in the Swift Package's Bundle.
