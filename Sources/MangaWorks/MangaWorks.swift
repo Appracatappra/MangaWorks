@@ -6,6 +6,7 @@ import Foundation
 import SwiftUI
 import LogManager
 import GraceLanguage
+import SoundManager
 
 /// A utility for working with resources stored inside of this Swift Package.
 open class MangaWorks {
@@ -124,5 +125,14 @@ open class MangaWorks {
             Log.error(subsystem: "MangaWorks", category: "ExpandMacros", "Error: \(error)")
             return text
         }
+    }
+    
+    /// Registers unctions with the Grace Language so they are available in MangaWorks Grace Scripts
+    public static func registerGraceFunctions() {
+        
+        // Register all the required scripts
+        SoundManager.registerGraceFunctions()
+        MangaBook.registerGraceFunctions()
+        MangaChapter.registerGraceFunctions()
     }
 }

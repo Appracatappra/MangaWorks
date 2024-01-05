@@ -19,12 +19,21 @@
       }
     },
     {
+      "identity" : "odrmanager",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Appracatappra/ODRManager.git",
+      "state" : {
+        "revision" : "e94ea40eeb681c5ef1f36d60f50c26be78986aa4",
+        "version" : "1.0.1"
+      }
+    },
+    {
       "identity" : "simpleserializer",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Appracatappra/SimpleSerializer",
       "state" : {
-        "revision" : "991992fa74858ab700f5edcad94e654c92feb0bf",
-        "version" : "1.0.8"
+        "revision" : "ebe70ed566455074c030def7d0de05c4a14b6a53",
+        "version" : "1.0.10"
       }
     },
     {

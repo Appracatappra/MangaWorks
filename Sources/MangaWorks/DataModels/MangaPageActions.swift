@@ -10,18 +10,30 @@ import SwiftUI
 import Observation
 import SwiftletUtilities
 import GraceLanguage
+import SimpleSerializer
 
 /// Holds a collection of actions that the user can take on a given Manga Page.
-@Observable open class MangaPageActions {
+@Observable open class MangaPageActions: SimpleSerializeable {
     
     // MARK: - Enumerations
     /// Defines which side of the `MangaActionsView` box the item appears.
-    public enum ActionChoiceSide {
+    public enum ActionChoiceSide: Int {
         /// The action will appear on the left side.
-        case left
+        case left = 0
         
         /// The action will appear on the right side.
         case right
+        
+        // MARK: - Functions
+        /// Gets the value from an `Int` and defaults to `left` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = ActionChoiceSide(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .left
+            }
+        }
     }
     
     // MARK: - Properties
@@ -37,6 +49,18 @@ import GraceLanguage
     /// The maximum number of actions to display in the `MangaActionsView`.
     public var maxEntries:Int = 2
     
+    // MARK: - Computed Properties
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.pageActions)
+            .append(title)
+            .append(children: leftSide, divider: Divider.actionDivider)
+            .append(children: rightSide, divider: Divider.actionDivider)
+            .append(maxEntries)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
@@ -46,6 +70,17 @@ import GraceLanguage
         // Initialize
         self.title = title
         self.maxEntries = maxEntries
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.pageActions)
+        
+        self.title = deserializer.string()
+        self.leftSide = deserializer.children(divider: Divider.actionDivider)
+        self.rightSide = deserializer.children(divider: Divider.actionDivider)
+        self.maxEntries = deserializer.int()
     }
     
     // MARK: - Functions
@@ -98,9 +133,12 @@ import GraceLanguage
         }
         
         let script:String = """
+        import StandardLib;
+        import StringLib;
+        
         main {
             call @playSoundEffect('\(soundEffect)', 3);
-            call @adjustPoints(\(points));
+            call @adjustIntState('points', \(points));
             call @changePage('\(nextMangaPageID)');
         }
         """

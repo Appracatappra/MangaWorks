@@ -11,19 +11,33 @@ import Observation
 import SwiftletUtilities
 import GraceLanguage
 import SwiftUIPanoramaViewer
+import SimpleSerializer
 
 /// Hold information about an interactive touch zone on a comic page that forms a virtual button.
-open class MangaPageTouchZone {
+open class MangaPageTouchZone: SimpleSerializeable {
     
     // MARK: - Properties
     /// A tag representing the action taken when this button is tapped.
-    public var tag:String
+    public var tag:String = ""
     
     /// The top left corner of the touch zone.
-    public var topCorner:CGPoint
+    public var topCorner:CGPoint = CGPointZero
     
     /// The bottom right corner of the touch zone.
-    public var bottomCorner:CGPoint
+    public var bottomCorner:CGPoint = CGPointZero
+    
+    // MARK: - Computed Properties
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.touchZone)
+            .append(tag)
+            .append(topCorner.x)
+            .append(topCorner.y)
+            .append(bottomCorner.x)
+            .append(bottomCorner.y)
+        
+        return serializer.value
+    }
     
     // MARK: - Initializers
     /// Creates a new instance of the touch zone with the given parameters.
@@ -38,6 +52,16 @@ open class MangaPageTouchZone {
         self.tag = tag
         self.topCorner = CGPoint(x: x1, y: y1)
         self.bottomCorner = CGPoint(x: x2, y: y2)
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.touchZone)
+        
+        self.tag = deserializer.string()
+        self.topCorner = CGPoint(x: deserializer.double(), y: deserializer.double())
+        self.bottomCorner = CGPoint(x: deserializer.double(), y: deserializer.double())
     }
     
     // MARK: - Functions

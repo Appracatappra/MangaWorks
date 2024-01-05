@@ -11,9 +11,10 @@ import Observation
 import SwiftletUtilities
 import GraceLanguage
 import SwiftUIPanoramaViewer
+import SimpleSerializer
 
 /// Holds a caption that can be displayed on a Manga Page.
-@Observable open class MangaPageCaption {
+@Observable open class MangaPageCaption: SimpleSerializeable {
     
     // MARK: - Properties
     /// The caption to display.
@@ -71,6 +72,29 @@ import SwiftUIPanoramaViewer
         return MangaCaptionView(caption: caption, font:font, fontSize: fontSize * HardwareInformation.deviceRatioWidth, fontColor: fontColor, backgroundColor: backgroundColor, boxWidth: boxWidth * HardwareInformation.deviceRatioWidth, xOffset: xOffset * HardwareInformation.deviceRatioWidth, yOffset: yOffset * HardwareInformation.deviceRatioHeight).environmentObject(animation)
     }
     
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.pageCaption)
+            .append(caption)
+            .append(font)
+            .append(fontSize)
+            .append(fontColor)
+            .append(backgroundColor)
+            .append(boxWidth)
+            .append(xOffset)
+            .append(yOffset)
+            .append(layerVisibility)
+            .append(condition, isBase64Encoded: true)
+            .append(pitchLeading)
+            .append(pitchTrailing)
+            .append(yawLeading)
+            .append(yawTrailing)
+            .append(animation)
+            .append(actor)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     public init(actor:MangaVoiceActors = .narrator, caption:String, font:ComicFonts = .KomikaTight, fontSize:Float = 24, fontColor:Color = Color.black, backgroundColor:Color = Color.white, boxWidth:Float = 200.0, xOffset:Float = 0.0, yOffset:Float = 0.0, layerVisibility:MangaLayerManager.ElementVisibility = .displayAlways, pitch:Float = 0.0, yaw:Float = 0.0, animation:MangaAnimation = MangaAnimation(), condition:String = "") {
         // Initialize
@@ -92,4 +116,26 @@ import SwiftUIPanoramaViewer
         self.condition = condition
     }
     
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.pageCaption)
+        
+        self.caption = deserializer.string()
+        self.font.from(deserializer.string())
+        self.fontSize = deserializer.float()
+        self.fontColor = deserializer.color()
+        self.backgroundColor = deserializer.color()
+        self.boxWidth = deserializer.float()
+        self.xOffset = deserializer.float()
+        self.yOffset = deserializer.float()
+        self.layerVisibility.from(deserializer.int())
+        self.caption = deserializer.string(isBase64Encoded: true)
+        self.pitchLeading = deserializer.float()
+        self.pitchTrailing = deserializer.float()
+        self.yawLeading = deserializer.float()
+        self.yawLeading = deserializer.float()
+        self.animation = deserializer.child()
+        self.actor.from(deserializer.int())
+    }
 }

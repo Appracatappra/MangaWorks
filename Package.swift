@@ -24,13 +24,14 @@ let package = Package(
         .package(url: "https://github.com/Appracatappra/SpeechManager", .upToNextMajor(from: "1.0.4")),
         .package(url: "https://github.com/Appracatappra/SwiftUIGamepad.git", .upToNextMajor(from: "1.0.3")),
         .package(url: "https://github.com/Appracatappra/SwiftUIPanoramaViewer.git", .upToNextMajor(from: "1.0.0")),
+        .package(url: "https://github.com/Appracatappra/ODRManager.git", .upToNextMajor(from: "1.0.1")),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "MangaWorks",
-            dependencies: ["LogManager", "SwiftletUtilities", "SoundManager", "SimpleSerializer", "GraceLanguage", "SwiftUIKit", "SpeechManager", "SwiftUIGamepad", "SwiftUIPanoramaViewer"],
+            dependencies: ["LogManager", "SwiftletUtilities", "SoundManager", "SimpleSerializer", "GraceLanguage", "SwiftUIKit", "SpeechManager", "SwiftUIGamepad", "SwiftUIPanoramaViewer", "ODRManager"],
             resources: [.process("Resources"), .process("Fonts"), .process("Sprites")]
         ),
         .testTarget(

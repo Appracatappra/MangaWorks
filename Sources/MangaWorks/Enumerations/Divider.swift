@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Holds all of the divider characters used in Serializing/Deserializing Maga Page data using the `SimpleSerializer`.
 public enum Divider:String, Codable {
     case animation = "Ω"
     case wordArt = "≈"
@@ -20,5 +21,15 @@ public enum Divider:String, Codable {
     case hint = "÷"
     case detailImage = "æ"
     case action = "¬"
+    case actionDivider = "∆"
     case conversation = "˚"
+    case pageCaption = "˙"
+    case pageActions = "ƒ"
+    case page = "∂"
+    case pageElements = "«"
+    case pages = "≠"
+    case touchZone = "ß"
+    case chapter = "å"
+    case chapters = "ø"
+    case mangaBook = "¥"
 }

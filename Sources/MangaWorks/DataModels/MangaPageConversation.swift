@@ -10,9 +10,10 @@ import SwiftUI
 import Observation
 import SwiftletUtilities
 import GraceLanguage
+import SimpleSerializer
 
 /// Holds a conversation that a player can have with a character at a given Manga Page with all of the possible actions the player can take.
-@Observable open class MangaPageConversation {
+@Observable open class MangaPageConversation: SimpleSerializeable {
     
     // MARK: - Enumerations
     /// Defines which side of the `MangaConversationView` box the item appears.
@@ -63,6 +64,22 @@ import GraceLanguage
     /// The default layer element visibility for this conversation.
     public var visibility:MangaLayerManager.ElementVisibility = .displayNothing
     
+    // MARK: - Computed Properties
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.conversation)
+            .append(actor)
+            .append(portrait)
+            .append(name)
+            .append(message)
+            .append(children: leftSide, divider: Divider.actionDivider)
+            .append(children: rightSide, divider: Divider.actionDivider)
+            .append(maxEntries)
+            .append(visibility)
+        
+        return serializer.value
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
@@ -82,6 +99,21 @@ import GraceLanguage
         self.message = message
         self.maxEntries = maxEntries
         self.visibility = visibility
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.conversation)
+        
+        self.actor.from(deserializer.int())
+        self.portrait = deserializer.string()
+        self.name = deserializer.string()
+        self.message = deserializer.string()
+        self.leftSide = deserializer.children(divider: Divider.actionDivider)
+        self.rightSide = deserializer.children(divider: Divider.actionDivider)
+        self.maxEntries = deserializer.int()
+        self.visibility.from(deserializer.int())
     }
     
     // MARK: - Functions
@@ -134,9 +166,12 @@ import GraceLanguage
         }
         
         let script:String = """
+        import StandardLib;
+        import StringLib;
+        
         main {
             call @playSoundEffect('\(soundEffect)', 3);
-            call @adjustPoints(\(points));
+            call @adjustIntState('points', \(points));
             call @changePage('\(nextMangaPageID)');
         }
         """
@@ -171,7 +206,7 @@ import GraceLanguage
         
         let script:String = """
         main {
-            call @inlineConversation('displayNothing');
+            call @changeLayerVisibility(0);
         }
         """
         

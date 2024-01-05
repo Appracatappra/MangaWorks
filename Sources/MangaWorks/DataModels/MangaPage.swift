@@ -13,9 +13,10 @@ import GraceLanguage
 import SwiftUIPanoramaViewer
 import SwiftUI
 import SoundManager
+import SimpleSerializer
 
 /// Holds all of the information about a Manga Page that can be display and interacted with using MangaWorks tools.
-open class MangaPage: Identifiable {
+open class MangaPage: Identifiable, SimpleSerializeable {
     
     // MARK: - Static Properties
     /// Defines the default background music that will be applied to any new location created.
@@ -70,7 +71,7 @@ open class MangaPage: Identifiable {
         }
         
         // Tweak some words and phrases for speach synthesys.
-        var phrase = expandedText.replacingOccurrences(of: "Cyberbrain", with: "Cyber-Brain")
+        let phrase = expandedText.replacingOccurrences(of: "Cyberbrain", with: "Cyber-Brain")
         
         switch inVoice {
         case .narrator:
@@ -137,83 +138,114 @@ open class MangaPage: Identifiable {
         
         // This location has sparkles.
         case bokeh
+        
+        // MARK: - Functions
+        /// Gets the value from an `Int` and defaults to `clear` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = WeatherSystem(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .clear
+            }
+        }
+    }
+    
+    /// Defines the type of page that a `MangaPage` is holding.
+    public enum PageType: Int {
+        /// The page is a simple full page image.
+        case fullPageImage = 0
+        
+        /// The page is a collection of image panels.
+        case panelsPage
+        
+        /// The page contains an interactive panorama.
+        case panoramaPage
+        
+        // MARK: - Functions
+        /// Gets the value from an `Int` and defaults to `clear` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = PageType(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .panelsPage
+            }
+        }
     }
     
     // MARK: - Properties
     /// The unique ID of the page.
     public var id:String = ""
     
-    /// The name of the page's image.
-    var imageName:String = ""
+    /// The type of page this `MangaPage` is representing.
+    public var pageType:PageType = .panelsPage
     
-    /// The name of the panorama to display for the given page.
-    var panoramaName:String = ""
+    /// The name of the full page image or panorama image to be displayed.
+    public var imageName:String = ""
     
     /// The type of weather occurring at the given page.
-    var weather:WeatherSystem = .clear
+    public var weather:WeatherSystem = .clear
     
     /// The page's title.
-    var title:String = ""
+    public var title:String = ""
     
     /// The page number.
-    var pageNumber:Int = 0
+    public var pageNumber:Int = 0
     
     /// The name of the background music that should be played for this page.
-    var backgroundMusic:String = ""
+    public var backgroundMusic:String = ""
     
     /// The name of a background sound that should be played for this page.
-    var backgroundSound:String = ""
+    public var backgroundSound:String = ""
     
     /// The name of a sound effect that should be played when this page is first entered.
-    var soundEffect:String = ""
+    public var soundEffect:String = ""
     
     /// The chapter for the page.
-    var chapter:String = ""
+    public var chapter:String = ""
     
     /// Links to the previous panel page.
-    var previousPage:String = ""
+    public var previousPage:String = ""
     
     /// Links to the next panel page
-    var nextPage:String = ""
-    
-    /// Links to the next panorama page.
-    var nextPanoramaPage:String = ""
+    public var nextPage:String = ""
     
     /// Defines the resource tag that holds the resources required for this page.
-    var loadResourceTag:String = ""
+    public var loadResourceTag:String = ""
     
     /// Defines the resource tag that should be released when this page loads.
-    var releaseResourceTag:String = ""
+    public var releaseResourceTag:String = ""
     
     /// Defines a resource tag that should be prefetched when this page loads.
-    var prefetchResourceTag:String = ""
+    public var prefetchResourceTag:String = ""
     
     /// A collection of touch points for the page move image.
-    var zones:[MangaPageTouchZone] = []
+    public var zones:[MangaPageTouchZone] = []
     
     /// A collection of captions with placeholders for the given captions at each of the 12 possible placement locations.
-    var captions:[MangaPageCaption?] = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+    public var captions:[MangaPageCaption?] = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
     
     /// A collection of balloons with placeholders for the given balloon at each of the 12 possible placement locations.
-    var balloons:[MangaPageSpeechBalloon?] = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+    public var balloons:[MangaPageSpeechBalloon?] = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
     
     /// A collection of word art objects with placeholders for the given object at each of the 12 possible placement locations.
-    var wordArt:[MangaPageWordArt?] = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+    public var wordArt:[MangaPageWordArt?] = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
     
     /// A collection of detail images with placeholders for the given image at each of the 12 possible placement locations.
-    var detailImages:[MangaPageDetailImage?] = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+    public var detailImages:[MangaPageDetailImage?] = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
     
     /// Holds all of the navigation points for this page.
-    var navigationPoints:[MangaPageNavigationPoint] = []
+    public var navigationPoints:[MangaPageNavigationPoint] = []
     
     /// Holds all of the interaction points for this page.
-    var interactions:[MangaPageInteraction] = []
+    public var interactions:[MangaPageInteraction] = []
     
     /// A collection of panels with placeholders for the given panel at each of the 12 possible placement locations.
-    var panels:[MangaPagePanel?] = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
+    public var panels:[MangaPagePanel?] = [nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
     
     /// A set of user interactions for this manga page.
-    var actions:MangaPageActions? = nil
+    public var actions:MangaPageActions? = nil
     
     /// A set of manga page conversation options for the first slot.
     public var conversationA:MangaPageConversation? = nil
@@ -261,6 +293,50 @@ open class MangaPage: Identifiable {
     public var lastReadBallons:String = ""
     
     // MARK: - Computed Properties
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.page)
+            .append(id)
+            .append(pageType)
+            .append(imageName)
+            .append(weather)
+            .append(title)
+            .append(pageNumber)
+            .append(backgroundMusic)
+            .append(backgroundSound)
+            .append(soundEffect)
+            .append(chapter)
+            .append(previousPage)
+            .append(nextPage)
+            .append(loadResourceTag)
+            .append(releaseResourceTag)
+            .append(prefetchResourceTag)
+            .append(children: zones, divider: Divider.pageElements)
+            .append(children: captions, divider: Divider.pageElements)
+            .append(children: balloons, divider: Divider.pageElements)
+            .append(children: wordArt, divider: Divider.pageElements)
+            .append(children: detailImages, divider: Divider.pageElements)
+            .append(children: navigationPoints, divider: Divider.pageElements)
+            .append(children: interactions, divider: Divider.pageElements)
+            .append(children: panels, divider: Divider.pageElements)
+            .append(actions)
+            .append(conversationA)
+            .append(conversationB)
+            .append(pin)
+            .append(symbol)
+            .append(showStats)
+            .append(endGame)
+            .append(onLoadAction, isBase64Encoded: true)
+            .append(suppressReading)
+            .append(hasFunctionsMenu)
+            .append(hintTag)
+            .append(children: hints, divider: Divider.pageElements)
+            .append(map)
+            .append(blueprints)
+        
+        return serializer.value
+    }
+    
     /// The move image name for the location.
     public var moveImageName:String {
         return "\(imageName)M"
@@ -361,12 +437,11 @@ open class MangaPage: Identifiable {
     /// - Parameters:
     ///   - id: The unique page id.
     ///   - imageName: The image to show for the page.
-    ///   - panoramaName: The panorama image to show for the page.
+    ///   - chapter: The chapther this page belongs to.
     ///   - title: The title for the page.
     ///   - pageNumber: The page number.
     ///   - previousPage: The previous page ID.
     ///   - nextPage: The next page ID.
-    ///   - nextPanoramaPage: the next panorama page ID.
     ///   - showStats: If `true` show stats on this page.
     ///   - endGame: If `true` end the game on this page.
     ///   - suppressReadings: If `true` suppress reading this page aloud.
@@ -376,19 +451,17 @@ open class MangaPage: Identifiable {
     ///   - releaseResourceTag: The ODR tag to release.
     ///   - prefetchResourceTag: The ODR tag to prefetch.
     ///   - hintTag: The hint tag.
-    ///   - zones: The touch zones for this page.
-    public init(id:String, imageName:String = "", panoramaName:String = "", title:String = "", pageNumber:Int = 0, previousPage:String = "", nextPage:String = "", nextPanoramaPage:String = "", showStats:Bool = false, endGame:Bool = false, suppressReadings:Bool = false, map:String = "", blueprint:String = "", loadResourceTag:String = "", releaseResourceTag:String = "", prefetchResourceTag:String = "", hintTag:String = "", zones:[MangaPageTouchZone] = []) {
+    public init(id:String, pageType:PageType, imageName:String = "", chapter:String = "", title:String = "", pageNumber:Int = 0, previousPage:String = "", nextPage:String = "", showStats:Bool = false, endGame:Bool = false, suppressReadings:Bool = false, map:String = "", blueprint:String = "", loadResourceTag:String = "", releaseResourceTag:String = "", prefetchResourceTag:String = "", hintTag:String = "") {
         // Initialize
         self.id = id
+        self.pageType = pageType
         self.imageName = imageName
-        self.panoramaName = panoramaName
+        self.chapter = chapter
         self.title = title
         self.pageNumber = pageNumber
         self.previousPage = previousPage
         self.nextPage = nextPage
-        self.nextPanoramaPage = nextPanoramaPage
         self.showStats = showStats
-        self.zones = zones
         self.chapter = MangaPage.defaultChapter
         self.endGame = endGame
         self.suppressReading = suppressReadings
@@ -402,6 +475,59 @@ open class MangaPage: Identifiable {
         self.hintTag = hintTag
         self.map = map
         self.blueprints = blueprint
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.page)
+        
+        self.id = deserializer.string()
+        self.pageType.from(deserializer.int())
+        self.imageName = deserializer.string()
+        self.weather.from(deserializer.int())
+        self.title = deserializer.string()
+        self.pageNumber = deserializer.int()
+        self.backgroundMusic = deserializer.string()
+        self.backgroundSound = deserializer.string()
+        self.soundEffect = deserializer.string()
+        self.chapter = deserializer.string()
+        self.previousPage = deserializer.string()
+        self.nextPage = deserializer.string()
+        self.loadResourceTag = deserializer.string()
+        self.releaseResourceTag = deserializer.string()
+        self.prefetchResourceTag = deserializer.string()
+        self.zones = deserializer.children(divider: Divider.pageElements)
+        self.captions = deserializer.children(divider: Divider.pageElements)
+        self.balloons = deserializer.children(divider: Divider.pageElements)
+        self.wordArt = deserializer.children(divider: Divider.pageElements)
+        self.detailImages = deserializer.children(divider: Divider.pageElements)
+        self.navigationPoints = deserializer.children(divider: Divider.pageElements)
+        self.interactions = deserializer.children(divider: Divider.pageElements)
+        self.panels = deserializer.children(divider: Divider.pageElements)
+        self.actions = deserializer.child()
+        self.conversationA = deserializer.child()
+        self.conversationB = deserializer.child()
+        self.pin = deserializer.child()
+        self.symbol = deserializer.child()
+        self.showStats = deserializer.bool()
+        self.endGame = deserializer.bool()
+        self.onLoadAction = deserializer.string(isBase64Encoded: true)
+        self.suppressReading = deserializer.bool()
+        self.hasFunctionsMenu = deserializer.bool()
+        self.hintTag = deserializer.string()
+        self.hints = deserializer.children(divider: Divider.pageElements)
+        self.map = deserializer.string()
+        self.blueprints = deserializer.string()
+        
+        // Finalize
+        if let conversationA {
+            conversationA.parent = self
+        }
+        
+        if let conversationB {
+            conversationB.parent = self
+        }
     }
     
     // MARK: - Functions
@@ -544,11 +670,14 @@ open class MangaPage: Identifiable {
     @discardableResult public func addInteraction(action:MangaPageInteraction.ActionType, title:String, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebook:String = "", notebookTitle:String = "", notebookEntry:String = "", soundEffect:String = "", visibility:MangaLayerManager.ElementVisibility = .displayNothing, nextMangaPageID:String = "", points:Int = 0, condition:String = "") -> MangaPage {
         
         let script:String = """
+        import StandardLib;
+        import StringLib;
+        
         main {
             call @playSoundEffect('\(soundEffect)', 3);
-            call @adjustPoints(\(points));
+            call @adjustIntState('points', \(points));
             call @changePage('\(nextMangaPageID)');
-            call @changeLayerVisibility('\(visibility.rawValue)');
+            call @changeLayerVisibility(\(visibility.rawValue));
         }
         """
         
