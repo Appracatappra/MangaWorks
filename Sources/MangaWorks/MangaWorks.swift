@@ -148,6 +148,12 @@ open class MangaWorks {
     /// Runs the given Grace Language Script and reports an errors that occur. If the script does not contain a `main` function definition, one will be added before the script is executed.
     /// - Parameter script: The Grace Language Script to execute.
     public static func runGraceScript(_ script:String) {
+        
+        // Ensure there is a script to run.
+        guard script != "" else {
+            return
+        }
+        
         Execute.onMain {
             do {
                 if script.contains("main {") || script.contains("main{") {

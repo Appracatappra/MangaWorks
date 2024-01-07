@@ -22,6 +22,7 @@ import Observation
     // MARK: - Static Properties
     /// If `true` only encode the current state of the inventory item and not its full details.
     public static var serializeStateOnly = true
+
     
     // MARK: - Enumerations
     /// Defines the status of a given inventory item

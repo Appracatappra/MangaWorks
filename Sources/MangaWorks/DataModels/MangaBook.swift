@@ -122,6 +122,82 @@ import ODRManager
             
             return nil
         }
+        
+        // Add containsItem.
+        compiler.register(name: "containsItem", parameterNames: ["key"], parameterTypes: [.string], returnType: .bool) { parameters in
+            var value = ""
+            
+            if let key = parameters["key"] {
+                let result = MangaBook.shared.containsItem(id: key.string)
+                value = "\(result)"
+            }
+            
+            return GraceVariable(name: "result", value: value, type: .bool)
+        }
+        
+        // Add takeItem
+        compiler.register(name: "takeItem", parameterNames: ["key"], parameterTypes: [.string]) { parameters in
+            
+            if let key = parameters["key"] {
+                MangaBook.shared.takeItem(id: key.string)
+            }
+            
+            return nil
+        }
+        
+        // Add dropItem
+        compiler.register(name: "dropItem", parameterNames: ["key", "page"], parameterTypes: [.string, .string]) { parameters in
+            
+            if let key = parameters["key"] {
+                if let page = parameters["page"] {
+                    MangaBook.shared.dropItem(id: key.string, in: page.string)
+                }
+            }
+            
+            return nil
+        }
+        
+        // Add useItem
+        compiler.register(name: "useItem", parameterNames: ["key"], parameterTypes: [.string]) { parameters in
+            
+            if let key = parameters["key"] {
+                MangaBook.shared.useItem(id: key.string)
+            }
+            
+            return nil
+        }
+        
+        // Add notTriggered.
+        compiler.register(name: "notTriggered", parameterNames: ["key"], parameterTypes: [.string], returnType: .bool) { parameters in
+            var value = ""
+            
+            if let key = parameters["key"] {
+                let result = MangaBook.shared.notTriggered(mangaPageID: key.string)
+                value = "\(result)"
+            }
+            
+            return GraceVariable(name: "result", value: value, type: .bool)
+        }
+        
+        // Add trigger
+        compiler.register(name: "trigger", parameterNames: ["key"], parameterTypes: [.string]) { parameters in
+            
+            if let key = parameters["key"] {
+                MangaBook.shared.trigger(mangaPageID: key.string)
+            }
+            
+            return nil
+        }
+        
+        // Add takeRandomItem
+        compiler.register(name: "takeRandomItem", parameterNames: ["key"], parameterTypes: [.string]) { parameters in
+            
+            if let key = parameters["key"] {
+                MangaBook.shared.takeRandomItem(for: key.string)
+            }
+            
+            return nil
+        }
     }
     
     // MARK: - Enumerations
@@ -165,6 +241,9 @@ import ODRManager
     /// A collection of user state variables.
     public var state:[String:String] = [:]
     
+    /// A notebook of notes collected by the user.
+    public var notebook:MangaNotebook = MangaNotebook()
+    
     /// A collection of inventory items that can be on a given `MangaPage` ir being carried by the player.
     public var items:[MangaInventoryItem] = []
     
@@ -207,6 +286,7 @@ import ODRManager
             .append(currentPageID)
             .append(lastPageID)
             .append(dictionary: state)
+            .append(notebook)
             .append(children: items, divider: Divider.items)
         
         if !MangaBook.serializeStateOnly {
@@ -238,12 +318,16 @@ import ODRManager
         self.currentPageID = deserializer.string()
         self.lastPageID = deserializer.string()
         self.state = deserializer.dictionary()
+        self.notebook = deserializer.child()
         
-        if MangaBook.serializeStateOnly {
+        if MangaInventoryItem.serializeStateOnly {
             let states:[MangaInventoryItem] = deserializer.children(divider: Divider.items)
             self.mergeStateWithItems(states)
         } else {
             self.items = deserializer.children(divider: Divider.items)
+        }
+        
+        if !MangaBook.serializeStateOnly {
             self.chapters = deserializer.children(divider: Divider.chapters)
         }
     }
@@ -272,6 +356,103 @@ import ODRManager
         
         // Not found
         return nil
+    }
+    
+    /// Checks to see if the given item is hidden on a Manga Page.
+    /// - Parameter id: THe id of the item to check.
+    /// - Returns: Returns `true` if the item is hidden on a page, else returns false.
+    public func containsItem(id:String) -> Bool {
+        
+        if let item = getItem(id: id) {
+            return item.status == .hiddenOnMangaPage
+        }
+        
+        // Not found
+        return false
+    }
+    
+    /// Takes an item from a `MangaPage` and places it in the player's inventory.
+    /// - Parameter id: The id of the item to take.
+    public func takeItem(id:String) {
+        
+        // Ensure the item can be found.
+        guard let item = getItem(id: id) else {
+            return
+        }
+        
+        // Place the item in the player's inventory
+        item.status = .inPlayerInventory
+        item.mangaPageID = ""
+        
+        // Execute acquire script
+        MangaWorks.runGraceScript(item.onAquire)
+    }
+    
+    /// Removes the given item from the player's inventory and places it in the current room.
+    /// - Parameters:
+    ///   - id: The id of the item to drop.
+    ///   - mangaPageID: The room to drop the item in.
+    public func dropItem(id:String, in mangaPageID:String) {
+        
+        // Ensure the item can be found.
+        guard let item = getItem(id: id) else {
+            return
+        }
+        
+        // Remove the item and drop it in the page.
+        item.status = .droppedOnMangaPage
+        item.mangaPageID = mangaPageID
+        
+        // Execute lost script
+        MangaWorks.runGraceScript(item.onLost)
+    }
+    
+    /// Uses the current item.
+    /// - Parameter id: The id of the item to use.
+    public func useItem(id:String) {
+        
+        // Ensure the item can be found.
+        guard let item = getItem(id: id) else {
+            return
+        }
+        
+        // Execute use script
+        MangaWorks.runGraceScript(item.onUse)
+    }
+    
+    /// Checks to see if a random inventory spot has been triggered.
+    /// - Parameter mangaPageID: The ID of the manga page checking for a trigger.
+    /// - Returns: Returns `true` if the item interaction has not been used, else returns `false`.
+    public func notTriggered(mangaPageID:String) -> Bool {
+        let key = "triggered\(mangaPageID)"
+        
+        return !getStateBool(key: key)
+    }
+    
+    /// Triggers a random inventory item for a given manga page.
+    /// - Parameter mangaPageID: The id of the manga page to trigger.
+    public func trigger(mangaPageID:String) {
+        let key = "triggered\(mangaPageID)"
+        setStateBool(key: key, value: true)
+    }
+    
+    /// Takes the next random unused item.
+    /// - Parameter mangaPageID: The ID of the page that the item is being taken from.
+    public func takeRandomItem(for mangaPageID:String) {
+        
+        // Mark as used.
+        trigger(mangaPageID: mangaPageID)
+        
+        // Shuffle items
+        items.shuffle()
+        
+        // Find the next unsed item and add it to the inventory
+        for item in items {
+            if item.status == .unAssigned {
+                takeItem(id: item.id)
+                return
+            }
+        }
     }
     
     /// Returns the given chapter.
