@@ -12,7 +12,7 @@ import SwiftletUtilities
 
 extension HardwareInformation {
     
-    /// Returns the width of the main screen of the device the app is running on.
+    /// Returns the width of the main screen of the device the app is running on divided by two.
     public static var screenHalfWidth:Int {
         let screenSize: CGRect = UIScreen.main.bounds
         #if os(tvOS)
@@ -32,6 +32,11 @@ extension HardwareInformation {
             return Int(screenSize.width)
         }
         #endif
+    }
+    
+    /// Returns the height of the main screen of the device the app is running on divided by two.
+    public static var screenHalfHeight:Int {
+        return screenHeight / 2
     }
     
     /// Returns an adjustment ratio to properly scale the app's UI based on the device the app is running on. The app is being designed on an iPad Pro 11-inch so all adjustments are based off of this device's screen width.

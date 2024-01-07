@@ -4,6 +4,7 @@
 
 import Foundation
 import SwiftUI
+import SwiftletUtilities
 import LogManager
 import GraceLanguage
 import SoundManager
@@ -13,12 +14,23 @@ open class MangaWorks {
     
     // MARK: - Enumerations
     /// Defines the source of a file.
-    public enum Source {
+    public enum Source: Int {
         /// The file is from the App's Bundle.
-        case appBundle
+        case appBundle = 0
         
         /// The file is from the Swift Package's Bundle.
         case packageBundle
+        
+        // MARK: - Functions
+        /// Gets the value from an `appBundle` and defaults to `left` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = Source(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .appBundle
+            }
+        }
     }
     
     // MARK: Static Properties
@@ -130,6 +142,23 @@ open class MangaWorks {
         } catch {
             Log.error(subsystem: "MangaWorks", category: "ExpandMacros", "Error: \(error)")
             return text
+        }
+    }
+    
+    /// Runs the given Grace Language Script and reports an errors that occur. If the script does not contain a `main` function definition, one will be added before the script is executed.
+    /// - Parameter script: The Grace Language Script to execute.
+    public static func runGraceScript(_ script:String) {
+        Execute.onMain {
+            do {
+                if script.contains("main {") || script.contains("main{") {
+                    try GraceRuntime.shared.run(script: script)
+                } else {
+                    let execute = "import StandardLib; import StringLib; main{\(script);}"
+                    try GraceRuntime.shared.run(script: execute)
+                }
+            } catch {
+                Log.error(subsystem: "MangaWorks", category: "runGraceScript", "Error: \(error)")
+            }
         }
     }
     

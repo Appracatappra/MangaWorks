@@ -32,4 +32,7 @@ public enum Divider:String, Codable {
     case chapter = "å"
     case chapters = "ø"
     case mangaBook = "¥"
+    case mangaCover = "†"
+    case item = "∑"
+    case items = "Œ"
 }

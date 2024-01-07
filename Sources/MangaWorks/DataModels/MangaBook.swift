@@ -17,6 +17,7 @@ import SimpleSerializer
 import Observation
 import ODRManager
 
+/// Holds all information about a `MangaBook` and the player's game state within the Manga based game.
 @Observable open class MangaBook: SimpleSerializeable {
     
     // MARK: - Events
@@ -40,7 +41,7 @@ import ODRManager
     public static var shared:MangaBook = MangaBook()
     
     /// If `true`, the collection of `MangaChapters` will be included in the serialized results.
-    public static var shouldSerializeChapters:Bool = false
+    public static var serializeStateOnly:Bool = false
     
     /// If `true` show hints on Manga Pages where they exist.
     public static var showHints:Bool = false
@@ -164,9 +165,13 @@ import ODRManager
     /// A collection of user state variables.
     public var state:[String:String] = [:]
     
+    /// A collection of inventory items that can be on a given `MangaPage` ir being carried by the player.
+    public var items:[MangaInventoryItem] = []
+    
     /// A collection of chapters in the book.
     public var chapters:[MangaChapter] = []
     
+    // MARK: - Events
     /// Handle the user wanting to load an external page.
     public var onRequestExternalPage:RequestExternalPage? = nil
     
@@ -202,8 +207,9 @@ import ODRManager
             .append(currentPageID)
             .append(lastPageID)
             .append(dictionary: state)
+            .append(children: items, divider: Divider.items)
         
-        if MangaBook.shouldSerializeChapters {
+        if !MangaBook.serializeStateOnly {
             serializer.append(children: chapters, divider: Divider.chapters)
         }
         
@@ -218,17 +224,7 @@ import ODRManager
     /// Creates a new instance.
     /// - Parameter value: A serialized string representing the object.
     public required init(from value: String) {
-        let deserializer = Deserializer(text: value, divider: Divider.chapter)
-        
-        self.pageSource.from(deserializer.int())
-        self.startedReading = deserializer.bool()
-        self.currentPageID = deserializer.string()
-        self.lastPageID = deserializer.string()
-        self.state = deserializer.dictionary()
-        
-        if MangaBook.shouldSerializeChapters {
-            self.chapters = deserializer.children(divider: Divider.chapters)
-        }
+        self.load(from: value)
     }
     
     // MARK: - Functions
@@ -243,9 +239,39 @@ import ODRManager
         self.lastPageID = deserializer.string()
         self.state = deserializer.dictionary()
         
-        if MangaBook.shouldSerializeChapters {
+        if MangaBook.serializeStateOnly {
+            let states:[MangaInventoryItem] = deserializer.children(divider: Divider.items)
+            self.mergeStateWithItems(states)
+        } else {
+            self.items = deserializer.children(divider: Divider.items)
             self.chapters = deserializer.children(divider: Divider.chapters)
         }
+    }
+    
+    /// Merges the state of inventory items that have been serialized with the full item description.
+    /// - Parameter states: The states read from the serialized string.
+    private func mergeStateWithItems(_ states:[MangaInventoryItem]) {
+        for state in states {
+            if let item = getItem(id: state.id) {
+                item.status = state.status
+                item.mangaPageID = state.mangaPageID
+                item.quantityRemaining = state.quantityRemaining
+            }
+        }
+    }
+    
+    /// Gets an item from the inventory item collection by id.
+    /// - Parameter id: The id of the item to load.
+    /// - Returns: Returns the item if found else returns `nil`
+    public func getItem(id:String) -> MangaInventoryItem? {
+        for item in items {
+            if item.id == id {
+                return item
+            }
+        }
+        
+        // Not found
+        return nil
     }
     
     /// Returns the given chapter.

@@ -16,7 +16,7 @@ import SoundManager
 import SimpleSerializer
 import Observation
 
-@Observable open class MangaCover {
+@Observable open class MangaCover: SimpleSerializeable {
     
     // MARK: - Enumerations
     /// Defines which side of the `MangaConversationView` box the item appears.
@@ -55,6 +55,9 @@ import Observation
     /// The cover's foreground image.
     public var coverForegroundImage:String = ""
     
+    /// The cover's background color.
+    public var coverBackgroundColor:Color = .white
+    
     /// The actions that will be displayed on the left side of the cover.
     public var leftSide:[MangaPageAction] = []
     
@@ -62,6 +65,20 @@ import Observation
     public var rightSide:[MangaPageAction] = []
     
     // MARK: - Computed Properties
+    /// Returns the object as a serialized string.
+    public var serialized: String {
+        let serializer = Serializer(divider: Divider.mangaCover)
+            .append(imageSource)
+            .append(title)
+            .append(coverBackgroundImage)
+            .append(coverMiddleImage)
+            .append(coverForegroundImage)
+            .append(coverBackgroundColor)
+            .append(children: leftSide, divider: Divider.actionDivider)
+            .append(children: rightSide, divider: Divider.actionDivider)
+        
+        return serializer.value
+    }
     
     // MARK: - Initializers
     /// Creates a new instance.
@@ -77,6 +94,21 @@ import Observation
         self.coverBackgroundImage = coverBackgroundImage
         self.coverMiddleImage = coverMiddleImage
         self.coverForegroundImage = coverForegroundImage
+    }
+    
+    /// Creates a new instance.
+    /// - Parameter value: A serialized string representing the object.
+    public required init(from value: String) {
+        let deserializer = Deserializer(text: value, divider: Divider.mangaCover)
+        
+        self.imageSource.from(deserializer.int())
+        self.title = deserializer.string()
+        self.coverBackgroundImage = deserializer.string()
+        self.coverMiddleImage = deserializer.string()
+        self.coverForegroundImage = deserializer.string()
+        self.coverBackgroundColor = deserializer.color()
+        self.leftSide = deserializer.children(divider: Divider.actionDivider)
+        self.rightSide = deserializer.children(divider: Divider.actionDivider)
     }
     
     // MARK: - Functions

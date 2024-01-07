@@ -12,29 +12,41 @@ import LogManager
 import GraceLanguage
 import SwiftUIGamepad
 
+/// `MangaCoverView` renders the cover view of a `MangaBook` using three layers of images to form the cover and a series of `MangaAction` items to represent menu items for the cover.
 public struct MangaCoverView: View {
+    
+    // MARK: - Initializers
+    /// Creates a new instance.
+    /// - Parameters:
+    ///   - uniqueID: The unique ID of the container used to tie in gamepad support.
+    ///   - cover: A `MangaCover` object that defiens the look and feel of the cover and contains the `MangaAction` items to represent menu items for the cover.
+    ///   - isGamepadRequired: If `true`, a gamepad is required to run the app.
+    ///   - isAttachedToGameCenter: If `true`, the app is attached to Game Center.
+    public init(uniqueID: String = "Cover", cover: MangaCover, isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
+        self.uniqueID = uniqueID
+        self.cover = cover
+        self.isGamepadRequired = isGamepadRequired
+        self.isAttachedToGameCenter = isAttachedToGameCenter
+    }
     
     // MARK: - Properties
     /// The unique ID of the container used to tie in gamepad support.
     public var uniqueID:String = "Cover"
     
-    public var cover:MangaCover = MangaCover(imageSource: .packageBundle, coverBackgroundImage: "CoverBackground", coverMiddleImage: "CoverBackgroundBarcode", coverForegroundImage: "ReedWrightCover")
-        .addAction(to: .left, text: "About")
-        .addAction(to: .left, text: "Tips & Hints")
-        .addAction(to: .left, text: "Settings")
-        .addAction(to: .right, text: "Continue")
-        .addAction(to: .right, text: "New Game")
-        .addAction(to: .right, text: "Cyber Store")
-        .addAction(to: .right, text: "Save Game")
-        .addAction(to: .right, text: "Load Game")
+    /// A `MangaCover` object that defiens the look and feel of the cover and contains the `MangaAction` items to represent menu items for the cover.
+    public var cover:MangaCover = MangaCover()
     
     /// If `true`, a gamepad is required to run the app.
     public var isGamepadRequired:Bool = false
+    
+    /// If `true`, the app is attached to Game Center.
+    public var isAttachedToGameCenter:Bool = false
     
     @State private var showGamepadHelp:Bool = false
     @State private var isGamepadConnected:Bool = false
     
     // MARK: - Computed Properties
+    /// Returns the menu padding based on the device the app is running on.
     private var menuPadding:CGFloat {
         if HardwareInformation.isPhone {
             return 5
@@ -43,6 +55,7 @@ public struct MangaCoverView: View {
         }
     }
     
+    /// Returns the menu font size based on the device the app is running on.
     private var menuSize:Float {
         switch HardwareInformation.screenWidth {
         case 744:
@@ -65,6 +78,7 @@ public struct MangaCoverView: View {
         }
     }
     
+    /// Returns the header offset based on the device the app is running on.
     private var headerOffset:CGFloat {
         if HardwareInformation.isPhone {
             switch HardwareInformation.screenHeight {
@@ -78,6 +92,7 @@ public struct MangaCoverView: View {
         }
     }
     
+    /// Returns the menu offset based on the device the app is running on.
     private var menuOffset:CGFloat {
         if HardwareInformation.isPhone {
             switch HardwareInformation.screenHeight {
@@ -91,9 +106,11 @@ public struct MangaCoverView: View {
         }
     }
     
+    // MARK: - Computed Properties
+    /// Gets the inset for the comic page.
     public var body: some View {
         ZStack {
-            MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: true) {
+            MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: true, backgroundColor: cover.coverBackgroundColor) {
                 pageBodyContents()
             }
             
@@ -141,9 +158,11 @@ public struct MangaCoverView: View {
     }
     
     // MARK: - Functions
+    /// Creates the main body of the cover.
+    /// - Returns: Returns a view representing the body of the cover.
     @ViewBuilder func pageBodyContents() -> some View {
         ZStack {
-            // Cover Background
+            // Cover Background image
             VStack {
                 if cover.imageSource == .appBundle {
                     Image(cover.coverBackgroundImage)
@@ -160,7 +179,7 @@ public struct MangaCoverView: View {
                 Spacer()
             }
             
-            // Cover middle
+            // Cover middle image
             VStack {
                 Spacer()
                 
@@ -178,16 +197,17 @@ public struct MangaCoverView: View {
             // Cover Menus
             VStack {
                 Spacer()
-                
                 HStack (alignment: .center) {
+                    // The left side menus.
                     if isGamepadConnected {
-                        
+                        gamepadHelp()
                     } else {
                         leftMenu()
                     }
                     
                     Spacer()
                     
+                    // The right side menus.
                     if isGamepadConnected {
                         GamepadMenuView(id: "MainMenu", alignment: .trailing, menu: buildGamepadMenu(), fontName: ComicFonts.stormfaze.rawValue, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, selectedColors: MangaWorks.menuSelectedGradient, shadowed: false, maxEntries: 6, boxWidth: 250, padding: 0)
                     } else {
@@ -199,7 +219,7 @@ public struct MangaCoverView: View {
                 Spacer()
             }
             
-            // Cover middle
+            // Cover top image
             VStack {
                 Spacer()
                 
@@ -218,12 +238,14 @@ public struct MangaCoverView: View {
         }
     }
     
+    /// Creates the left side touch menu for the cover.
+    /// - Returns: Returns a view containing the left side touch menu.
     @ViewBuilder func leftMenu() -> some View {
         VStack(alignment: .leading) {
             ForEach(cover.leftSide) {action in
                 if MangaWorks.evaluateCondition(action.condition) {
                     MangaButton(title: action.text, font: ComicFonts.stormfaze, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, shadowed: false) {
-                        // Execute Script here.
+                        MangaWorks.runGraceScript(action.excute)
                     }
                     .padding(.bottom, menuPadding)
                 }
@@ -231,12 +253,14 @@ public struct MangaCoverView: View {
         }
     }
     
+    /// Creates the right side touch menu for the cover.
+    /// - Returns: Returns a view containing the right side touch menu.
     @ViewBuilder func rightMenu() -> some View {
         VStack(alignment: .trailing) {
             ForEach(cover.rightSide) {action in
                 if MangaWorks.evaluateCondition(action.condition) {
                     MangaButton(title: action.text, font: ComicFonts.stormfaze, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, shadowed: false) {
-                        // Execute Script here.
+                        MangaWorks.runGraceScript(action.excute)
                     }
                     .padding(.bottom, menuPadding)
                 }
@@ -244,26 +268,44 @@ public struct MangaCoverView: View {
         }
     }
     
+    /// Creates the menu for an attached gamepad.
+    /// - Returns: Returns a `GamepadMenu` containing all of the menu items.
     func buildGamepadMenu() -> GamepadMenu {
         
         let menu = GamepadMenu()
         
         for action in cover.leftSide {
             if MangaWorks.evaluateCondition(action.condition) {
-                menu.addItem(title: action.text)
+                menu.addItem(title: action.text) {
+                    MangaWorks.runGraceScript(action.excute)
+                }
             }
         }
         
         for action in cover.rightSide {
             if MangaWorks.evaluateCondition(action.condition) {
-                menu.addItem(title: action.text)
+                menu.addItem(title: action.text) {
+                    MangaWorks.runGraceScript(action.excute)
+                }
             }
         }
         
         return menu
     }
+    
+    /// Creates the help buttons to display when a gamepad is attached to the device the app is running on.
+    /// - Returns: Returns a view containing the help items.
+    @ViewBuilder func gamepadHelp() -> some View {
+        VStack(alignment: .leading) {
+            GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonAImage, title: "Help", scale: MangaPageScreenMetrics.controlButtonScale, enabledColor: MangaWorks.actionForegroundColor)
+            
+            if isAttachedToGameCenter {
+                GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonBImage, title: "Game Center", scale: MangaPageScreenMetrics.controlButtonScale, enabledColor: MangaWorks.actionForegroundColor)
+            }
+        }
+    }
 }
 
 #Preview {
-    MangaCoverView()
+    MangaCoverView(cover: MangaCover(imageSource: .packageBundle, coverBackgroundImage: "CoverBackground", coverMiddleImage: "CoverBackgroundBarcode", coverForegroundImage: "ReedWrightCover"))
 }
