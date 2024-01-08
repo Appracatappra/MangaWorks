@@ -13,7 +13,7 @@ import GraceLanguage
 import SwiftUIGamepad
 
 /// Holds an overlay that can be displayed over a `MangaPageContainerView` to provide things like headers and footers.
-struct MangaPageOverlayView<Content: View>: View {
+public struct MangaPageOverlayView<Content: View>: View {
     
     // MARK: - Initializers
     /// Creates a new instance.
@@ -43,7 +43,7 @@ struct MangaPageOverlayView<Content: View>: View {
     
     // MARK: - Control Body
     /// The body of the control.
-    var body: some View {
+    public var body: some View {
         mainContents()
             .onRotate { newOrientation in
                 Execute.onMain {

@@ -12,19 +12,19 @@ import LogManager
 import GraceLanguage
 import SwiftUIGamepad
 
-/// Displays the contents of a `MangaNotebook`.
-public struct MangaNotebookView: View {
+/// Displays all of the inventory items in the player's inventory.
+public struct MangaInventoryView: View {
     
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
     ///   - imageSource: Defines the source of the image.
     ///   - uniqueID: The unique ID of the container used to tie in gamepad support.
-    ///   - entries: A collection of `MangaNotebookEntry` objects to display.
+    ///   - entries: A collection of `MangaInventoryItem` objects to display.
     ///   - backgroundColor: The background color of the page.
     ///   - isGamepadRequired: If `true`, a gamepad is required to run the app.
     ///   - isAttachedToGameCenter: If `true`, the app is attached to Game Center.
-    public init(imageSource: MangaWorks.Source = .appBundle, uniqueID: String = "Notebook", entries: [MangaNotebookEntry] = [], backgroundColor: Color = .white, isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
+    public init(imageSource: MangaWorks.Source = .appBundle, uniqueID: String = "Inventory", entries: [MangaInventoryItem] = [], backgroundColor: Color = .white, isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
         self.imageSource = imageSource
         self.uniqueID = uniqueID
         self.entries = entries
@@ -38,10 +38,10 @@ public struct MangaNotebookView: View {
     public var imageSource:MangaWorks.Source = .appBundle
     
     /// The unique ID of the container used to tie in gamepad support.
-    public var uniqueID:String = "Notebook"
+    public var uniqueID:String = "Inventory"
     
-    /// A collection of `MangaNotebookEntry` objects to display.
-    public var entries:[MangaNotebookEntry] = []
+    /// A collection of `MangaInventoryItem` objects to display.
+    public var entries:[MangaInventoryItem] = []
     
     /// The background color of the page.
     public var backgroundColor: Color = .white
@@ -59,11 +59,11 @@ public struct MangaNotebookView: View {
     /// If `true`, a gamepad is connected to the device the app is running on.
     @State private var isGamepadConnected:Bool = false
     
-    /// If `true`, a notes details are being shown.
+    /// If `true`, an item's details are being shown.
     @State private var isShowingDetails:Bool = false
     
-    /// Holds the notebook entry that is currently being displayed.
-    @State private var selectedNote:MangaNotebookEntry? = nil
+    /// Holds the inventory item that is currently being displayed.
+    @State private var selectedItem:MangaInventoryItem? = nil
     
     // MARK: - Computed Properties
     /// Returns the size of the footer text.
@@ -139,6 +139,7 @@ public struct MangaNotebookView: View {
                 isGamepadConnected = true
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
                 buttonBUsage(viewID: uniqueID, "Close an open note details.")
+                buttonYUsage(viewID: uniqueID, "Use the selected item.")
             })
         }
         .onDisappear {
@@ -158,7 +159,16 @@ public struct MangaNotebookView: View {
         .onGamepadButtonB(viewID: uniqueID) { isPressed in
             if isPressed {
                 isShowingDetails = false
-                selectedNote = nil
+                selectedItem = nil
+            }
+        }
+        .onGamepadButtonY(viewID: uniqueID) { isPressed in
+            if isPressed {
+                if let item = selectedItem {
+                    if item.onUse != "" {
+                        MangaWorks.runGraceScript(item.onUse)
+                    }
+                }
             }
         }
         #if os(tvOS)
@@ -183,7 +193,7 @@ public struct MangaNotebookView: View {
         } else {
             // The right side menus.
             if isGamepadConnected {
-                GamepadMenuView(id: "NotebookItems", alignment: .trailing, menu: buildGamepadMenu(), fontName: ComicFonts.Komika.rawValue, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, selectedColors: MangaWorks.menuSelectedGradient, shadowed: false, maxEntries: 6, boxWidth: cardWidth, padding: 0)
+                GamepadMenuView(id: "InventoryItems", alignment: .trailing, menu: buildGamepadMenu(), fontName: ComicFonts.Komika.rawValue, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, selectedColors: MangaWorks.menuSelectedGradient, shadowed: false, maxEntries: 6, boxWidth: cardWidth, padding: 0)
             } else {
                 touchMenu()
             }
@@ -209,7 +219,7 @@ public struct MangaNotebookView: View {
             if isShowingDetails {
                 MangaButton(title: "Close", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
                     isShowingDetails = false
-                    selectedNote = nil
+                    selectedItem = nil
                 }
                 .padding(.leading)
             } else {
@@ -220,6 +230,17 @@ public struct MangaNotebookView: View {
             }
             
             Spacer()
+            
+            if isShowingDetails {
+                if let item = selectedItem {
+                    if item.onUse != "" {
+                        MangaButton(title: "Use", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
+                            MangaWorks.runGraceScript(item.onUse)
+                        }
+                        .padding(.trailing)
+                    }
+                }
+            }
         }
         .padding(.top, 10)
     }
@@ -229,14 +250,14 @@ public struct MangaNotebookView: View {
     @ViewBuilder func pageFooter() -> some View {
         HStack {
             
-            Text("Notebook")
+            Text("Inventory")
                 .font(ComicFonts.Komika.ofSize(footerTextSize))
                 .foregroundColor(.black)
                 .padding(.leading)
             
             Spacer()
             
-            Text("Notes: \(entries.count)")
+            Text("Items: \(entries.count)")
                 .font(ComicFonts.Komika.ofSize(footerTextSize))
                 .foregroundColor(.black)
                 .padding(.trailing)
@@ -249,9 +270,9 @@ public struct MangaNotebookView: View {
     @ViewBuilder func touchMenu() -> some View {
         ScrollView {
             VStack {
-                ForEach(entries, id: \.notebookID) { entry in
-                    MangaNotebookEntryView(notebookEntry: entry) {
-                        selectedNote = entry
+                ForEach(entries) { item in
+                    MangaInventoryItemView(item: item) {
+                        selectedItem = item
                         isShowingDetails = true
                     }
                 }
@@ -267,9 +288,9 @@ public struct MangaNotebookView: View {
         let menu = GamepadMenu(style: .cards)
         
         for entry in entries {
-            let text = "\(entry.title): \(entry.entry)"
+            let text = "\(entry.title): \(entry.description)"
             menu.addItem(title: text) {
-                selectedNote = entry
+                selectedItem = entry
                 isShowingDetails = true
             }
         }
@@ -282,20 +303,26 @@ public struct MangaNotebookView: View {
     /// - Returns: Returns a view containing the note's details.
     @ViewBuilder func noteDetails() -> some View {
         VStack {
-            if let note = selectedNote {
-                if note.image != "" {
-                    if imageSource == .appBundle {
-                        ScaledImageView(imageName: note.image, scale: 0.4)
+            if let item = selectedItem {
+                if item.image != "" {
+                    if item.imageSource == .appBundle {
+                        ScaledImageView(imageName: item.image, scale: 0.4)
                     } else {
-                        ScaledImageView(imageURL: MangaWorks.urlTo(resource: note.image, withExtension: "jpg"), scale: 0.4)
+                        ScaledImageView(imageURL: MangaWorks.urlTo(resource: item.image, withExtension: "jpg"), scale: 0.4)
                     }
                 }
                 
-                Text(markdown: MangaWorks.expandMacros(in: note.title))
+                Text(markdown: MangaWorks.expandMacros(in: item.title))
                     .font(ComicFonts.KomikaBold.ofSize(32))
                     .foregroundColor(MangaWorks.actionTitleColor)
                 
-                Text(markdown: MangaWorks.expandMacros(in: note.entry))
+                if item.isConsumable {
+                    Text(markdown: "(\(item.quantityRemaining) of \(item.initialQualtity) Remaining)")
+                        .font(ComicFonts.KomikaBold.ofSize(18))
+                        .foregroundColor(MangaWorks.actionTitleColor)
+                }
+                
+                Text(markdown: MangaWorks.expandMacros(in: item.description))
                     .font(ComicFonts.KomikaBold.ofSize(18))
                     .foregroundColor(MangaWorks.actionFontColor)
             }
@@ -306,5 +333,5 @@ public struct MangaNotebookView: View {
 }
 
 #Preview {
-    MangaNotebookView(imageSource: .packageBundle, entries: [MangaNotebookEntry(notebookID: "01", image: "Happening00", title: "Note #01", entry: "It was the best of times, it was the worst of times."), MangaNotebookEntry(notebookID: "02", title: "Note #02", entry: "It was the best of times, it was the worst of times."), MangaNotebookEntry(notebookID: "03", title: "Note #03", entry: "It was the best of times, it was the worst of times."), MangaNotebookEntry(notebookID: "04", title: "Note #04", entry: "It was the best of times, it was the worst of times."), MangaNotebookEntry(notebookID: "05", title: "Note #05", entry: "It was the best of times, it was the worst of times."), MangaNotebookEntry(notebookID: "06", title: "Note #06", entry: "It was the best of times, it was the worst of times.")])
+    MangaInventoryView(entries: [MangaInventoryItem(imageSource: .packageBundle, id: "01", image: "Happening00", title: "Happening Card", description: "This is a card that the user can find within the game.", isConsumable: true, initialQualtity: 3, onUse: "//Do Something"), MangaInventoryItem(imageSource: .packageBundle, image: "Happening00", title: "Happening Card", description: "This is a card that the user can find within the game.", isConsumable: true, initialQualtity: 3), MangaInventoryItem(imageSource: .packageBundle, image: "Happening00", title: "Happening Card", description: "This is a card that the user can find within the game.", isConsumable: true, initialQualtity: 3), MangaInventoryItem(imageSource: .packageBundle, image: "Happening00", title: "Happening Card", description: "This is a card that the user can find within the game.", isConsumable: true, initialQualtity: 3), MangaInventoryItem(imageSource: .packageBundle, image: "Happening00", title: "Happening Card", description: "This is a card that the user can find within the game.", isConsumable: true, initialQualtity: 3), MangaInventoryItem(imageSource: .packageBundle, image: "Happening00", title: "Happening Card", description: "This is a card that the user can find within the game.", isConsumable: true, initialQualtity: 3)])
 }

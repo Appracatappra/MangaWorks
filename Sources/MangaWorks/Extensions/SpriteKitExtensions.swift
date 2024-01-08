@@ -40,7 +40,8 @@ fileprivate final class ModuleSpriteNode: SKSpriteNode {
             let moduleUnarchiver = coder as? ModuleUnarchiver,
             let texture = value(forKey: "texture") as? SKTexture,
             let name = texture.value(forKey: "imgName") as? String,
-            let image = UIImage(named: name, in: moduleUnarchiver.bundle, with: nil)
+            //let image = UIImage(named: name, in: moduleUnarchiver.bundle, with: nil)
+            let image = MangaWorks.rawImage(name: name)
         {
             self.texture = .init(image: image)
         }

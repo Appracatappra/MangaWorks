@@ -106,10 +106,24 @@ open class MangaWorks {
     /// - Parameters:
     ///   - name: The name of the image file to return.
     ///   - withExtension: The extension of the file to return.
+    ///   - scale: The size of the resulting image.
     /// - Returns: Returns the `UIImage` if found, else returns `nil`.
-    public static func image(name:String, withExtension:String = "png") -> UIImage? {
+    public static func image(name:String, withExtension:String = "png", scale:CGFloat = 1.0) -> UIImage? {
         let url = MangaWorks.urlTo(resource: name, withExtension: withExtension)
-        return UIImage.scaledImage(bundleURL: url, scale: 1.0)
+        return UIImage.scaledImage(bundleURL: url, scale: scale)
+    }
+    
+    /// Returns a `UIImage` from the package's bundle.
+    /// - Parameters:
+    ///   - name: The name of the image file to return.
+    ///   - withExtension: The extension of the file to return.
+    /// - Returns: Returns the `UIImage` if found, else returns `nil`.
+    public static func rawImage(name:String, withExtension: String? = nil) -> UIImage? {
+        if let path = MangaWorks.pathTo(resource: name, ofType: withExtension) {
+            return UIImage(contentsOfFile: path)
+        } else {
+            return nil
+        }
     }
     
     /// Evaluates the given condition written as a Grace Language macro or script.

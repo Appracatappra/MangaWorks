@@ -22,6 +22,9 @@ open class MangaPageWeatherScene: SKScene {
     // MARK: - Static Properties
     /// A common, shared instance of the weather scene.
     public static var shared = MangaPageWeatherScene()
+    
+    public static func Test() {
+    }
 
     // MARK: - Properties
     /// The common shared rain effect emitter.

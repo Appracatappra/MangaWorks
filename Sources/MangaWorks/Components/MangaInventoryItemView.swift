@@ -11,21 +11,19 @@ import SwiftUIKit
 import LogManager
 import GraceLanguage
 
-/// Displays a `MangaNotbookEntry` in the apps UI.
-public struct MangaNotebookEntryView: View {
+/// Displays the contents of a `MangaInventoryItem` in the app's UI.
+public struct MangaInventoryItemView: View {
     
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
-    ///   - imageSource: Defines the source of the image.
-    ///   - notebookEntry: The notebook entry to display.
+    ///   - item: The `MangaInventoryItem` to display the details of.
     ///   - titleFont: The title font.
     ///   - entryFont: The entry font.
     ///   - isSelected: If `true`, the item is selected.
     ///   - action: The action to take when the button is pressed.
-    public init(imageSource: MangaWorks.Source = .appBundle, notebookEntry: MangaNotebookEntry = MangaNotebookEntry(), titleFont: ComicFonts = .KomikaBold, entryFont: ComicFonts = .KomikaTight, isSelected: Bool = false, action: ContentButton.buttonAction? = nil) {
-        self.imageSource = imageSource
-        self.notebookEntry = notebookEntry
+    public init(item: MangaInventoryItem = MangaInventoryItem(), titleFont: ComicFonts = .KomikaBold, entryFont: ComicFonts = .KomikaTight, isSelected: Bool = false, action: ContentButton.buttonAction? = nil) {
+        self.item = item
         self.titleFont = titleFont
         self.entryFont = entryFont
         self.isSelected = isSelected
@@ -33,11 +31,8 @@ public struct MangaNotebookEntryView: View {
     }
     
     // MARK: - Properties
-    /// Defines the source of the image.
-    public var imageSource:MangaWorks.Source = .appBundle
-    
-    /// The notebook entry to display.
-    public var notebookEntry:MangaNotebookEntry = MangaNotebookEntry()
+    /// The `MangaInventoryItem` to display the details of.
+    public var item:MangaInventoryItem = MangaInventoryItem()
     
     /// The title font.
     public var titleFont:ComicFonts = .KomikaBold
@@ -52,19 +47,28 @@ public struct MangaNotebookEntryView: View {
     public var action:ContentButton.buttonAction? = nil
     
     // MARK: - Computed Properties
-    /// The title of the entry.
+    /// The title of the inventory item.
     private var title:String {
-        return MangaWorks.expandMacros(in: notebookEntry.title)
+        return MangaWorks.expandMacros(in: item.title)
     }
     
-    /// The body of the entry.
-    private var entry:String {
-        return MangaWorks.expandMacros(in: notebookEntry.entry)
+    /// The description of the inventory item..
+    private var description:String {
+        return MangaWorks.expandMacros(in:item.description)
     }
     
-    /// The optional image to display for the entry.
+    /// The optional image to display for the inventory item.
     private var image:String {
-        return MangaWorks.expandMacros(in: notebookEntry.image)
+        return MangaWorks.expandMacros(in: item.image)
+    }
+    
+    /// For consumable items. return the quantity remaining.
+    private var quantity:String {
+        if item.isConsumable {
+            return "(\(item.quantityRemaining) of \(item.initialQualtity) Remaining)"
+        } else {
+            return ""
+        }
     }
     
     /// The title font size.
@@ -141,7 +145,7 @@ public struct MangaNotebookEntryView: View {
     @ViewBuilder private func contents() -> some View {
         HStack {
             if image != "" {
-                if imageSource == .appBundle {
+                if item.imageSource == .appBundle {
                     Image(image)
                         .resizable()
                         .scaledToFit()
@@ -165,7 +169,15 @@ public struct MangaNotebookEntryView: View {
                     .multilineTextAlignment(.leading)
                     .padding(.horizontal)
                 
-                Text(markdown: entry)
+                if quantity != "" {
+                    Text(markdown: quantity)
+                        .font(titleFont.ofSize(entrySize))
+                        .foregroundColor(MangaWorks.actionTitleColor)
+                        .multilineTextAlignment(.leading)
+                        .padding(.horizontal)
+                }
+                
+                Text(markdown: description)
                     .font(titleFont.ofSize(entrySize))
                     .foregroundColor(cardFontColor)
                     .multilineTextAlignment(.leading)
@@ -182,5 +194,5 @@ public struct MangaNotebookEntryView: View {
 }
 
 #Preview {
-    MangaNotebookEntryView(imageSource: .packageBundle, notebookEntry: MangaNotebookEntry(image: "Happening00", title: "My Awesome Notbook entry", entry: "This is a very long entry to test out this control and make sure that it is doing what I want it to do."), isSelected: false)
+    MangaInventoryItemView(item: MangaInventoryItem(imageSource: .packageBundle, image: "Happening00", title: "Happening Card", description: "This is a card that the user can find within the game.", isConsumable: true, initialQualtity: 3))
 }
