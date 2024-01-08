@@ -198,6 +198,22 @@ import ODRManager
             
             return nil
         }
+        
+        // Add saveNotebookEntry
+        compiler.register(name: "saveNotebookEntry", parameterNames: ["notebookID", "image", "title", "entry"], parameterTypes: [.string, .string, .string, .string]) { parameters in
+            
+            if let notebookID = parameters["notebookID"] {
+                if let image = parameters["image"] {
+                    if let title = parameters["title"] {
+                        if let entry = parameters["entry"] {
+                            MangaBook.shared.notebook.saveEntry(notebookID: notebookID.string, image: image.string, title: title.string, entry: entry.string)
+                        }
+                    }
+                }
+            }
+            
+            return nil
+        }
     }
     
     // MARK: - Enumerations
@@ -236,7 +252,7 @@ import ODRManager
     public var currentPageID:String = ""
     
     /// The id of the last page that was read.
-    public var lastPageID:String = ""
+    public var lastPageStack:[String] = []
     
     /// A collection of user state variables.
     public var state:[String:String] = [:]
@@ -284,7 +300,7 @@ import ODRManager
             .append(pageSource)
             .append(startedReading)
             .append(currentPageID)
-            .append(lastPageID)
+            .append(array: lastPageStack, divider: ",")
             .append(dictionary: state)
             .append(notebook)
             .append(children: items, divider: Divider.items)
@@ -316,7 +332,7 @@ import ODRManager
         self.pageSource.from(deserializer.int())
         self.startedReading = deserializer.bool()
         self.currentPageID = deserializer.string()
-        self.lastPageID = deserializer.string()
+        self.lastPageStack = deserializer.array(divider: ",")
         self.state = deserializer.dictionary()
         self.notebook = deserializer.child()
         
@@ -632,26 +648,45 @@ import ODRManager
         changeLayerVisibility(visibility: visibility.rawValue)
     }
     
+    /// Pushes the id of the last page visited onto the stack.
+    /// - Parameter id: The id of the last page visited.
+    public func pushLastPage(id:String) {
+        lastPageStack.insert(id, at: 0)
+    }
+    
+    /// Pops the id of the previous page visited off of the stack.
+    /// - Returns: Returns the last page id or "" if no last pages exist.
+    public func popLastPageID() -> String {
+        
+        guard lastPageStack.count > 0 else {
+            return ""
+        }
+        
+        let id = lastPageStack[0]
+        lastPageStack.remove(at: 0)
+        
+        return id
+    }
+    
     /// Ask the app to display a given `MangaPage`.
     /// - Parameter id: The id of the page to display.
     public func displayPage(id:String) {
         var newPageID = id
         
-        // Anything to process?
-        guard newPageID != "" else {
-            return
-        }
-        
         // Special processing?
         switch newPageID {
         case "<<":
-            newPageID = lastPageID
-            lastPageID = ""
+            newPageID = popLastPageID()
         case "[COVER]":
             changeView(viewID: "cover")
             return
         default:
             break
+        }
+        
+        // Anything to process?
+        guard newPageID != "" else {
+            return
         }
         
         // Ensure that the page can be found.
@@ -662,7 +697,7 @@ import ODRManager
         
         // Save last location?
         if !page.id.contains("*") {
-            lastPageID = page.id
+            pushLastPage(id: page.id)
         }
         
         // Save current page ID

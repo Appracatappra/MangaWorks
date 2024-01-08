@@ -35,13 +35,13 @@ public struct MangaButton: View {
     public var fontSize:Float = 128
     
     /// The gradient to display the text in.
-    public var gradientColors:[Color] = [.purple, .blue, .cyan, .green, .yellow, .orange, .red]
+    public var gradientColors:[Color] = MangaWorks.controlButtonGradient
     
     /// The degrees to rotate the text in.
     public var rotationDegrees:Double = 0
     
     /// If `true`, display a shadow behind the text.
-    public var shadowed:Bool = true
+    public var shadowed:Bool = false
     
     /// The x offset for the text.
     public var xOffset:Float = 0.0
@@ -89,7 +89,7 @@ public struct MangaButton: View {
     ///   - buttonSound: The button's clicked sound.
     ///   - focusSound: The button's focused sound.
     ///   - action: The action to take when the button is clicked.
-    public init(title: String, font:ComicFonts = .TrueCrimes, fontSize: Float = 128, gradientColors: [Color] = [.purple, .blue, .cyan, .green, .yellow, .orange, .red], rotationDegrees: Double = 0.0, shadowed: Bool = true, xOffset: Float = 0.0, yOffset: Float = 0.0, soundSource: SwiftUIKit.Source = IconButton.defaultSoundSource, buttonSound: String = IconButton.defaultButtonSound, focusSound: String = IconButton.defaultButtonFocusSound, action: buttonAction? = nil) {
+    public init(title: String, font:ComicFonts = .TrueCrimes, fontSize: Float = 128, gradientColors: [Color] = MangaWorks.controlButtonGradient, rotationDegrees: Double = 0.0, shadowed: Bool = false, xOffset: Float = 0.0, yOffset: Float = 0.0, soundSource: SwiftUIKit.Source = IconButton.defaultSoundSource, buttonSound: String = IconButton.defaultButtonSound, focusSound: String = IconButton.defaultButtonFocusSound, action: buttonAction? = nil) {
         self.title = title
         self.font = font
         self.fontSize = fontSize

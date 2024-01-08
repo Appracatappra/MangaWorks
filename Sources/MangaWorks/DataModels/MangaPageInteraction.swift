@@ -89,13 +89,16 @@ open class MangaPageInteraction: SimpleSerializeable {
     public var displayElement:MangaLayerManager.ElementVisibility = .displayNothing
     
     /// A notebook to record a message in for the player when this interaction is triggered.
-    public var notebook:String = ""
+    public var notbookID:String = ""
     
     /// A notebook title to record a message in for the player when this interaction is triggered.
     public var notebookTitle:String = ""
     
     /// A notebook entry to record a message in for the player when this interaction is triggered.
     public var notebookEntry:String = ""
+    
+    /// An optional notbook image that can be added to an entry.
+    public var notebookImage:String = ""
     
     /// A Grace Language Script that must evaluate to `true` before this instraction is available.
     public var condition:String = ""
@@ -122,9 +125,10 @@ open class MangaPageInteraction: SimpleSerializeable {
             .append(action)
             .append(title)
             .append(displayElement)
-            .append(notebook)
+            .append(notbookID)
             .append(notebookTitle)
             .append(notebookEntry)
+            .append(notebookImage)
             .append(condition, isBase64Encoded: true)
             .append(handler, isBase64Encoded: true)
             .append(pitchLeading)
@@ -143,12 +147,13 @@ open class MangaPageInteraction: SimpleSerializeable {
     ///   - displayElement: The Layer Manager element to display when the user takes this action.
     ///   - pitch: The picth to show the interaction at.
     ///   - yaw: The yaw to show the interaction at.
-    ///   - notebook: A notebook to record a message in for the player when this interaction is triggered.
+    ///   - notebookID: A notebook to record a message in for the player when this interaction is triggered.
     ///   - notebookTitle:  A notebook title to record a message in for the player when this interaction is triggered.
     ///   - notebookEntry: A notebook entry to record a message in for the player when this interaction is triggered.
+    ///   - notebookImage: An optional notbook image that can be added to an entry.
     ///   - condition: A Grace Language Script that must evaluate to `true` before this instraction is available.
     ///   - handler: A Grace Language Script to run when the user triggeres this interaction.
-    init(action:ActionType, title:String, displayElement:MangaLayerManager.ElementVisibility, pitch:Float = 0.0, yaw:Float = 0.0, notebook:String = "", notebookTitle:String = "", notebookEntry:String = "", condition:String = "", handler:String = "") {
+    init(action:ActionType, title:String, displayElement:MangaLayerManager.ElementVisibility, pitch:Float = 0.0, yaw:Float = 0.0, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", condition:String = "", handler:String = "") {
         // Initialize
         self.action = action
         self.title = title
@@ -157,9 +162,10 @@ open class MangaPageInteraction: SimpleSerializeable {
         self.pitchTrailing = PanoramaManager.trailingTarget(pitch, targetType: .interaction)
         self.yawLeading = PanoramaManager.leadingTarget(yaw, targetType: .interaction)
         self.yawTrailing = PanoramaManager.trailingTarget(yaw, targetType: .interaction)
-        self.notebook = notebook
+        self.notbookID = notebookID
         self.notebookTitle = notebookTitle
         self.notebookEntry = notebookEntry
+        self.notebookImage = notebookImage
         self.handler = handler
         self.condition = condition
     }
@@ -172,9 +178,10 @@ open class MangaPageInteraction: SimpleSerializeable {
         self.action.from(deserializer.int())
         self.title = deserializer.string()
         self.displayElement.from(deserializer.int())
-        self.notebook = deserializer.string()
+        self.notbookID = deserializer.string()
         self.notebookTitle = deserializer.string()
         self.notebookEntry = deserializer.string()
+        self.notebookImage = deserializer.string()
         self.condition = deserializer.string(isBase64Encoded: true)
         self.handler = deserializer.string(isBase64Encoded: true)
         self.pitchLeading = deserializer.float()

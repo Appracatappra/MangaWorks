@@ -82,6 +82,11 @@ open class MangaPageScreenMetrics {
         #endif
     }
     
+    /// The default size for a control button font andjusts by the machine.
+    public static var controlButtonFontSize:Float {
+        return 128.0 * controlButtonScale
+    }
+    
     /// The scale factor for a character avatar.
     public static var avatarScale:Float {
         if HardwareInformation.isPhone {

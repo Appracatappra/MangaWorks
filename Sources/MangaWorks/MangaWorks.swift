@@ -40,6 +40,9 @@ open class MangaWorks {
     /// The default font color for Manga Actions.
     public static var actionFontColor:Color = .white
     
+    /// The default action title color.
+    public static var actionTitleColor:Color = Color(fromHex: "#1F0A39")!
+    
     /// The default background color for Manga Actions.
     public static var actionBackgroundColor:Color = Color(fromHex: "#8D52AF")!
     
@@ -60,6 +63,9 @@ open class MangaWorks {
     
     /// The default menu gradient colors.
     public static var menuGradient:[Color] = [Color(fromHex: "8D43C3")!, Color(fromHex: "8D43C3")!]
+    
+    /// The default control button gradient colors.
+    public static var controlButtonGradient:[Color] = [Color(fromHex: "#533169")!, Color(fromHex: "#533169")!]
     
     /// The default menu selected gradient colors.
     public static var menuSelectedGradient:[Color] = [Color(fromHex: "#EB004F")!, Color(fromHex: "#EB004F")!]

@@ -42,7 +42,11 @@ public struct MangaCoverView: View {
     /// If `true`, the app is attached to Game Center.
     public var isAttachedToGameCenter:Bool = false
     
+    // MARK: - States
+    /// If `true`, show the gamepad help overlay.
     @State private var showGamepadHelp:Bool = false
+    
+    /// If `true`, a gamepad is connected to the device the app is running on.
     @State private var isGamepadConnected:Bool = false
     
     // MARK: - Computed Properties

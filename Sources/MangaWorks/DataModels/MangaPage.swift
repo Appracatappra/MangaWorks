@@ -640,15 +640,16 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     ///   - layerVisibility: The layer visibility for this interaction.
     ///   - pitch: The pitch to display the interaction at.
     ///   - yaw: The yaw to display the interaction at.
-    ///   - notebook: The notebook to record the interaction in.
+    ///   - notebookID: The notebook to record the interaction in.
     ///   - notebookTitle: The notebook title to record the interaction in.
     ///   - notebookEntry: The notebook entry to record the interaction in.
+    ///   - notebookImage: An optional image that can be attached to a notebook entry.
     ///   - condition: A Grace Language condition that must be met for this interaction to be active.
     /// - Returns: Returns self.
-    @discardableResult public func addInteraction(action:MangaPageInteraction.ActionType, title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displayNothing, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebook:String = "", notebookTitle:String = "", notebookEntry:String = "", condition:String = "", handler:String = "") -> MangaPage {
+    @discardableResult public func addInteraction(action:MangaPageInteraction.ActionType, title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displayNothing, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", condition:String = "", handler:String = "") -> MangaPage {
         
         // Add new interaction point
-        interactions.append(MangaPageInteraction(action: action, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebook: notebook, notebookTitle: notebookTitle, notebookEntry: notebookEntry, condition: condition, handler: handler))
+        interactions.append(MangaPageInteraction(action: action, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: handler))
         
         return self
     }
@@ -659,12 +660,13 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     ///   - layerVisibility: The layer visibility for this interaction.
     ///   - pitch: The pitch to display the interaction at.
     ///   - yaw: The yaw to display the interaction at.
-    ///   - notebook: The notebook to record the interaction in.
+    ///   - notebookID: The notebook to record the interaction in.
     ///   - notebookTitle: The notebook title to record the interaction in.
     ///   - notebookEntry: The notebook entry to record the interaction in.
+    ///   - notebookImage: An optional image that can be attached to a notebook entry.
     ///   - itemID: The ID of the item that is hidden at the given location.
     /// - Returns: Returns self.
-    @discardableResult public func addItemInteraction(title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displaySearch, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebook:String = "", notebookTitle:String = "", notebookEntry:String = "", itemID:String = "") -> MangaPage {
+    @discardableResult public func addItemInteraction(title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displaySearch, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", itemID:String = "") -> MangaPage {
         
         // Test for an item being used.
         let condition = "@containsItem('\(itemID)');"
@@ -673,7 +675,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         let handler = "call @takeItem('\(itemID)');"
         
         // Add new interaction point
-        interactions.append(MangaPageInteraction(action: .search, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebook: notebook, notebookTitle: notebookTitle, notebookEntry: notebookEntry, condition: condition, handler: handler))
+        interactions.append(MangaPageInteraction(action: .search, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage:notebookImage, condition: condition, handler: handler))
         
         return self
     }
@@ -684,12 +686,13 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     ///   - layerVisibility: The layer visibility for this interaction.
     ///   - pitch: The pitch to display the interaction at.
     ///   - yaw: The yaw to display the interaction at.
-    ///   - notebook: The notebook to record the interaction in.
+    ///   - notebookID: The notebook to record the interaction in.
     ///   - notebookTitle: The notebook title to record the interaction in.
     ///   - notebookEntry: The notebook entry to record the interaction in.
+    ///   - notebookImage: An optional image that can be attached to a notebook entry.
     ///   - itemID: The ID of the item that is hidden at the given location.
     /// - Returns: Returns self.
-    @discardableResult public func addRandomItemInteraction(title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displaySearch, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebook:String = "", notebookTitle:String = "", notebookEntry:String = "") -> MangaPage {
+    @discardableResult public func addRandomItemInteraction(title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displaySearch, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "") -> MangaPage {
         
         // Test for an item being used.
         let condition = "@notTriggered('\(self.id)');"
@@ -698,7 +701,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         let handler = "call @takeRandomItem('\(self.id)');"
         
         // Add new interaction point
-        interactions.append(MangaPageInteraction(action: .search, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebook: notebook, notebookTitle: notebookTitle, notebookEntry: notebookEntry, condition: condition, handler: handler))
+        interactions.append(MangaPageInteraction(action: .search, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: handler))
         
         return self
     }
@@ -709,15 +712,16 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     ///   - title: The title for the interaction
     ///   - pitch: The pitch to display the interaction at.
     ///   - yaw: The yaw to display the interaction at.
-    ///   - notebook: The notebook to store the interaction in.
+    ///   - notebookID: The notebook to store the interaction in.
     ///   - notebookTitle: The notebook title, if one does not already exist.
     ///   - notebookEntry: The note to add to the notebook.
+    ///   - notebookImage: An optional image that can be attached to a notebook entry.
     ///   - soundEffect: The sound effect to play when taking this interaction.
     ///   - visibility: The layer object ot make visible when the user activates this interaction.
     ///   - nextMangaPageID: The new location to view.
     ///   - condition: The script that controls in the interaction is visible or not.
     /// - Returns: Returns self.
-    @discardableResult public func addInteraction(action:MangaPageInteraction.ActionType, title:String, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebook:String = "", notebookTitle:String = "", notebookEntry:String = "", soundEffect:String = "", visibility:MangaLayerManager.ElementVisibility = .displayNothing, nextMangaPageID:String = "", points:Int = 0, condition:String = "") -> MangaPage {
+    @discardableResult public func addInteraction(action:MangaPageInteraction.ActionType, title:String, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", soundEffect:String = "", visibility:MangaLayerManager.ElementVisibility = .displayNothing, nextMangaPageID:String = "", points:Int = 0, condition:String = "") -> MangaPage {
         
         let script:String = """
         import StandardLib;
@@ -732,7 +736,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         """
         
         // Add new interaction point
-        interactions.append(MangaPageInteraction(action: action, title: title, displayElement: visibility, pitch: pitch, yaw: yaw, notebook: notebook, notebookTitle: notebookTitle, notebookEntry: notebookEntry, condition: condition, handler: script))
+        interactions.append(MangaPageInteraction(action: action, title: title, displayElement: visibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: script))
         
         return self
     }
