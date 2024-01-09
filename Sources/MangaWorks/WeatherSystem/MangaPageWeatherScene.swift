@@ -23,27 +23,50 @@ open class MangaPageWeatherScene: SKScene {
     /// A common, shared instance of the weather scene.
     public static var shared = MangaPageWeatherScene()
     
-    public static func Test() {
+    public static var fileSource:MangaWorks.Source = .packageBundle
+    
+    public static func LoadEmitter(filename:String, particleName:String) -> SKEmitterNode {
+        
+        // Source?
+        if MangaPageWeatherScene.fileSource == .appBundle {
+            if let emitter = SKEmitterNode(fileNamed: "\(filename).sks") {
+                return emitter
+            }
+        } else {
+            // Generate a path to the file
+            if let sksPath = MangaWorks.pathTo(resource: filename, ofType: "sks") {
+                if let emitter = SKEmitterNode(fileNamed: sksPath) {
+                    if let image = MangaWorks.rawImage(name: particleName, withExtension: "png") {
+                        emitter.particleTexture = SKTexture(image: image)
+                    }
+                    
+                    return emitter
+                }
+            }
+        }
+        
+        // Not able to load
+        return SKEmitterNode()
     }
 
     // MARK: - Properties
     /// The common shared rain effect emitter.
-    public var rainEmitter:SKEmitterNode = SKScene.getfirstEmitter(from: "Rain.sks")
+    public var rainEmitter:SKEmitterNode = MangaPageWeatherScene.LoadEmitter(filename: "Rain", particleName: "spark")
     
     /// The common shared fog effect emitter.
-    public let fogEmitter:SKEmitterNode = SKScene.getfirstEmitter(from: "Fog.sks")
+    public let fogEmitter:SKEmitterNode = MangaPageWeatherScene.LoadEmitter(filename: "Fog", particleName: "fog")
     
     /// The common shared leaf effect emitter.
-    public let leafEmitter:SKEmitterNode = SKScene.getfirstEmitter(from: "Leaves.sks")
+    public let leafEmitter:SKEmitterNode = MangaPageWeatherScene.LoadEmitter(filename: "Leaves", particleName: "RedMapleLeaf")
     
     /// The common shared blown paper effect emitter.
-    public let paperEmitter:SKEmitterNode = SKScene.getfirstEmitter(from: "Paper.sks")
+    public let paperEmitter:SKEmitterNode = MangaPageWeatherScene.LoadEmitter(filename: "Paper", particleName: "TornPaper")
     
     /// The common shared bokeh effect emitter.
-    public let bokehEmitter:SKEmitterNode = SKScene.getfirstEmitter(from: "Bokeh.sks")
+    public let bokehEmitter:SKEmitterNode = MangaPageWeatherScene.LoadEmitter(filename: "Bokeh", particleName: "boken")
     
     /// The common shared glitch effect emitter.
-    public let glitchEmitter:SKEmitterNode = SKScene.getfirstEmitter(from: "Glitch01.sks") 
+    public let glitchEmitter:SKEmitterNode = MangaPageWeatherScene.LoadEmitter(filename: "Glitch01", particleName: "Glitch01")
     
     /// If `true` then the rain effect will be shown, else it will not.
     public var hasRain:Bool {

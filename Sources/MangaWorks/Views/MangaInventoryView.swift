@@ -158,8 +158,12 @@ public struct MangaInventoryView: View {
         }
         .onGamepadButtonB(viewID: uniqueID) { isPressed in
             if isPressed {
-                isShowingDetails = false
-                selectedItem = nil
+                if isShowingDetails {
+                    isShowingDetails = false
+                    selectedItem = nil
+                } else {
+                    MangaBook.shared.displayPage(id: "<<")
+                }
             }
         }
         .onGamepadButtonY(viewID: uniqueID) { isPressed in
@@ -204,7 +208,11 @@ public struct MangaInventoryView: View {
     /// - Returns: Returns a view containing the header and footer.
     @ViewBuilder func pageOverlayContents() -> some View {
         VStack {
-            pageheader()
+            if isGamepadConnected {
+                pageheaderGamepad()
+            } else {
+                pageheader()
+            }
             
             Spacer()
             
@@ -239,6 +247,25 @@ public struct MangaInventoryView: View {
                         }
                         .padding(.trailing)
                     }
+                }
+            }
+        }
+        .padding(.top, 10)
+    }
+    
+    /// Renders the page header when a gamepdais attached.
+    /// - Returns: Returs a view containing the gamepad header.
+    @ViewBuilder func pageheaderGamepad() -> some View {
+        HStack {
+            GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonBImage, title: (isShowingDetails) ? "Close" : "Back", scale: MangaPageScreenMetrics.controlButtonScale)
+                .padding(.leading)
+            
+            Spacer()
+            
+            if let item = selectedItem {
+                if item.onUse != "" {
+                    GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonYImage, title: "Use", scale: MangaPageScreenMetrics.controlButtonScale)
+                        .padding(.leading)
                 }
             }
         }

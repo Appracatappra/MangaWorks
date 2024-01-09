@@ -138,7 +138,7 @@ public struct MangaNotebookView: View {
             connectGamepad(viewID: uniqueID, handler: { controller, gamepadInfo in
                 isGamepadConnected = true
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
-                buttonBUsage(viewID: uniqueID, "Close an open note details.")
+                buttonBUsage(viewID: uniqueID, "Returns to previous page, or closes an open note details.")
             })
         }
         .onDisappear {
@@ -157,8 +157,12 @@ public struct MangaNotebookView: View {
         }
         .onGamepadButtonB(viewID: uniqueID) { isPressed in
             if isPressed {
-                isShowingDetails = false
-                selectedNote = nil
+                if isShowingDetails {
+                    isShowingDetails = false
+                    selectedNote = nil
+                } else {
+                    MangaBook.shared.displayPage(id: "<<")
+                }
             }
         }
         #if os(tvOS)
@@ -194,7 +198,11 @@ public struct MangaNotebookView: View {
     /// - Returns: Returns a view containing the header and footer.
     @ViewBuilder func pageOverlayContents() -> some View {
         VStack {
-            pageheader()
+            if isGamepadConnected {
+                pageheaderGamepad()
+            } else {
+                pageheader()
+            }
             
             Spacer()
             
@@ -218,6 +226,18 @@ public struct MangaNotebookView: View {
                 }
                 .padding(.leading)
             }
+            
+            Spacer()
+        }
+        .padding(.top, 10)
+    }
+    
+    /// Renders the page header when a gamepdais attached.
+    /// - Returns: Returs a view containing the gamepad header.
+    @ViewBuilder func pageheaderGamepad() -> some View {
+        HStack {
+            GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonBImage, title: (isShowingDetails) ? "Close" : "Back", scale: MangaPageScreenMetrics.controlButtonScale)
+                .padding(.leading)
             
             Spacer()
         }

@@ -132,6 +132,9 @@ public struct MangaFullPageView: View {
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
             })
         }
+        .onRotate {orientation in
+            MangaPageWeatherScene.shared.size = HardwareInformation.screenSize
+        }
         .onDisappear {
             disconnectGamepad(viewID: uniqueID)
         }
@@ -236,5 +239,5 @@ public struct MangaFullPageView: View {
 }
 
 #Preview {
-    MangaFullPageView(imageSource: .packageBundle, page: MangaPage(id: "00", pageType: .fullPageImage, imageName: "MysticManor01").addWeather(weather: .cityStorm))
+    MangaFullPageView(imageSource: .packageBundle, page: MangaPage(id: "00", pageType: .fullPageImage, imageName: "MysticManor01").addWeather(weather: .rain))
 }
