@@ -21,7 +21,7 @@ extension HardwareInformation {
         // Are we running on an iPad?
         if isPad {
             // Yes, handle the iPad being in the landscape orientation.
-            switch windowOrientation {
+            switch deviceOrientation {
             case .landscapeLeft, .landscapeRight:
                 return Int(screenSize.width / 2.0)
             default:

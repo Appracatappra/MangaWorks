@@ -77,6 +77,25 @@ import ODRManager
             return nil
         }
         
+        // Add hasGameStarted
+        compiler.register(name: "hasGameStarted", parameterNames: [], parameterTypes: [], returnType: .bool) { parameters in
+            var value = ""
+            
+            value = "\(MangaBook.shared.startedReading)"
+            
+            return GraceVariable(name: "result", value: value, type: .bool)
+        }
+        
+        // Add setState
+        compiler.register(name: "setGameStarted", parameterNames: ["value"], parameterTypes: [.bool]) { parameters in
+            
+            if let value = parameters["value"] {
+                MangaBook.shared.startedReading = value.bool
+            }
+            
+            return nil
+        }
+        
         // Add adjustIntState
         compiler.register(name: "adjustIntState", parameterNames: ["key", "value"], parameterTypes: [.string, .int]) { parameters in
             
@@ -518,38 +537,36 @@ import ODRManager
     /// - Parameter id: The ID of the page to return.
     /// - Returns: Returns the requested page or `nil` if the page is not found.
     public func getPage(id:String) -> MangaPage? {
+        var chapterID:String = ""
+        var pageID:String = id
+        
+        // Does the id include a chapter?
+        if id.contains("|") {
+            let parts = id.split(separator: "|")
+            chapterID = String(parts[0])
+            pageID = String(parts[1])
+        }
         
         // Take action based on the source
         switch pageSource {
         case .justInTimeStorage:
-            // Does the id include a chapter?
-            if id.contains("|") {
-                let parts = id.split(separator: "|")
-                let chapterID = String(parts[0])
-                let pageID = String(parts[1])
-                
-                if let chapter = getChapter(id: chapterID) {
-                    return chapter.getPage(id: pageID)
-                }
+            if let chapter = getChapter(id: chapterID) {
+                return chapter.getPage(id: pageID)
             }
         case .externalStorage:
             if let onRequestExternalPage {
-                return onRequestExternalPage(id)
+                return onRequestExternalPage(pageID)
             }
         case .internalStorage:
             // Does the id include a chapter?
-            if id.contains("|") {
-                let parts = id.split(separator: "|")
-                let chapterID = String(parts[0])
-                let pageID = String(parts[1])
-                
+            if chapterID != "" {
                 if let chapter = getChapter(id: chapterID) {
                     return chapter.getPage(id: pageID)
                 }
             } else {
                 // Scan all chapters.
                 for chapter in chapters {
-                    if let page = chapter.getPage(id: id) {
+                    if let page = chapter.getPage(id: pageID) {
                         return page
                     }
                 }
@@ -697,7 +714,7 @@ import ODRManager
         
         // Save last location?
         if !page.id.contains("*") {
-            pushLastPage(id: page.id)
+            pushLastPage(id: "\(page.chapter)|\(page.id)")
         }
         
         // Save current page ID
@@ -746,6 +763,9 @@ import ODRManager
         
         // Start the sound effects for the current page.
         page.startLocationSounds()
+        
+        // Execute any startup scripts
+        MangaWorks.runGraceScript(page.onLoadAction)
         
         // Request the app to show the page
         if let onRequestDisplayPage {

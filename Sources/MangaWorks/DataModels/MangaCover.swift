@@ -88,12 +88,14 @@ import Observation
     ///   - coverBackgroundImage: The cover background image.
     ///   - coverMiddleImage: The cover's middle image.
     ///   - coverForegroundImage: The cover's foreground image.
-    public init(imageSource: MangaWorks.Source = .appBundle, title: String = "", coverBackgroundImage: String = "", coverMiddleImage: String = "", coverForegroundImage: String = "") {
+    ///   - coverBackgroundColor: The cover's background color.
+    public init(imageSource: MangaWorks.Source = .appBundle, title: String = "", coverBackgroundImage: String = "", coverMiddleImage: String = "", coverForegroundImage: String = "", coverBackgroundColor:Color = .white) {
         self.imageSource = imageSource
         self.title = title
         self.coverBackgroundImage = coverBackgroundImage
         self.coverMiddleImage = coverMiddleImage
         self.coverForegroundImage = coverForegroundImage
+        self.coverBackgroundColor = coverBackgroundColor
     }
     
     /// Creates a new instance.

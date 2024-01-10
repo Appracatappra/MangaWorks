@@ -105,8 +105,8 @@ import Observation
     ///   - releaseResourceTag: The tag of the ODR resource to release when this page loads.
     ///   - prefetchResourceTag: The tag of the ODR resource to prefetch when this page loads.
     ///   - hintTag: The ID of any hints attached to this page.
-    /// - Returns: Returns self.
-    @discardableResult public func addPage(id:String, pageType:MangaPage.PageType, imageName:String = "", title:String = "", pageNumber:Int = 0, previousPage:String = "", nextPage:String = "", showStats:Bool = false, endGame:Bool = false, suppressReadings:Bool = false, map:String = "", blueprint:String = "", loadResourceTag:String = "", releaseResourceTag:String = "", prefetchResourceTag:String = "", hintTag:String = "") -> MangaChapter {
+    /// - Returns: Returns the newly created page.
+    @discardableResult public func addPage(id:String, pageType:MangaPage.PageType, imageName:String = "", title:String = "", pageNumber:Int = 0, previousPage:String = "", nextPage:String = "", showStats:Bool = false, endGame:Bool = false, suppressReadings:Bool = false, map:String = "", blueprint:String = "", loadResourceTag:String = "", releaseResourceTag:String = "", prefetchResourceTag:String = "", hintTag:String = "") -> MangaPage {
         
         // Get the page number.
         var num:Int = pageNumber
@@ -120,6 +120,6 @@ import Observation
         // Add to collection.
         pages.append(page)
         
-        return self
+        return page
     }
 }

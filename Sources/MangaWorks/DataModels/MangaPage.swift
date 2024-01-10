@@ -1429,7 +1429,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     }
     
     /// Plays any music, sound and/or sound effect attached to this location.
-    func startLocationSounds() {
+    public func startLocationSounds() {
         // Background music
         switch backgroundMusic {
         case "":
@@ -1457,7 +1457,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
             let path = MangaWorks.pathTo(resource: "RainThunder", ofType: "mp3")
             SoundManager.shared.playBackgroundWeather(path: path)
         } else if hasLightningSound {
-            let path = MangaWorks.pathTo(resource: "RainTLightninghunder", ofType: "mp3")
+            let path = MangaWorks.pathTo(resource: "Lightning", ofType: "mp3")
             SoundManager.shared.playBackgroundWeather(path: path)
         } else {
             SoundManager.shared.stopBackgroundWeather()
@@ -1478,7 +1478,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     /// Defines an action to take whenever the given location is loaded into a game UI.
     /// - Parameter action: A Grace Language script hold the action to take when the page loads.
     /// - Returns: Returns self.
-    @discardableResult func onLoad(_ script:String) -> MangaPage {
+    @discardableResult public func onLoad(_ script:String) -> MangaPage {
         onLoadAction = script
         
         return self

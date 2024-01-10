@@ -16,6 +16,14 @@ import SpriteKit
 public struct MangaFullPageView: View {
     
     // MARK: - Initializers
+    public init(imageSource: MangaWorks.Source = .appBundle, uniqueID: String = "FullPageView", page: MangaPage = MangaPage(id: "00", pageType: .fullPageImage), backgroundColor: Color = .white, isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
+        self.imageSource = imageSource
+        self.uniqueID = uniqueID
+        self.page = page
+        self.backgroundColor = backgroundColor
+        self.isGamepadRequired = isGamepadRequired
+        self.isAttachedToGameCenter = isAttachedToGameCenter
+    }
     
     // MARK: - Properties
     /// Defines the source of the image.
@@ -42,6 +50,11 @@ public struct MangaFullPageView: View {
     
     /// If `true`, a gamepad is connected to the device the app is running on.
     @State private var isGamepadConnected:Bool = false
+    
+    /// Tracks changes in the manga page orientation.
+    @State private var screenOrientation:UIDeviceOrientation = .unknown
+    
+    @State private var zoomBuffer:CGFloat = CGFloat(0.0)
     
     // MARK: - Computed Properties
     /// Returns the size of the footer text.
@@ -90,6 +103,7 @@ public struct MangaFullPageView: View {
         }
     }
     
+    /// Generates a weather controller with the specifics of the given manga page.
     private var weatherScene: SKScene {
         let scene = MangaPageWeatherScene.shared
         scene.size = HardwareInformation.screenSize
@@ -100,7 +114,7 @@ public struct MangaFullPageView: View {
         scene.hasFallingLeaves = page.hasFallingLeaves
         scene.hasBlownPaper = page.hasBlownPaper
         scene.hasBokeh = page.hasBokeh
-        //scene.hasGlitch = dataStore.currentGame.getBool("arHacked")
+        scene.hasGlitch = false
         return scene
     }
     
@@ -109,8 +123,11 @@ public struct MangaFullPageView: View {
     public var body: some View {
         ZStack {
             MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: false, backgroundColor: backgroundColor) {
-                pageBodyContents()
+                pageBodyContents(orientation: screenOrientation)
             }
+            #if os(iOS)
+            .statusBar(hidden: true)
+            #endif
             
             MangaPageOverlayView(uniqueID: uniqueID) {
                 pageOverlayContents()
@@ -133,7 +150,7 @@ public struct MangaFullPageView: View {
             })
         }
         .onRotate {orientation in
-            MangaPageWeatherScene.shared.size = HardwareInformation.screenSize
+            screenOrientation = orientation
         }
         .onDisappear {
             disconnectGamepad(viewID: uniqueID)
@@ -163,9 +180,15 @@ public struct MangaFullPageView: View {
     }
     
     // MARK: - Functions
-    @ViewBuilder func pageBodyContents() -> some View {
+    @ViewBuilder func pageBodyContents(orientation:UIDeviceOrientation) -> some View {
         ZStack {
-            pageContents()
+            ZoomView(minimumZoom: 1.0, maximumZoom: 2.0, initialZoom: 1.0, zoomChangedHandler: {zoom in
+                let factor = CGFloat(10.0 * zoom)
+                zoomBuffer = CGFloat(30 * factor)
+            }) {
+                pageContents()
+            }
+            .frame(width: MangaPageScreenMetrics.screenHalfWidth - inset, height: MangaPageScreenMetrics.screenHeight - inset)
             
             // Weather system
             if page.hasWeather {
@@ -180,15 +203,20 @@ public struct MangaFullPageView: View {
     /// Creates the main body of the cover.
     /// - Returns: Returns a view representing the body of the cover.
     @ViewBuilder func pageContents() -> some View {
-        if imageSource == .appBundle {
-            Image(page.imageName)
-                .resizable()
-        } else {
-            if let image = MangaWorks.rawImage(name: page.imageName, withExtension: "jpg") {
-                Image(uiImage: image)
+        ZStack {
+            if imageSource == .appBundle {
+                Image(page.imageName)
                     .resizable()
+                    .frame(width: MangaPageScreenMetrics.screenHalfWidth - inset, height: MangaPageScreenMetrics.screenHeight - inset)
+            } else {
+                if let image = MangaWorks.rawImage(name: page.imageName, withExtension: "jpg") {
+                    Image(uiImage: image)
+                        .resizable()
+                        .frame(width: MangaPageScreenMetrics.screenHalfWidth - inset, height: MangaPageScreenMetrics.screenHeight - inset)
+                }
             }
         }
+        .frame(width: MangaPageScreenMetrics.screenHalfWidth + zoomBuffer, height: MangaPageScreenMetrics.screenHeight + zoomBuffer)
     }
     
     /// Draws the header and footer overlay contents.
@@ -207,12 +235,21 @@ public struct MangaFullPageView: View {
     /// - Returns: Returns a view containing the page header.
     @ViewBuilder func pageheader() -> some View {
         HStack {
-            MangaButton(title: "Back", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
-                MangaBook.shared.displayPage(id: "<<")
+            if page.previousPage != "" {
+                MangaButton(title: "< Prev", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
+                    MangaBook.shared.displayPage(id: page.previousPage)
+                }
+                .padding(.leading)
             }
-            .padding(.leading)
             
             Spacer()
+            
+            if page.nextPage != "" {
+                MangaButton(title: "Next >", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
+                    MangaBook.shared.displayPage(id: page.nextPage)
+                }
+                .padding(.trailing)
+            }
         }
         .padding(.top, 10)
     }

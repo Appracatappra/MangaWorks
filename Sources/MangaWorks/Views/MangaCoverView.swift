@@ -248,7 +248,7 @@ public struct MangaCoverView: View {
         VStack(alignment: .leading) {
             ForEach(cover.leftSide) {action in
                 if MangaWorks.evaluateCondition(action.condition) {
-                    MangaButton(title: action.text, font: ComicFonts.stormfaze, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, shadowed: false) {
+                    MangaButton(title: action.text, font: ComicFonts.stormfaze, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, shadowed: true) {
                         MangaWorks.runGraceScript(action.excute)
                     }
                     .padding(.bottom, menuPadding)
@@ -263,7 +263,7 @@ public struct MangaCoverView: View {
         VStack(alignment: .trailing) {
             ForEach(cover.rightSide) {action in
                 if MangaWorks.evaluateCondition(action.condition) {
-                    MangaButton(title: action.text, font: ComicFonts.stormfaze, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, shadowed: false) {
+                    MangaButton(title: action.text, font: ComicFonts.stormfaze, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, shadowed: true) {
                         MangaWorks.runGraceScript(action.excute)
                     }
                     .padding(.bottom, menuPadding)

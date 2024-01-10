@@ -177,10 +177,9 @@ open class MangaWorks {
         Execute.onMain {
             do {
                 if script.contains("main {") || script.contains("main{") {
-                    try GraceRuntime.shared.run(script: script)
+                    try GraceRuntime.shared.run(program: script)
                 } else {
-                    let execute = "import StandardLib; import StringLib; main{\(script);}"
-                    try GraceRuntime.shared.run(script: execute)
+                    try GraceRuntime.shared.run(script: script)
                 }
             } catch {
                 Log.error(subsystem: "MangaWorks", category: "runGraceScript", "Error: \(error)")

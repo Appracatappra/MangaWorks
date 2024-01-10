@@ -23,17 +23,18 @@ open class MangaPageWeatherScene: SKScene {
     /// A common, shared instance of the weather scene.
     public static var shared = MangaPageWeatherScene()
     
-    public static var fileSource:MangaWorks.Source = .packageBundle
+    public static var fileSource:MangaWorks.Source = .appBundle
     
     public static func LoadEmitter(filename:String, particleName:String) -> SKEmitterNode {
         
-        // Source?
+        // Load from app or package bundle.
         if MangaPageWeatherScene.fileSource == .appBundle {
             if let emitter = SKEmitterNode(fileNamed: "\(filename).sks") {
                 return emitter
             }
         } else {
-            // Generate a path to the file
+            // KKM - I'm unable to get the `SKEmitterNode` to load from the package's bundle no matter
+            // what I try. I might come back to this in the future.
             if let sksPath = MangaWorks.pathTo(resource: filename, ofType: "sks") {
                 if let emitter = SKEmitterNode(fileNamed: sksPath) {
                     if let image = MangaWorks.rawImage(name: particleName, withExtension: "png") {

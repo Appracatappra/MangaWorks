@@ -21,14 +21,6 @@ import ODRManager
 open class MangaPageScreenMetrics {
     
     // MARK: - Static Properties
-    /// Returns `true` if the app is an iOS or iPadOS app running on a Apple Silicone Mac.
-    public static var isiOSAppOnMac:Bool {
-        //if #available(iOS 14.0, *) {
-        return ProcessInfo.processInfo.isMacCatalystApp
-        //}
-        //return false
-    }
-    
     /// The screen width as a `CGFloat`.
     public static var screenWidth:CGFloat {
         return CGFloat(HardwareInformation.screenWidth)
