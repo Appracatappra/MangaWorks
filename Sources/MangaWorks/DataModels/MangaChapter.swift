@@ -22,6 +22,27 @@ import Observation
     // MARK: - Static Functions
     /// Registers `MangaChapter` functions with the Grace Language so they are available in MangaWorks Grace Scripts.
     public static func registerGraceFunctions() {
+        let compiler = GraceCompiler.shared
+        
+        // Add pageHasMap
+        compiler.register(name: "pageHasMap", parameterNames: [], parameterTypes: [], returnType: .bool) { parameters in
+            var value = ""
+            
+            let has = (MangaBook.shared.currentPage.map != "")
+            value = "\(has)"
+            
+            return GraceVariable(name: "result", value: value, type: .bool)
+        }
+        
+        // Add pageHasBlueprints
+        compiler.register(name: "pageHasBlueprints", parameterNames: [], parameterTypes: [], returnType: .bool) { parameters in
+            var value = ""
+            
+            let has = (MangaBook.shared.currentPage.blueprints != "")
+            value = "\(has)"
+            
+            return GraceVariable(name: "result", value: value, type: .bool)
+        }
     }
     
     // MARK: - Properties

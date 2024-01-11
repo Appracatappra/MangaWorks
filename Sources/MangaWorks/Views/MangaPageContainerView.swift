@@ -138,8 +138,29 @@ public struct MangaPageContainerView<Content: View>: View {
             }
             
             // Display the page view
-            portraitBody()
+            if HardwareInformation.isPhone {
+                portraitBodyPhone()
+            } else {
+                portraitBody()
+            }
         }
+        .ignoresSafeArea()
+    }
+    
+    /// Draws the portrait version of the manga page.
+    /// - Returns: Returns the portrait version of the manga page.
+    @ViewBuilder private func portraitBodyPhone() -> some View {
+        ZStack {
+            Rectangle()
+                .fill(backgroundColor)
+                .border(borderColor, width: /*@START_MENU_TOKEN@*/4/*@END_MENU_TOKEN@*/)
+                .overlay(content)
+                .padding(.horizontal, insetHorizontal)
+                .padding(.vertical, insetVertical)
+            .clipped()
+        }
+        .background(Color.white)
+        .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
     }
     
     /// Draws the portrait version of the manga page.
@@ -152,10 +173,13 @@ public struct MangaPageContainerView<Content: View>: View {
                 .overlay(content)
                 .padding(.horizontal, insetHorizontal)
                 .padding(.vertical, insetVertical)
+                .ignoresSafeArea()
             .clipped()
+            .frame(width: MangaPageScreenMetrics.screenHalfWidth, height: MangaPageScreenMetrics.screenHeight)
         }
+        .ignoresSafeArea()
         .background(Color.white)
-        .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
+        .frame(width: MangaPageScreenMetrics.screenHalfWidth, height: MangaPageScreenMetrics.screenHeight)
     }
 }
 

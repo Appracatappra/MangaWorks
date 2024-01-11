@@ -121,16 +121,16 @@ public struct MangaFullPageView: View {
         if HardwareInformation.isPhone {
             return CGFloat(20.0)
         } else {
-            return CGFloat(40.0)
+            return CGFloat(90.0)
         }
     }
     
     /// Gets the inset for the comic page.
     private var insetVertical:CGFloat {
         if HardwareInformation.isPhone {
-            return CGFloat(100.0)
+            return CGFloat(125.0)
         } else {
-            return CGFloat(40.0)
+            return CGFloat(90.0)
         }
     }
     

@@ -36,18 +36,18 @@ import ODRManager
     /// Handles the MangaBook requesting the app to change the layer visibility.
     public typealias RequestChangeLayerVisibility = (Int) -> Void
     
+    /// Handles a generic event for the MangaBook.
+    public typealias EventHandler = () -> Void
+    
     // MARK: - Static Properties
     /// A shared instance of the `MangaBook` object.
     public static var shared:MangaBook = MangaBook()
     
     /// If `true`, the collection of `MangaChapters` will be included in the serialized results.
-    public static var serializeStateOnly:Bool = false
+    public static var serializeStateOnly:Bool = true
     
     /// If `true` show hints on Manga Pages where they exist.
     public static var showHints:Bool = false
-    
-    /// if `true` automatically read all of the text on a manga page when it loads.
-    public static var autoReadPage:Bool = true
     
     // MARK: - Static Functions
     /// Registers `MangaBook` functions with the Grace Language so they are available in MangaWorks Grace Scripts.
@@ -81,6 +81,14 @@ import ODRManager
         compiler.register(name: "returnToLastPage", parameterNames: [], parameterTypes: []) { parameters in
             
             MangaBook.shared.returnToLastView()
+            
+            return nil
+        }
+        
+        // Add returnToLastPage
+        compiler.register(name: "startNewGame", parameterNames: [], parameterTypes: []) { parameters in
+            
+            MangaBook.shared.startNewGame()
             
             return nil
         }
@@ -331,7 +339,13 @@ import ODRManager
     public var onRequestChangeView:RequestChangeView? = nil
     
     /// Handle the user wanting to change the layer visibility.
-    public var OnRequestChangeLayerVisibility:RequestChangeLayerVisibility? = nil
+    public var onRequestChangeLayerVisibility:RequestChangeLayerVisibility? = nil
+    
+    /// Handle the player starting a new game.
+    public var onStartNewGame:EventHandler? = nil
+    
+    /// Handle the player saving the game state.
+    public var onSaveState:EventHandler? = nil
     
     // MARK: - Computed Properties
     /// Returns the total number of pages in the book.
@@ -348,7 +362,6 @@ import ODRManager
     /// Return the object as a serialized string.
     public var serialized: String {
         let serializer = Serializer(divider: Divider.mangaBook)
-            .append(pageSource)
             .append(startedReading)
             .append(currentPageID)
             .append(array: lastPageStack, divider: ",")
@@ -380,9 +393,13 @@ import ODRManager
     /// Loads the state from a serialized string.
     /// - Parameter value: A serialized string representing the object.
     public func load(from value:String) {
-        let deserializer = Deserializer(text: value, divider: Divider.chapter)
         
-        self.pageSource.from(deserializer.int())
+        guard value != "" else {
+            return
+        }
+        
+        let deserializer = Deserializer(text: value, divider: Divider.mangaBook)
+        
         self.startedReading = deserializer.bool()
         self.currentPageID = deserializer.string()
         self.lastPageStack = deserializer.array(divider: ",")
@@ -412,6 +429,24 @@ import ODRManager
                 item.quantityRemaining = state.quantityRemaining
             }
         }
+    }
+    
+    /// Starts a new game.
+    public func startNewGame() {
+        self.startedReading = true
+        self.currentPageID = ""
+        self.lastPageStack = []
+        self.state = [:]
+        self.notebook = MangaNotebook()
+        self.items = []
+        self.chapters = []
+        self.currentPage = MangaPage(id: "00", pageType: .fullPageImage)
+        
+        guard let onStartNewGame else {
+            return
+        }
+        
+        onStartNewGame()
     }
     
     // !!!: - Action Menue
@@ -737,10 +772,10 @@ import ODRManager
     /// Request that the app changes the layer visibility.
     /// - Parameter visibility: The visibility as an integer.
     public func changeLayerVisibility(visibility:Int) {
-        if let OnRequestChangeLayerVisibility {
+        if let onRequestChangeLayerVisibility {
             Execute.onMain {
                 // Ask app to change views.
-                OnRequestChangeLayerVisibility(visibility)
+                onRequestChangeLayerVisibility(visibility)
             }
         } else {
             Debug.error(subsystem: "MangaWorks", category: "Change View", "ERRROR: OnRequestChangeLayerVisibility not defined.")
@@ -772,6 +807,11 @@ import ODRManager
             lastPageStack.append(id)
         } else {
             lastPageStack.insert(id, at: 0)
+        }
+        
+        // Only save the last ten pages
+        if lastPageStack.count >= 10 {
+            lastPageStack.remove(at: 9)
         }
     }
     
@@ -826,6 +866,9 @@ import ODRManager
         let pageID = "\(page.chapter)|\(page.id)"
         currentPageID = pageID
         
+        // Request to save state
+        requestSaveState()
+        
         // Load any on demand resources for this page.
         OnDemandResources.loadResourceTag = MangaWorks.expandMacros(in: page.loadResourceTag)
         ODRManager.shared.requestResourceWith(tag: OnDemandResources.loadResourceTag, onLoadingResource: {
@@ -863,7 +906,7 @@ import ODRManager
         }
         
         // Read page?
-        if MangaBook.autoReadPage {
+        if MangaStateManager.autoReadPage {
             page.readText(invisibleText: false)
         }
         
@@ -884,6 +927,16 @@ import ODRManager
     }
     
     // !!!: - Game State Management
+    /// Request the app to save the current game state.
+    public func requestSaveState() {
+        
+        guard let onSaveState else {
+            return
+        }
+        
+        onSaveState()
+    }
+    
     /// Continues an already started game.
     public func continueGame() {
         

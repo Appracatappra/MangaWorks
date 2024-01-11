@@ -2,7 +2,7 @@
 //  SwiftUIView.swift
 //  
 //
-//  Created by Kevin Mullins on 1/8/24.
+//  Created by Kevin Mullins on 1/11/24.
 //
 
 import SwiftUI
@@ -12,44 +12,38 @@ import LogManager
 import GraceLanguage
 import SwiftUIGamepad
 
-/// Displays the contents of a `MangaNotebook`.
-public struct MangaNotebookView: View {
+public struct MangaSettingsView: View {
     
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
-    ///   - imageSource: Defines the source of the image.
     ///   - uniqueID: The unique ID of the container used to tie in gamepad support.
-    ///   - entries: A collection of `MangaNotebookEntry` objects to display.
+    ///   - entries: A collection of `MangaPageAction` objects to display.
     ///   - backgroundColor: The background color of the page.
-    ///   - noNotesImage: The image to show if the player hasn't collected any notes.
+    ///   - backgroundImage: The background image to display behind the menu.
     ///   - isGamepadRequired: If `true`, a gamepad is required to run the app.
     ///   - isAttachedToGameCenter: If `true`, the app is attached to Game Center.
-    public init(imageSource: MangaWorks.Source = .appBundle, uniqueID: String = "Notebook", entries: [MangaNotebookEntry] = [], backgroundColor: Color = .white, noNotesImage:String = "", isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
-        self.imageSource = imageSource
+    public init(uniqueID: String = "AppSettings", entries: [MangaPageAction] = [], backgroundColor: Color = MangaWorks.menuBackgroundColor, backgroundImage: String = "", isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
         self.uniqueID = uniqueID
         self.entries = entries
         self.backgroundColor = backgroundColor
-        self.noNotesImage = noNotesImage
+        self.backgroundImage = backgroundImage
         self.isGamepadRequired = isGamepadRequired
         self.isAttachedToGameCenter = isAttachedToGameCenter
     }
     
     // MARK: - Properties
-    /// Defines the source of the image.
-    public var imageSource:MangaWorks.Source = .appBundle
-    
     /// The unique ID of the container used to tie in gamepad support.
-    public var uniqueID:String = "Notebook"
+    public var uniqueID:String = "AppSettings"
     
-    /// A collection of `MangaNotebookEntry` objects to display.
-    public var entries:[MangaNotebookEntry] = []
+    /// A collection of `MangaPageAction` objects to display.
+    public var entries:[MangaPageAction] = []
     
     /// The background color of the page.
-    public var backgroundColor: Color = .white
+    public var backgroundColor: Color = MangaWorks.menuBackgroundColor
     
-    /// The image to show if the player hasn't collected any notes.
-    public var noNotesImage:String = ""
+    /// The background image to display behind the menu.
+    public var backgroundImage:String = ""
     
     /// If `true`, a gamepad is required to run the app.
     public var isGamepadRequired:Bool = false
@@ -64,13 +58,37 @@ public struct MangaNotebookView: View {
     /// If `true`, a gamepad is connected to the device the app is running on.
     @State private var isGamepadConnected:Bool = false
     
-    /// If `true`, a notes details are being shown.
-    @State private var isShowingDetails:Bool = false
+    /// Tracks changes in the manga page orientation.
+    @State private var screenOrientation:UIDeviceOrientation = .unknown
     
-    /// Holds the notebook entry that is currently being displayed.
-    @State private var selectedNote:MangaNotebookEntry? = nil
+    /// Holds a  UUID to force the view to refresh.
+    @State private var refreshKey:String = ""
     
-    // MARK: - Computed Properties
+    //MARK: - Computed Properties
+    var settings:[MangaPageAction] {
+        var settings:[MangaPageAction] = []
+        
+        // Add generic settings
+        settings.append(MangaPageAction(id: 1, text: "Play Background Music: @getPreferenceState('playBackgroundMusic')", excute: "call @flipPreference('playBackgroundMusic')"))
+        
+        settings.append(MangaPageAction(id: 2, text: "Play Background Sounds: @getPreferenceState('playBackgroundSounds')", excute: "call @flipPreference('playBackgroundSounds')"))
+        
+        settings.append(MangaPageAction(id: 3, text: "Play Sound Effects: @getPreferenceState('playSoundEffects')", excute: "call @flipPreference('playSoundEffects')"))
+        
+        settings.append(MangaPageAction(id: 4, text: "Auto Read Page Text: @getPreferenceState('autoReadPage')", excute: "call @flipPreference('autoReadPage')"))
+        
+        settings.append(MangaPageAction(id: 5, text: "Read Text When Tapped: @getPreferenceState('readOnTap')", excute: "call @flipPreference('readOnTap')"))
+        
+        settings.append(MangaPageAction(id: 6, text: "Expand Text When Tapped: @getPreferenceState('expandOnTap')", excute: "call @flipPreference('expandOnTap')"))
+        
+        // Add app specific settings
+        for entry in entries {
+            settings.append(entry)
+        }
+        
+        return settings
+    }
+    
     /// Returns the size of the footer text.
     private var footerTextSize:Float {
         if HardwareInformation.isPhone {
@@ -149,17 +167,27 @@ public struct MangaNotebookView: View {
         }
     }
     
+    /// Returns the menu padding based on the device the app is running on.
+    private var menuPadding:CGFloat {
+        if HardwareInformation.isPhone {
+            return 5
+        } else {
+            return 5
+        }
+    }
+    
     // MARK: - Control Body
     /// The body of the control.
     public var body: some View {
         ZStack {
             MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: false, backgroundColor: backgroundColor) {
-                pageBodyContents()
+                pageBodyContents(screenOrientation: screenOrientation, refreshKey: refreshKey)
             }
             #if os(iOS)
             .statusBar(hidden: true)
             #endif
             
+            // Display the header and footer overlay.
             MangaPageOverlayView(uniqueID: uniqueID) {
                 pageOverlayContents()
             }
@@ -178,8 +206,11 @@ public struct MangaNotebookView: View {
             connectGamepad(viewID: uniqueID, handler: { controller, gamepadInfo in
                 isGamepadConnected = true
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
-                buttonBUsage(viewID: uniqueID, "Returns to previous page, or closes an open note details.")
+                buttonBUsage(viewID: uniqueID, "Close **Settings Menu**.")
             })
+        }
+        .onRotate {orientation in
+            screenOrientation = orientation
         }
         .onDisappear {
             disconnectGamepad(viewID: uniqueID)
@@ -197,12 +228,7 @@ public struct MangaNotebookView: View {
         }
         .onGamepadButtonB(viewID: uniqueID) { isPressed in
             if isPressed {
-                if isShowingDetails {
-                    isShowingDetails = false
-                    selectedNote = nil
-                } else {
-                    MangaBook.shared.returnToLastView()
-                }
+                MangaBook.shared.returnToLastView()
             }
         }
         #if os(tvOS)
@@ -219,30 +245,36 @@ public struct MangaNotebookView: View {
     }
     
     // MARK: - Functions
-    /// Creates the main body of the cover.
-    /// - Returns: Returns a view representing the body of the cover.
-    @ViewBuilder func pageBodyContents() -> some View {
-        if isShowingDetails {
-            noteDetails()
-        } else {
-            // Anything to display?
-            if entries.count == 0 {
-                if noNotesImage != "" {
-                    Image(noNotesImage)
-                        .resizable()
-                        .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
-                }
-            } else {
+    /// Draws the body of the menu.
+    /// - Returns: Returns a view with the body of the menu.
+    @ViewBuilder func pageBodyContents(screenOrientation:UIDeviceOrientation, refreshKey:String) -> some View {
+        ZStack {
+            if backgroundImage != "" {
+                Image(backgroundImage)
+                    .resizable()
+                    .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
+            }
+            
+            VStack {
+                Text(markdown: "Settings")
+                    .font(ComicFonts.Troika.ofSize(48))
+                    .foregroundColor(MangaWorks.actionFontColor)
+                    .padding(.top)
+                
                 // The right side menus.
                 if isGamepadConnected {
-                    GamepadMenuView(id: "NotebookItems", alignment: .trailing, menu: buildGamepadMenu(), fontName: ComicFonts.Komika.rawValue, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, selectedColors: MangaWorks.menuSelectedGradient, shadowed: false, maxEntries: 6, boxWidth: cardWidth, padding: 0)
+                    GamepadMenuView(id: "SettingItems", alignment: .trailing, menu: buildGamepadMenu(), fontName: ComicFonts.Komika.rawValue, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, selectedColors: MangaWorks.menuSelectedGradient, shadowed: false, maxEntries: 8, boxWidth: cardWidth, padding: 0)
                 } else {
                     touchMenu()
                 }
+                
+                Spacer()
             }
+            .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical - 50.0)
         }
+        .ignoresSafeArea()
     }
-    
+
     /// Draws the header and footer overlay contents.
     /// - Returns: Returns a view containing the header and footer.
     @ViewBuilder func pageOverlayContents() -> some View {
@@ -263,18 +295,10 @@ public struct MangaNotebookView: View {
     /// - Returns: Returns a view containing the page header.
     @ViewBuilder func pageheader() -> some View {
         HStack {
-            if isShowingDetails {
-                MangaButton(title: "Close", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
-                    isShowingDetails = false
-                    selectedNote = nil
-                }
-                .padding(.leading)
-            } else {
-                MangaButton(title: "Back", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
-                    MangaBook.shared.returnToLastView()
-                }
-                .padding(.leading)
+            MangaButton(title: "Back", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
+                MangaBook.shared.changeView(viewID: "[COVER]")
             }
+            .padding(.leading)
             
             Spacer()
         }
@@ -285,7 +309,7 @@ public struct MangaNotebookView: View {
     /// - Returns: Returs a view containing the gamepad header.
     @ViewBuilder func pageheaderGamepad() -> some View {
         HStack {
-            GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonBImage, title: (isShowingDetails) ? "Close" : "Back", scale: MangaPageScreenMetrics.controlButtonScale)
+            GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonBImage, title: "Back", scale: MangaPageScreenMetrics.controlButtonScale)
                 .padding(.leading)
             
             Spacer()
@@ -299,7 +323,7 @@ public struct MangaNotebookView: View {
         HStack {
             
             ZStack {
-                Text("Notebook")
+                Text(" ")
                     .font(ComicFonts.Komika.ofSize(footerTextSize))
                     .foregroundColor(.black)
                     .padding(.leading)
@@ -309,7 +333,7 @@ public struct MangaNotebookView: View {
             Spacer()
             
             ZStack {
-                Text("Notes: \(entries.count)")
+                Text(" ")
                     .font(ComicFonts.Komika.ofSize(footerTextSize))
                     .foregroundColor(.black)
                     .padding(.trailing)
@@ -319,67 +343,48 @@ public struct MangaNotebookView: View {
         .padding(.bottom, footerPadding)
     }
     
-    /// Draws the touch menu of notebook entries.
-    /// - Returns: Returns a view containing the touch menu items.
+    /// Force the view to repaint itself.
+    private func refreshView() {
+        refreshKey = UUID().uuidString
+    }
+    
+    /// Creates the right side touch menu for the cover.
+    /// - Returns: Returns a view containing the right side touch menu.
     @ViewBuilder func touchMenu() -> some View {
         ScrollView {
             VStack {
-                ForEach(entries, id: \.notebookID) { entry in
-                    MangaNotebookEntryView(notebookEntry: entry) {
-                        selectedNote = entry
-                        isShowingDetails = true
+                ForEach(settings) {action in
+                    if MangaWorks.evaluateCondition(action.condition) {
+                        MangaButton(title: MangaWorks.expandMacros(in: action.text), font: ComicFonts.stormfaze, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, shadowed: true) {
+                            MangaWorks.runGraceScript(action.excute)
+                            refreshView()
+                        }
+                        .padding(.bottom, menuPadding)
                     }
                 }
             }
         }
-        .padding(.vertical)
     }
     
     /// Creates the menu for an attached gamepad.
     /// - Returns: Returns a `GamepadMenu` containing all of the menu items.
-    func buildGamepadMenu() -> GamepadMenu {
+    private func buildGamepadMenu() -> GamepadMenu {
         
-        let menu = GamepadMenu(style: .cards)
+        let menu = GamepadMenu()
         
-        for entry in entries {
-            let text = "\(entry.title): \(entry.entry)"
-            menu.addItem(title: text) {
-                selectedNote = entry
-                isShowingDetails = true
+        for action in settings {
+            if MangaWorks.evaluateCondition(action.condition) {
+                menu.addItem(title: MangaWorks.expandMacros(in: action.text)) {
+                    MangaWorks.runGraceScript(action.excute)
+                    refreshView()
+                }
             }
         }
-        
         
         return menu
-    }
-    
-    /// Draws a view containing the selected note's details.
-    /// - Returns: Returns a view containing the note's details.
-    @ViewBuilder func noteDetails() -> some View {
-        VStack {
-            if let note = selectedNote {
-                if note.image != "" {
-                    if imageSource == .appBundle {
-                        ScaledImageView(imageName: note.image, scale: 0.4)
-                    } else {
-                        ScaledImageView(imageURL: MangaWorks.urlTo(resource: note.image, withExtension: "jpg"), scale: 0.4)
-                    }
-                }
-                
-                Text(markdown: MangaWorks.expandMacros(in: note.title))
-                    .font(ComicFonts.KomikaBold.ofSize(32))
-                    .foregroundColor(MangaWorks.actionTitleColor)
-                
-                Text(markdown: MangaWorks.expandMacros(in: note.entry))
-                    .font(ComicFonts.KomikaBold.ofSize(18))
-                    .foregroundColor(MangaWorks.actionFontColor)
-            }
-        }
-        .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
-        .background(MangaWorks.actionBackgroundColor)
     }
 }
 
 #Preview {
-    MangaNotebookView(imageSource: .packageBundle, entries: [MangaNotebookEntry(notebookID: "01", image: "Happening00", title: "Note #01", entry: "It was the best of times, it was the worst of times."), MangaNotebookEntry(notebookID: "02", title: "Note #02", entry: "It was the best of times, it was the worst of times."), MangaNotebookEntry(notebookID: "03", title: "Note #03", entry: "It was the best of times, it was the worst of times."), MangaNotebookEntry(notebookID: "04", title: "Note #04", entry: "It was the best of times, it was the worst of times."), MangaNotebookEntry(notebookID: "05", title: "Note #05", entry: "It was the best of times, it was the worst of times."), MangaNotebookEntry(notebookID: "06", title: "Note #06", entry: "It was the best of times, it was the worst of times.")])
+    MangaSettingsView()
 }

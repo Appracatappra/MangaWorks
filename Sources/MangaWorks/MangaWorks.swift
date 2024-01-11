@@ -195,6 +195,7 @@ open class MangaWorks {
         
         // Register all the required scripts
         SoundManager.registerGraceFunctions()
+        MangaStateManager.registerGraceFunctions()
         MangaBook.registerGraceFunctions()
         MangaChapter.registerGraceFunctions()
     }

@@ -115,7 +115,7 @@ public struct MangaActionMenuView: View {
         if HardwareInformation.isPhone {
             return CGFloat(20.0)
         } else {
-            return CGFloat(40.0)
+            return CGFloat(90.0)
         }
     }
     
@@ -124,7 +124,7 @@ public struct MangaActionMenuView: View {
         if HardwareInformation.isPhone {
             return CGFloat(100.0)
         } else {
-            return CGFloat(40.0)
+            return CGFloat(90.0)
         }
     }
     

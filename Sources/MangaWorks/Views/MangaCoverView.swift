@@ -114,8 +114,12 @@ public struct MangaCoverView: View {
     /// Gets the inset for the comic page.
     public var body: some View {
         ZStack {
-            MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: true, backgroundColor: cover.coverBackgroundColor) {
+            if HardwareInformation.isPhone {
                 pageBodyContents()
+            } else {
+                MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: true, backgroundColor: cover.coverBackgroundColor) {
+                    pageBodyContents()
+                }
             }
             
             // Display gamepad help
@@ -272,6 +276,7 @@ public struct MangaCoverView: View {
                 }
             }
         }
+        .ignoresSafeArea()
     }
     
     /// Creates the left side touch menu for the cover.
