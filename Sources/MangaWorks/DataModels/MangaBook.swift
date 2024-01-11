@@ -77,6 +77,14 @@ import ODRManager
             return nil
         }
         
+        // Add returnToLastPage
+        compiler.register(name: "returnToLastPage", parameterNames: [], parameterTypes: []) { parameters in
+            
+            MangaBook.shared.returnToLastView()
+            
+            return nil
+        }
+        
         // Add hasGameStarted
         compiler.register(name: "hasGameStarted", parameterNames: [], parameterTypes: [], returnType: .bool) { parameters in
             var value = ""
@@ -303,6 +311,9 @@ import ODRManager
     /// A collection of chapters in the book.
     public var chapters:[MangaChapter] = []
     
+    /// Holds an instnace of the last page loaded.
+    public var currentPage:MangaPage = MangaPage(id: "00", pageType: .fullPageImage)
+    
     /// A collection of menu items that will be represented by the action menu.
     public var actionMenuItems:[MangaPageAction] = []
     
@@ -365,6 +376,7 @@ import ODRManager
     }
     
     // MARK: - Functions
+    // !!!: - State Management
     /// Loads the state from a serialized string.
     /// - Parameter value: A serialized string representing the object.
     public func load(from value:String) {
@@ -402,6 +414,7 @@ import ODRManager
         }
     }
     
+    // !!!: - Action Menue
     /// Adds a new action menu item to the MangaBook.
     /// - Parameters:
     ///   - text: The text description of the action.
@@ -414,6 +427,21 @@ import ODRManager
         actionMenuItems.append(action)
         
         return self
+    }
+    
+    // !!!: - Inventory Items
+    /// Returns all of the items that are currently in the player's inventory.
+    /// - Returns: Returns a collection of items the player is carrying.
+    public func playerInventory() -> [MangaInventoryItem] {
+        var inventory:[MangaInventoryItem] = []
+        
+        for item in items {
+            if item.status == .inPlayerInventory {
+                inventory.append(item)
+            }
+        }
+        
+        return inventory
     }
     
     /// Gets an item from the inventory item collection by id.
@@ -527,6 +555,7 @@ import ODRManager
         }
     }
     
+    // !!!: - Chanpters
     /// Returns the given chapter.
     /// - Parameter id: The id of the chapter to return.
     /// - Returns: Returns the requested chapter or `nil` if not found.
@@ -570,6 +599,35 @@ import ODRManager
         }
     }
     
+    /// Returns an existing or creates a new chapter.
+    /// - Parameters:
+    ///   - id: The id of the chapter to fetch or create.
+    ///   - isPurgable: If `true` this `MangaChapter` can be purged when not in use.
+    /// - Returns: Returns the requested chapter.
+    private func newOrExistingChapter(id:String, isPurgable:Bool = true) -> MangaChapter {
+        // Scan all chapters.
+        for chapter in chapters {
+            if chapter.id == id {
+                return chapter
+            }
+        }
+        
+        // Create, store and return new chapter.
+        let chapter = MangaChapter(id: id, isPurgable: isPurgable)
+        chapters.append(chapter)
+        return chapter
+    }
+    
+    /// Creates a new chapter if it does not already exist.
+    /// - Parameters:
+    ///   - id: The unique ID of the chapter.
+    ///   - isPurgable: If `true` this `MangaChapter` can be purged when not in use.
+    /// - Returns: Returns the new chapter.
+    public func addChapter(id: String, isPurgable:Bool = true) -> MangaChapter {
+        return newOrExistingChapter(id: id, isPurgable: isPurgable)
+    }
+    
+    // !!!: - Pages
     /// Gets the requested page.
     /// - Parameter id: The ID of the page to return.
     /// - Returns: Returns the requested page or `nil` if the page is not found.
@@ -614,34 +672,6 @@ import ODRManager
         return nil
     }
     
-    /// Returns an existing or creates a new chapter.
-    /// - Parameters:
-    ///   - id: The id of the chapter to fetch or create.
-    ///   - isPurgable: If `true` this `MangaChapter` can be purged when not in use.
-    /// - Returns: Returns the requested chapter.
-    private func newOrExistingChapter(id:String, isPurgable:Bool = true) -> MangaChapter {
-        // Scan all chapters.
-        for chapter in chapters {
-            if chapter.id == id {
-                return chapter
-            }
-        }
-        
-        // Create, store and return new chapter.
-        let chapter = MangaChapter(id: id, isPurgable: isPurgable)
-        chapters.append(chapter)
-        return chapter
-    }
-    
-    /// Creates a new chapter if it does not already exist.
-    /// - Parameters:
-    ///   - id: The unique ID of the chapter.
-    ///   - isPurgable: If `true` this `MangaChapter` can be purged when not in use.
-    /// - Returns: Returns the new chapter.
-    public func addChapter(id: String, isPurgable:Bool = true) -> MangaChapter {
-        return newOrExistingChapter(id: id, isPurgable: isPurgable)
-    }
-    
     /// Adds a page to the given chapter. The chapter will be created if it does not already exist.
     /// - Parameters:
     ///   - chapter: The chapter to add the page to.
@@ -670,6 +700,7 @@ import ODRManager
         return self
     }
     
+    // !!!: - View Handlers
     /// Request the app to change view.
     /// - Parameter viewID: The id of the view to display.
     public func changeView(viewID:String) {
@@ -681,6 +712,26 @@ import ODRManager
         } else {
             Debug.error(subsystem: "MangaWorks", category: "Change View", "ERRROR: onRequestChangeView not defined.")
         }
+    }
+    
+    /// Returns to the last page viewed.
+    public func returnToLastView() {
+        
+        // Ensure a last page exists.
+        guard currentPageID != "" else {
+            return
+        }
+        
+        // Take action based on the page type
+        switch currentPage.pageType {
+        case .fullPageImage:
+            changeView(viewID: "[FULLPAGE]")
+        case .panelsPage:
+            changeView(viewID: "[PANELPAGE]")
+        case .panoramaPage:
+            changeView(viewID: "[PANOPAGE]")
+        }
+        
     }
     
     /// Request that the app changes the layer visibility.
@@ -705,7 +756,23 @@ import ODRManager
     /// Pushes the id of the last page visited onto the stack.
     /// - Parameter id: The id of the last page visited.
     public func pushLastPage(id:String) {
-        lastPageStack.insert(id, at: 0)
+        
+        // Ensure the ID is not empty.
+        guard id != "" else {
+            return
+        }
+        
+        // Ensure this is not a control page.
+        guard !currentPageID.contains("*") else {
+            return
+        }
+        
+        // Add the ID to the stack.
+        if lastPageStack.count == 0 {
+            lastPageStack.append(id)
+        } else {
+            lastPageStack.insert(id, at: 0)
+        }
     }
     
     /// Pops the id of the previous page visited off of the stack.
@@ -722,16 +789,6 @@ import ODRManager
         return id
     }
     
-    public func continueGame() {
-        
-        guard currentPageID != "" else {
-            changeView(viewID: "cover")
-            return
-        }
-        
-        displayPage(id: currentPageID)
-    }
-    
     /// Ask the app to display a given `MangaPage`.
     /// - Parameter id: The id of the page to display.
     public func displayPage(id:String) {
@@ -742,7 +799,7 @@ import ODRManager
         case "<<":
             newPageID = popLastPageID()
         case "[COVER]":
-            changeView(viewID: "cover")
+            changeView(viewID: "[COVER]")
             return
         default:
             break
@@ -759,10 +816,11 @@ import ODRManager
             return
         }
         
-        // Save last location?
-        if currentPageID != "" && !currentPageID.contains("*") {
-            pushLastPage(id: currentPageID)
-        }
+        // Save last location
+        pushLastPage(id: currentPageID)
+        
+        // Save the last page loaded
+        currentPage = page
         
         // Save Current Page ID
         let pageID = "\(page.chapter)|\(page.id)"
@@ -823,6 +881,18 @@ import ODRManager
         } else {
             Debug.error(subsystem: "MangaWorks", category: "Display Page", "Error: onRequestDisplayPage has not been defined.")
         }
+    }
+    
+    // !!!: - Game State Management
+    /// Continues an already started game.
+    public func continueGame() {
+        
+        guard currentPageID != "" else {
+            changeView(viewID: "[COVER]")
+            return
+        }
+        
+        displayPage(id: currentPageID)
     }
     
     /// Generates a random "PIN" that can be used for passcodes in the game.

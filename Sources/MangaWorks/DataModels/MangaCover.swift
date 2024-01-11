@@ -39,6 +39,7 @@ import Observation
         }
     }
     
+    /// Defines the vertical placement of a cover item.
     public enum VerticalPlacement: Int {
         case top = 0
         case center
@@ -56,6 +57,7 @@ import Observation
         }
     }
     
+    /// Defines the fill mode of a cover item.
     public enum FillMode: Int {
         case stretch = 0
         case fit
@@ -83,17 +85,29 @@ import Observation
     /// The cover background image.
     public var coverBackgroundImage:String = ""
     
+    /// The cover background vertical placement.
     public var backgroundVerticalPlacement:VerticalPlacement = .top
     
+    /// The cover background fill mode.
     public var backgroundFillMode:FillMode = .fit
     
     /// The cover's middle image.
     public var coverMiddleImage:String = ""
     
-    public var middleVerticalPlacement:VerticalAlignment = .bottom
+    /// The cover  middle vertical placement.
+    public var middleVerticalPlacement:VerticalPlacement = .bottom
+    
+    /// The cover middle fill mode.
+    public var middleFillMode:FillMode = .fit
     
     /// The cover's foreground image.
     public var coverForegroundImage:String = ""
+    
+    /// The cover foreground vertical palcement.
+    public var foregroundVerticalPlacement:VerticalPlacement = .bottom
+    
+    /// The cover foreground fill mode.
+    public var foregroundFillMode:FillMode = .fit
     
     /// The cover's background color.
     public var coverBackgroundColor:Color = .white
@@ -111,8 +125,14 @@ import Observation
             .append(imageSource)
             .append(title)
             .append(coverBackgroundImage)
+            .append(backgroundVerticalPlacement)
+            .append(backgroundFillMode)
             .append(coverMiddleImage)
+            .append(middleVerticalPlacement)
+            .append(middleFillMode)
             .append(coverForegroundImage)
+            .append(foregroundVerticalPlacement)
+            .append(foregroundVerticalPlacement)
             .append(coverBackgroundColor)
             .append(children: leftSide, divider: Divider.actionDivider)
             .append(children: rightSide, divider: Divider.actionDivider)
@@ -126,10 +146,16 @@ import Observation
     ///   - imageSource: The source for the cover's images.
     ///   - title: The manga's title.
     ///   - coverBackgroundImage: The cover background image.
+    ///   - backgroundVerticalPlacement: The cover background vertical placement.
+    ///   - backgroundFillMode: The cover background fill mode.
     ///   - coverMiddleImage: The cover's middle image.
+    ///   - middleVerticalPlacement: The cover  middle vertical placement.
+    ///   - middleFillMode: The cover middle fill mode.
     ///   - coverForegroundImage: The cover's foreground image.
+    ///   - foregroundVerticalPlacement: The cover foreground vertical palcement.
+    ///   - foregroundFillMode: The cover foreground fill mode.
     ///   - coverBackgroundColor: The cover's background color.
-    public init(imageSource: MangaWorks.Source = .appBundle, title: String = "", coverBackgroundImage: String = "", backgroundVerticalPlacement:VerticalPlacement = .top, backgroundFillMode:FillMode = .fit, coverMiddleImage: String = "", middleVerticalPlacement:VerticalAlignment = .bottom, coverForegroundImage: String = "", coverBackgroundColor:Color = .white) {
+    public init(imageSource: MangaWorks.Source = .appBundle, title: String = "", coverBackgroundImage: String = "", backgroundVerticalPlacement:VerticalPlacement = .top, backgroundFillMode:FillMode = .fit, coverMiddleImage: String = "", middleVerticalPlacement:VerticalPlacement = .bottom, middleFillMode:FillMode = .fit, coverForegroundImage: String = "", foregroundVerticalPlacement:VerticalPlacement = .bottom, foregroundFillMode:FillMode = .fit, coverBackgroundColor:Color = .white) {
         self.imageSource = imageSource
         self.title = title
         self.coverBackgroundImage = coverBackgroundImage
@@ -137,7 +163,10 @@ import Observation
         self.backgroundFillMode = backgroundFillMode
         self.coverMiddleImage = coverMiddleImage
         self.middleVerticalPlacement = middleVerticalPlacement
+        self.middleFillMode = middleFillMode
         self.coverForegroundImage = coverForegroundImage
+        self.foregroundVerticalPlacement = foregroundVerticalPlacement
+        self.foregroundFillMode = foregroundFillMode
         self.coverBackgroundColor = coverBackgroundColor
     }
     
@@ -149,8 +178,14 @@ import Observation
         self.imageSource.from(deserializer.int())
         self.title = deserializer.string()
         self.coverBackgroundImage = deserializer.string()
+        self.backgroundVerticalPlacement.from(deserializer.int())
+        self.backgroundFillMode.from(deserializer.int())
         self.coverMiddleImage = deserializer.string()
+        self.middleVerticalPlacement.from(deserializer.int())
+        self.middleFillMode.from(deserializer.int())
         self.coverForegroundImage = deserializer.string()
+        self.foregroundVerticalPlacement.from(deserializer.int())
+        self.foregroundFillMode.from(deserializer.int())
         self.coverBackgroundColor = deserializer.color()
         self.leftSide = deserializer.children(divider: Divider.actionDivider)
         self.rightSide = deserializer.children(divider: Divider.actionDivider)

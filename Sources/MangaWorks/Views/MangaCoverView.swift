@@ -222,10 +222,10 @@ public struct MangaCoverView: View {
                 }
                 
                 if HardwareInformation.isPhone {
-                    pageImageContents(imageName: cover.coverMiddleImage)
+                    pageImageContents(imageName: cover.coverMiddleImage, fillMode: cover.middleFillMode)
                         .padding(.top)
                 } else {
-                    pageImageContents(imageName: cover.coverMiddleImage)
+                    pageImageContents(imageName: cover.coverMiddleImage, fillMode: cover.middleFillMode)
                 }
                 
                 if cover.middleVerticalPlacement == .top {
@@ -260,18 +260,15 @@ public struct MangaCoverView: View {
             
             // Cover top image
             VStack {
-                Spacer()
+                if cover.foregroundVerticalPlacement == .bottom {
+                    Spacer()
+                }
                 
-                if cover.imageSource == .appBundle {
-                    Image(cover.coverForegroundImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .allowsHitTesting(false)
-                } else if let image = MangaWorks.image(name: cover.coverForegroundImage, withExtension: "png") {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .allowsHitTesting(false)
+                pageImageContents(imageName: cover.coverForegroundImage, fillMode: cover.foregroundFillMode)
+                    .allowsHitTesting(false)
+                
+                if cover.foregroundVerticalPlacement == .top {
+                    Spacer()
                 }
             }
         }

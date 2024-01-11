@@ -22,13 +22,15 @@ public struct MangaInventoryView: View {
     ///   - uniqueID: The unique ID of the container used to tie in gamepad support.
     ///   - entries: A collection of `MangaInventoryItem` objects to display.
     ///   - backgroundColor: The background color of the page.
+    ///   - noItemsImage: The image to show if the player isn't carrying any items.
     ///   - isGamepadRequired: If `true`, a gamepad is required to run the app.
     ///   - isAttachedToGameCenter: If `true`, the app is attached to Game Center.
-    public init(imageSource: MangaWorks.Source = .appBundle, uniqueID: String = "Inventory", entries: [MangaInventoryItem] = [], backgroundColor: Color = .white, isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
+    public init(imageSource: MangaWorks.Source = .appBundle, uniqueID: String = "Inventory", entries: [MangaInventoryItem] = [], backgroundColor: Color = .white, noItemsImage:String = "", isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
         self.imageSource = imageSource
         self.uniqueID = uniqueID
         self.entries = entries
         self.backgroundColor = backgroundColor
+        self.noItemsImage = noItemsImage
         self.isGamepadRequired = isGamepadRequired
         self.isAttachedToGameCenter = isAttachedToGameCenter
     }
@@ -45,6 +47,9 @@ public struct MangaInventoryView: View {
     
     /// The background color of the page.
     public var backgroundColor: Color = .white
+    
+    /// The image to show if the player isn't carrying any items.
+    public var noItemsImage:String = ""
     
     /// If `true`, a gamepad is required to run the app.
     public var isGamepadRequired:Bool = false
@@ -103,12 +108,44 @@ public struct MangaInventoryView: View {
         return Float(HardwareInformation.screenHalfWidth - 100)
     }
     
+    /// Gets the width of a footer column.
+    private var footerColumnWidth:CGFloat {
+        return MangaPageScreenMetrics.screenHalfWidth / 3.0
+    }
+    
     /// Gets the inset for the comic page.
-    private var inset:CGFloat {
+    private var insetHorizontal:CGFloat {
         if HardwareInformation.isPhone {
-            return CGFloat(80.0)
+            return CGFloat(20.0)
         } else {
+            return CGFloat(40.0)
+        }
+    }
+    
+    /// Gets the inset for the comic page.
+    private var insetVertical:CGFloat {
+        if HardwareInformation.isPhone {
             return CGFloat(100.0)
+        } else {
+            return CGFloat(40.0)
+        }
+    }
+    
+    /// Defines the header padding based on the device.
+    private var headerPadding:CGFloat {
+        if HardwareInformation.isPhone {
+            return 30.0
+        } else {
+            return 20.0
+        }
+    }
+    
+    /// Defines the footer padding based on the device.
+    private var footerPadding:CGFloat {
+        if HardwareInformation.isPhone {
+            return 40.0
+        } else {
+            return 10.0
         }
     }
     
@@ -119,6 +156,9 @@ public struct MangaInventoryView: View {
             MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: false, backgroundColor: backgroundColor) {
                 pageBodyContents()
             }
+            #if os(iOS)
+            .statusBar(hidden: true)
+            #endif
             
             MangaPageOverlayView(uniqueID: uniqueID) {
                 pageOverlayContents()
@@ -162,7 +202,7 @@ public struct MangaInventoryView: View {
                     isShowingDetails = false
                     selectedItem = nil
                 } else {
-                    MangaBook.shared.displayPage(id: "<<")
+                    MangaBook.shared.returnToLastView()
                 }
             }
         }
@@ -195,11 +235,20 @@ public struct MangaInventoryView: View {
         if isShowingDetails {
             noteDetails()
         } else {
-            // The right side menus.
-            if isGamepadConnected {
-                GamepadMenuView(id: "InventoryItems", alignment: .trailing, menu: buildGamepadMenu(), fontName: ComicFonts.Komika.rawValue, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, selectedColors: MangaWorks.menuSelectedGradient, shadowed: false, maxEntries: 6, boxWidth: cardWidth, padding: 0)
+            // Anything to display?
+            if entries.count == 0 {
+                if noItemsImage != "" {
+                    Image(noItemsImage)
+                        .resizable()
+                        .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
+                }
             } else {
-                touchMenu()
+                // The right side menus.
+                if isGamepadConnected {
+                    GamepadMenuView(id: "InventoryItems", alignment: .trailing, menu: buildGamepadMenu(), fontName: ComicFonts.Komika.rawValue, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, selectedColors: MangaWorks.menuSelectedGradient, shadowed: false, maxEntries: 6, boxWidth: cardWidth, padding: 0)
+                } else {
+                    touchMenu()
+                }
             }
         }
     }
@@ -232,7 +281,7 @@ public struct MangaInventoryView: View {
                 .padding(.leading)
             } else {
                 MangaButton(title: "Back", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
-                    MangaBook.shared.displayPage(id: "<<")
+                    MangaBook.shared.returnToLastView()
                 }
                 .padding(.leading)
             }
@@ -250,7 +299,7 @@ public struct MangaInventoryView: View {
                 }
             }
         }
-        .padding(.top, 10)
+        .padding(.top, headerPadding)
     }
     
     /// Renders the page header when a gamepdais attached.
@@ -269,7 +318,7 @@ public struct MangaInventoryView: View {
                 }
             }
         }
-        .padding(.top, 10)
+        .padding(.top, headerPadding)
     }
     
     /// Draws the page footer.
@@ -277,19 +326,25 @@ public struct MangaInventoryView: View {
     @ViewBuilder func pageFooter() -> some View {
         HStack {
             
-            Text("Inventory")
-                .font(ComicFonts.Komika.ofSize(footerTextSize))
-                .foregroundColor(.black)
-                .padding(.leading)
+            ZStack {
+                Text("Inventory")
+                    .font(ComicFonts.Komika.ofSize(footerTextSize))
+                    .foregroundColor(.black)
+                    .padding(.leading)
+            }
+            .frame(width: footerColumnWidth)
             
             Spacer()
             
-            Text("Items: \(entries.count)")
-                .font(ComicFonts.Komika.ofSize(footerTextSize))
-                .foregroundColor(.black)
-                .padding(.trailing)
+            ZStack {
+                Text("Items: \(entries.count)")
+                    .font(ComicFonts.Komika.ofSize(footerTextSize))
+                    .foregroundColor(.black)
+                    .padding(.trailing)
+            }
+            .frame(width: footerColumnWidth)
         }
-        .padding(.bottom, 10)
+        .padding(.bottom, footerPadding)
     }
     
     /// Draws the touch menu of notebook entries.
@@ -354,7 +409,7 @@ public struct MangaInventoryView: View {
                     .foregroundColor(MangaWorks.actionFontColor)
             }
         }
-        .frame(width: MangaPageScreenMetrics.screenHalfWidth - inset, height: MangaPageScreenMetrics.screenHeight - inset)
+        .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
         .background(MangaWorks.actionBackgroundColor)
     }
 }

@@ -152,12 +152,10 @@ public struct MangaPageContainerView<Content: View>: View {
                 .overlay(content)
                 .padding(.horizontal, insetHorizontal)
                 .padding(.vertical, insetVertical)
-            .ignoresSafeArea()
             .clipped()
         }
-        .ignoresSafeArea()
         .background(Color.white)
-        .frame(width: CGFloat(HardwareInformation.screenHalfWidth), height: CGFloat(HardwareInformation.screenHeight))
+        .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
     }
 }
 
