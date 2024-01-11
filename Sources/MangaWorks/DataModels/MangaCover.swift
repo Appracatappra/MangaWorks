@@ -39,6 +39,40 @@ import Observation
         }
     }
     
+    public enum VerticalPlacement: Int {
+        case top = 0
+        case center
+        case bottom
+        
+        // MARK: - Functions
+        /// Gets the value from an `Int` and defaults to `top` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = VerticalPlacement(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .top
+            }
+        }
+    }
+    
+    public enum FillMode: Int {
+        case stretch = 0
+        case fit
+        case fill
+        
+        // MARK: - Functions
+        /// Gets the value from an `Int` and defaults to `top` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = FillMode(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .stretch
+            }
+        }
+    }
+    
     // MARK: - Properties
     /// The source for the cover's images.
     public var imageSource:MangaWorks.Source = .appBundle
@@ -49,8 +83,14 @@ import Observation
     /// The cover background image.
     public var coverBackgroundImage:String = ""
     
+    public var backgroundVerticalPlacement:VerticalPlacement = .top
+    
+    public var backgroundFillMode:FillMode = .fit
+    
     /// The cover's middle image.
     public var coverMiddleImage:String = ""
+    
+    public var middleVerticalPlacement:VerticalAlignment = .bottom
     
     /// The cover's foreground image.
     public var coverForegroundImage:String = ""
@@ -89,11 +129,14 @@ import Observation
     ///   - coverMiddleImage: The cover's middle image.
     ///   - coverForegroundImage: The cover's foreground image.
     ///   - coverBackgroundColor: The cover's background color.
-    public init(imageSource: MangaWorks.Source = .appBundle, title: String = "", coverBackgroundImage: String = "", coverMiddleImage: String = "", coverForegroundImage: String = "", coverBackgroundColor:Color = .white) {
+    public init(imageSource: MangaWorks.Source = .appBundle, title: String = "", coverBackgroundImage: String = "", backgroundVerticalPlacement:VerticalPlacement = .top, backgroundFillMode:FillMode = .fit, coverMiddleImage: String = "", middleVerticalPlacement:VerticalAlignment = .bottom, coverForegroundImage: String = "", coverBackgroundColor:Color = .white) {
         self.imageSource = imageSource
         self.title = title
         self.coverBackgroundImage = coverBackgroundImage
+        self.backgroundVerticalPlacement = backgroundVerticalPlacement
+        self.backgroundFillMode = backgroundFillMode
         self.coverMiddleImage = coverMiddleImage
+        self.middleVerticalPlacement = middleVerticalPlacement
         self.coverForegroundImage = coverForegroundImage
         self.coverBackgroundColor = coverBackgroundColor
     }

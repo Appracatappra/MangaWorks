@@ -57,11 +57,22 @@ public struct MangaPageContainerView<Content: View>: View {
     
     // MARK: - Computed Properties
     /// Gets the inset for the comic page.
-    private var inset:CGFloat {
+    private var insetHorizontal:CGFloat {
         if isFullPage {
             return CGFloat(0.0)
         } else if HardwareInformation.isPhone {
             return CGFloat(20.0)
+        } else {
+            return CGFloat(40.0)
+        }
+    }
+    
+    /// Gets the inset for the comic page.
+    private var insetVertical:CGFloat {
+        if isFullPage {
+            return CGFloat(0.0)
+        } else if HardwareInformation.isPhone {
+            return CGFloat(60.0)
         } else {
             return CGFloat(40.0)
         }
@@ -139,7 +150,8 @@ public struct MangaPageContainerView<Content: View>: View {
                 .fill(backgroundColor)
                 .border(borderColor, width: /*@START_MENU_TOKEN@*/4/*@END_MENU_TOKEN@*/)
                 .overlay(content)
-                .padding(.all, inset)
+                .padding(.horizontal, insetHorizontal)
+                .padding(.vertical, insetVertical)
             .ignoresSafeArea()
             .clipped()
         }

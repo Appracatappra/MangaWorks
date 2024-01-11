@@ -132,7 +132,25 @@ import ODRManager
             return nil
         }
         
-        // Add changePage
+        // Add changeView
+        compiler.register(name: "changeView", parameterNames: ["id"], parameterTypes: [.string]) { parameters in
+            
+            if let id = parameters["id"] {
+                MangaBook.shared.changeView(viewID: id.string)
+            }
+            
+            return nil
+        }
+        
+        // Add changeView
+        compiler.register(name: "continueGame", parameterNames: [], parameterTypes: []) { parameters in
+            
+            MangaBook.shared.continueGame()
+            
+            return nil
+        }
+        
+        // Add changeLayerVisibility
         compiler.register(name: "changeLayerVisibility", parameterNames: ["visibility"], parameterTypes: [.string]) { parameters in
             
             if let visibility = parameters["visibility"] {
@@ -285,6 +303,9 @@ import ODRManager
     /// A collection of chapters in the book.
     public var chapters:[MangaChapter] = []
     
+    /// A collection of menu items that will be represented by the action menu.
+    public var actionMenuItems:[MangaPageAction] = []
+    
     // MARK: - Events
     /// Handle the user wanting to load an external page.
     public var onRequestExternalPage:RequestExternalPage? = nil
@@ -326,6 +347,7 @@ import ODRManager
         
         if !MangaBook.serializeStateOnly {
             serializer.append(children: chapters, divider: Divider.chapters)
+            serializer.append(children: actionMenuItems, divider: Divider.pageActions)
         }
         
         return serializer.value
@@ -364,6 +386,7 @@ import ODRManager
         
         if !MangaBook.serializeStateOnly {
             self.chapters = deserializer.children(divider: Divider.chapters)
+            self.actionMenuItems = deserializer.children(divider: Divider.pageActions)
         }
     }
     
@@ -377,6 +400,20 @@ import ODRManager
                 item.quantityRemaining = state.quantityRemaining
             }
         }
+    }
+    
+    /// Adds a new action menu item to the MangaBook.
+    /// - Parameters:
+    ///   - text: The text description of the action.
+    ///   - condition: A condition that must evaluate to `true` written as a Grace Language macro.
+    ///   - excute: The Grace Language script to run when the user takes this action.
+    /// - Returns: Returns self.
+    @discardableResult public func addActionMenuItem(text:String, condition:String = "", excute:String = "") -> MangaBook {
+        let id:Int = actionMenuItems.count
+        let action = MangaPageAction(id: id, text: text, condition: condition, excute: excute)
+        actionMenuItems.append(action)
+        
+        return self
     }
     
     /// Gets an item from the inventory item collection by id.
@@ -685,6 +722,16 @@ import ODRManager
         return id
     }
     
+    public func continueGame() {
+        
+        guard currentPageID != "" else {
+            changeView(viewID: "cover")
+            return
+        }
+        
+        displayPage(id: currentPageID)
+    }
+    
     /// Ask the app to display a given `MangaPage`.
     /// - Parameter id: The id of the page to display.
     public func displayPage(id:String) {
@@ -713,12 +760,13 @@ import ODRManager
         }
         
         // Save last location?
-        if !page.id.contains("*") {
-            pushLastPage(id: "\(page.chapter)|\(page.id)")
+        if currentPageID != "" && !currentPageID.contains("*") {
+            pushLastPage(id: currentPageID)
         }
         
-        // Save current page ID
-        currentPageID = page.id
+        // Save Current Page ID
+        let pageID = "\(page.chapter)|\(page.id)"
+        currentPageID = pageID
         
         // Load any on demand resources for this page.
         OnDemandResources.loadResourceTag = MangaWorks.expandMacros(in: page.loadResourceTag)

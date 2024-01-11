@@ -462,7 +462,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         self.previousPage = previousPage
         self.nextPage = nextPage
         self.showStats = showStats
-        self.chapter = MangaPage.defaultChapter
+        self.chapter = (chapter != "") ? chapter : MangaPage.defaultChapter
         self.endGame = endGame
         self.suppressReading = suppressReadings
         self.backgroundMusic = MangaPage.defaultBackgroundMusic
@@ -473,8 +473,11 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         self.prefetchResourceTag = prefetchResourceTag
         self.hasFunctionsMenu = MangaPage.defaultHasFunctionsMenu
         self.hintTag = hintTag
-        self.map = map
-        self.blueprints = blueprint
+        self.map = (map != "") ? map : MangaPage.defaultMap
+        self.blueprints = (blueprint != "") ? blueprint : MangaPage.defaultBlueprint
+        self.loadResourceTag = MangaPage.defaultReleaseResourceTag
+        self.releaseResourceTag = MangaPage.defaultReleaseResourceTag
+        self.prefetchResourceTag = MangaPage.defaultPrefetchResourceTag
     }
     
     /// Creates a new instance.

@@ -162,39 +162,74 @@ public struct MangaCoverView: View {
     }
     
     // MARK: - Functions
+    @ViewBuilder func pageImageContents(imageName:String, fillMode:MangaCover.FillMode = .fit) -> some View {
+        if cover.imageSource == .appBundle {
+            switch fillMode {
+            case .stretch:
+                Image(imageName)
+                    .resizable()
+            case .fit:
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(.top, headerOffset)
+            case .fill:
+                Image(imageName)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .padding(.top, headerOffset)
+            }
+        } else if let image = MangaWorks.image(name: imageName, withExtension: "png") {
+            switch fillMode {
+            case .stretch:
+                Image(uiImage: image)
+                    .resizable()
+            case .fit:
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .padding(.top, headerOffset)
+            case .fill:
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .padding(.top, headerOffset)
+            }
+        }
+    }
+    
     /// Creates the main body of the cover.
     /// - Returns: Returns a view representing the body of the cover.
     @ViewBuilder func pageBodyContents() -> some View {
         ZStack {
             // Cover Background image
             VStack {
-                if cover.imageSource == .appBundle {
-                    Image(cover.coverBackgroundImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(.top, headerOffset)
-                } else if let image = MangaWorks.image(name: cover.coverBackgroundImage, withExtension: "png") {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .padding(.top, headerOffset)
+                if cover.backgroundVerticalPlacement == .bottom {
+                    Spacer()
                 }
                 
-                Spacer()
+                pageImageContents(imageName: cover.coverBackgroundImage, fillMode: cover.backgroundFillMode)
+                
+                if cover.backgroundVerticalPlacement == .top {
+                    Spacer()
+                }
             }
             
             // Cover middle image
             VStack {
-                Spacer()
+                if cover.middleVerticalPlacement == .bottom {
+                    Spacer()
+                }
                 
-                if cover.imageSource == .appBundle {
-                    Image(cover.coverMiddleImage)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                } else if let image = MangaWorks.image(name: cover.coverMiddleImage, withExtension: "png") {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
+                if HardwareInformation.isPhone {
+                    pageImageContents(imageName: cover.coverMiddleImage)
+                        .padding(.top)
+                } else {
+                    pageImageContents(imageName: cover.coverMiddleImage)
+                }
+                
+                if cover.middleVerticalPlacement == .top {
+                    Spacer()
                 }
             }
             

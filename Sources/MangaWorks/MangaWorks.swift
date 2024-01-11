@@ -64,6 +64,9 @@ open class MangaWorks {
     /// The default menu gradient colors.
     public static var menuGradient:[Color] = [Color(fromHex: "8D43C3")!, Color(fromHex: "8D43C3")!]
     
+    /// The default menu background color.
+    public static var menuBackgroundColor: Color = Color(fromHex: "#502670")!
+    
     /// The default control button gradient colors.
     public static var controlButtonGradient:[Color] = [Color(fromHex: "#533169")!, Color(fromHex: "#533169")!]
     

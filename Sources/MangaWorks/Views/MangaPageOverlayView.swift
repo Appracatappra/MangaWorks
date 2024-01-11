@@ -78,10 +78,8 @@ public struct MangaPageOverlayView<Content: View>: View {
                 .fill(backgroundColor)
                 .overlay(container())
                 .frame(width: CGFloat(HardwareInformation.screenHalfWidth), height: CGFloat(HardwareInformation.screenHeight))
-            .ignoresSafeArea()
             .clipped()
         }
-        .ignoresSafeArea()
         .frame(width: CGFloat(HardwareInformation.screenHalfWidth), height: CGFloat(HardwareInformation.screenHeight))
     }
     

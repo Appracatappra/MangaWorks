@@ -56,6 +56,8 @@ public struct MangaFullPageView: View {
     
     @State private var zoomBuffer:CGFloat = CGFloat(0.0)
     
+    @State private var isShowingMenu:Bool = false
+    
     // MARK: - Computed Properties
     /// Returns the size of the footer text.
     private var footerTextSize:Float {
@@ -131,6 +133,10 @@ public struct MangaFullPageView: View {
             
             MangaPageOverlayView(uniqueID: uniqueID) {
                 pageOverlayContents()
+            }
+            
+            if isShowingMenu {
+                MangaActionMenuView(isGamepadConnected: isGamepadConnected, onClose: {isShowingMenu = false})
             }
             
             // Display gamepad help
@@ -240,6 +246,14 @@ public struct MangaFullPageView: View {
                     MangaBook.shared.displayPage(id: page.previousPage)
                 }
                 .padding(.leading)
+            }
+            
+            Spacer()
+            
+            if page.hasFunctionsMenu {
+                MangaButton(title: "Actions", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
+                    isShowingMenu = true
+                }
             }
             
             Spacer()
