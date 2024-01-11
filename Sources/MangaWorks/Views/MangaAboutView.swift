@@ -2,7 +2,7 @@
 //  SwiftUIView.swift
 //  
 //
-//  Created by Kevin Mullins on 1/10/24.
+//  Created by Kevin Mullins on 1/11/24.
 //
 
 import SwiftUI
@@ -12,20 +12,20 @@ import LogManager
 import GraceLanguage
 import SwiftUIGamepad
 
-// MARK: - Computed Properties
-/// Gets the inset for the comic page.
-public struct MangaActionMenuView: View {
+public struct MangaAboutView: View {
     
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
     ///   - uniqueID: The unique ID of the container used to tie in gamepad support.
+    ///   - aboutInfo: The app about information to display.
     ///   - backgroundColor: The background color of the page.
     ///   - backgroundImage: The background image to display behind the menu.
     ///   - isGamepadRequired: If `true`, a gamepad is required to run the app.
     ///   - isAttachedToGameCenter: If `true`, the app is attached to Game Center.
-    public init(uniqueID: String = "ActionMenu", backgroundColor: Color = MangaWorks.menuBackgroundColor, backgroundImage:String = "", isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
+    public init(uniqueID: String = "ActionMenu", aboutInfo: MangaAbout = MangaAbout(), backgroundColor: Color = MangaWorks.menuBackgroundColor, backgroundImage: String = "", isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
         self.uniqueID = uniqueID
+        self.aboutInfo = aboutInfo
         self.backgroundColor = backgroundColor
         self.backgroundImage = backgroundImage
         self.isGamepadRequired = isGamepadRequired
@@ -35,6 +35,9 @@ public struct MangaActionMenuView: View {
     // MARK: - Properties
     /// The unique ID of the container used to tie in gamepad support.
     public var uniqueID:String = "ActionMenu"
+    
+    /// The app about information to display.
+    public var aboutInfo:MangaAbout = MangaAbout()
     
     /// The background color of the page.
     public var backgroundColor: Color = MangaWorks.menuBackgroundColor
@@ -73,7 +76,7 @@ public struct MangaActionMenuView: View {
         if HardwareInformation.isPhone {
             return 5
         } else {
-            return 0
+            return 5
         }
     }
     
@@ -157,6 +160,7 @@ public struct MangaActionMenuView: View {
     
     // MARK: - Control Body
     /// The body of the control.
+    
     public var body: some View {
         ZStack {
             MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: false, backgroundColor: backgroundColor) {
@@ -185,7 +189,7 @@ public struct MangaActionMenuView: View {
             connectGamepad(viewID: uniqueID, handler: { controller, gamepadInfo in
                 isGamepadConnected = true
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
-                buttonBUsage(viewID: uniqueID, "Close **Action Menu**.")
+                buttonBUsage(viewID: uniqueID, "Close **About Menu**.")
             })
         }
         .onRotate {orientation in
@@ -207,7 +211,7 @@ public struct MangaActionMenuView: View {
         }
         .onGamepadButtonB(viewID: uniqueID) { isPressed in
             if isPressed {
-                MangaBook.shared.returnToLastView()
+                MangaBook.shared.changeView(viewID: "[COVER]")
             }
         }
         #if os(tvOS)
@@ -235,14 +239,14 @@ public struct MangaActionMenuView: View {
             }
             
             VStack {
-                Text(markdown: "Actions")
+                Text(markdown: "About")
                     .font(ComicFonts.Troika.ofSize(48))
-                    .foregroundColor(MangaWorks.actionFontColor)
+                    .foregroundColor(.black)
                     .padding(.top)
                 
                 // The right side menus.
                 if isGamepadConnected {
-                    GamepadMenuView(id: "ActionItems", alignment: .trailing, menu: buildGamepadMenu(), fontName: ComicFonts.Komika.rawValue, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, selectedColors: MangaWorks.menuSelectedGradient, shadowed: false, maxEntries: 8, boxWidth: cardWidth, padding: 0)
+                    GamepadMenuView(id: "AboutItems", alignment: .trailing, menu: buildGamepadMenu(), fontName: ComicFonts.Komika.rawValue, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, selectedColors: MangaWorks.menuSelectedGradient, shadowed: false, maxEntries: 8, boxWidth: cardWidth, padding: 0)
                 } else {
                     touchMenu()
                 }
@@ -275,7 +279,7 @@ public struct MangaActionMenuView: View {
     @ViewBuilder func pageheader() -> some View {
         HStack {
             MangaButton(title: "Close", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
-                MangaBook.shared.returnToLastView()
+                MangaBook.shared.changeView(viewID: "[COVER]")
             }
             .padding(.leading)
             
@@ -302,7 +306,7 @@ public struct MangaActionMenuView: View {
         HStack {
             
             ZStack {
-                Text("Action Menu")
+                Text(aboutInfo.programName)
                     .font(ComicFonts.Komika.ofSize(footerTextSize))
                     .foregroundColor(.black)
                     .padding(.leading)
@@ -312,7 +316,7 @@ public struct MangaActionMenuView: View {
             Spacer()
             
             ZStack {
-                Text("Page: \(MangaBook.shared.currentPage.id)")
+                Text(aboutInfo.copyright)
                     .font(ComicFonts.Komika.ofSize(footerTextSize))
                     .foregroundColor(.black)
                     .padding(.trailing)
@@ -327,13 +331,17 @@ public struct MangaActionMenuView: View {
     @ViewBuilder func touchMenu() -> some View {
         ScrollView {
             VStack {
-                ForEach(MangaBook.shared.actionMenuItems) {action in
+                ForEach(aboutInfo.entries) {action in
                     if MangaWorks.evaluateCondition(action.condition) {
-                        MangaButton(title: action.text, font: ComicFonts.stormfaze, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, shadowed: true) {
-                            MangaWorks.runGraceScript(action.excute)
-                        }
+                        Text(markdown: MangaWorks.expandMacros(in: action.text))
+                            .foregroundColor(.black)
+                            .font(ComicFonts.Komika.ofSize(18))
                         .padding(.bottom, menuPadding)
                     }
+                }
+                
+                if aboutInfo.logoImage != "" {
+                    ScaledImageView(imageName: aboutInfo.logoImage, scale: 0.5)
                 }
             }
         }
@@ -343,11 +351,11 @@ public struct MangaActionMenuView: View {
     /// - Returns: Returns a `GamepadMenu` containing all of the menu items.
     func buildGamepadMenu() -> GamepadMenu {
         
-        let menu = GamepadMenu()
+        let menu = GamepadMenu(style: .cards)
         
         for action in MangaBook.shared.actionMenuItems {
             if MangaWorks.evaluateCondition(action.condition) {
-                menu.addItem(title: action.text) {
+                menu.addItem(title: MangaWorks.expandMacros(in: action.text)) {
                     MangaWorks.runGraceScript(action.excute)
                 }
             }
@@ -358,5 +366,5 @@ public struct MangaActionMenuView: View {
 }
 
 #Preview {
-    MangaActionMenuView()
+    MangaAboutView(aboutInfo: MangaAbout(programName: "Escape From Mystic Manor", copyright: "Copyright ® 2024 by Appracatappra, LLC.", logoImage: "AppraConjured").addEntry(text: "Many of the Figures and Environments 3D Models used throughout **Reed/Wright Cycle** were purchased from Daz 3D and rendered into the final still images used in the game.").addEntry(text: "Many of the sound effects and music used throughout **Reed/Wright Cycle** were acquired from FreeSoung.org under their free license with no attribution required."))
 }
