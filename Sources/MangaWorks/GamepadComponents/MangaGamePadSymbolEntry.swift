@@ -13,6 +13,7 @@ import GraceLanguage
 import SwiftUIGamepad
 import SoundManager
 
+/// Allows the user to enter an in-game symbol via a gamepad based interface.
 public struct MangaGamePadSymbolEntry: View {
     
     // MARK: - Initializers
