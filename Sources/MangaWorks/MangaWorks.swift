@@ -73,6 +73,30 @@ open class MangaWorks {
     /// The default menu selected gradient colors.
     public static var menuSelectedGradient:[Color] = [Color(fromHex: "#EB004F")!, Color(fromHex: "#EB004F")!]
     
+    /// The default control enabled  color.
+    public static var controlEnabledColor: Color = Color(fromHex: "#EB004F")!
+    
+    /// The default control disabled color.
+    public static var controlDisabledColor: Color = .gray
+    
+    /// The default control foreground color.
+    public static var controlForegroundColor: Color = Color(fromHex: "#8D52AF")!
+    
+    /// The default control background color.
+    public static var controlBackgroundColor: Color = Color(fromHex: "#8D52AF")!
+    
+    /// The default control selected background color.
+    public static var controlBackgroundSelectedColor: Color = Color(fromHex: "#EB244F")!
+    
+    /// The default control border color.
+    public static var controlBorderColor: Color = Color(fromHex: "#533169")!
+    
+    /// The default avatar image used in input screens.
+    public static var inputAvatarImage:String = ""
+    
+    /// The default background image used in input controls.
+    public static var inputBackgroundImage:String = ""
+    
     // MARK: - Static Functions
     /// Gets the path to the requested resource stored in the Swift Package's Bundle.
     /// - Parameters:
