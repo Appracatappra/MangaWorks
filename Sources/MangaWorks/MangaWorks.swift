@@ -91,6 +91,12 @@ open class MangaWorks {
     /// The default control border color.
     public static var controlBorderColor: Color = Color(fromHex: "#533169")!
     
+    /// The default conversation foreground color.
+    public static var conversationForegroundColor: Color = .white
+    
+    /// The default conversation background color.
+    public static var conversationBackgroundColor: Color = .black.opacity(0.68)
+    
     /// The default avatar image used in input screens.
     public static var inputAvatarImage:String = ""
     
