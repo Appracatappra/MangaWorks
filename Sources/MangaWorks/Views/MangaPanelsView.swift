@@ -2,7 +2,7 @@
 //  SwiftUIView.swift
 //  
 //
-//  Created by Kevin Mullins on 1/8/24.
+//  Created by Kevin Mullins on 1/14/24.
 //
 
 import SwiftUI
@@ -14,19 +14,17 @@ import SwiftUIGamepad
 import SpriteKit
 
 /// Displays a full page image as the main contents of the page.
-public struct MangaFullPageView: View {
+public struct MangaPanelsView: View {
     
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
-    ///   - imageSource: Defines the source of the image.
     ///   - uniqueID: The unique ID of the container used to tie in gamepad support.
     ///   - page: The `MangaPage` to display.
     ///   - backgroundColor: The background color of the page.
     ///   - isGamepadRequired: If `true`, a gamepad is required to run the app.
     ///   - isAttachedToGameCenter: If `true`, the app is attached to Game Center.
-    public init(imageSource: MangaWorks.Source = .appBundle, uniqueID: String = "FullPageView", page: MangaPage = MangaPage(id: "00", pageType: .fullPageImage), backgroundColor: Color = .white, isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
-        self.imageSource = imageSource
+    public init(uniqueID: String = "FullPageView", page: MangaPage = MangaPage(id: "00", pageType: .panelsPage), backgroundColor: Color = .white, isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
         self.uniqueID = uniqueID
         self.page = page
         self.backgroundColor = backgroundColor
@@ -35,14 +33,11 @@ public struct MangaFullPageView: View {
     }
     
     // MARK: - Properties
-    /// Defines the source of the image.
-    public var imageSource:MangaWorks.Source = .appBundle
-    
     /// The unique ID of the container used to tie in gamepad support.
-    public var uniqueID:String = "FullPageView"
+    public var uniqueID:String = "PanelsView"
     
     // The `MangaPage` to display.
-    public var page:MangaPage = MangaPage(id: "00", pageType: .fullPageImage)
+    public var page:MangaPage = MangaPage(id: "00", pageType: .panelsPage)
     
     /// The background color of the page.
     public var backgroundColor: Color = .white
@@ -178,12 +173,101 @@ public struct MangaFullPageView: View {
         }
     }
     
+    /// The padding between the panels based on the device.
+    private var panelGutter:CGFloat {
+        if HardwareInformation.isPhone {
+            return 5.0
+        } else {
+            return 10.0
+        }
+    }
+    
+    /// The padding between the layer elements.
+    private var layerPadding:CGFloat {
+        if HardwareInformation.isPhone {
+            return 0.0
+        } else {
+            return 10.0
+        }
+    }
+    
+    #if os(tvOS)
+    /// The column top width.
+    private var columnWidthTop:CGFloat {
+        return CGFloat(Double(HardwareInformation.screenWidth - 150) / 4.0)
+    }
+
+    /// The column bottom width.
+    private var columnWidthBottom:CGFloat {
+        return CGFloat(Double(HardwareInformation.screenWidth - 150) / 3.0)
+    }
+    #else
+    /// The column top width.
+    private var columnWidthTop:CGFloat {
+        return CGFloat(Double(HardwareInformation.screenWidth - 20) / 4.0)
+    }
+
+    /// The column bottom width.
+    private var columnWidthBottom:CGFloat {
+        return CGFloat(Double(HardwareInformation.screenWidth - 20) / 3.0)
+    }
+    #endif
+    
+    /// The page vertical padding.
+    private var pagePaddingVertical:CGFloat {
+        return CGFloat(HardwareInformation.deviceVerticalOffset)
+    }
+    
+    /// The adjusted screen width.
+    private var screenWidth:CGFloat {
+        return CGFloat(HardwareInformation.screenHalfWidth - 80)
+    }
+
+    /// The adjusted screen height.
+    private var screenHeight:CGFloat {
+        return CGFloat(HardwareInformation.screenHeight - 100)
+    }
+    
+    /// The adjusted screen height.
+    private var screenHalfHeight:CGFloat {
+        return CGFloat(screenHeight / 2.0)
+    }
+    
+    /// If `true`, text should be Abreviated
+    private var shouldAbreviate:Bool {
+        if HardwareInformation.isPhone {
+            switch HardwareInformation.screenWidth {
+            case 375:
+                return true
+            default:
+                return false
+            }
+        } else {
+            return false
+        }
+    }
+    
+    /// The height offset based on device.
+    private var heightOffset:CGFloat {
+        if HardwareInformation.isPhone {
+            return 1.5
+        } else if HardwareInformation.isPad {
+            if HardwareInformation.deviceOrientation == .portrait {
+                return 2.0
+            } else {
+                return 1.5
+            }
+        } else {
+            return 2.0
+        }
+    }
+    
     // MARK: - Control Body
     /// The body of the control.
     public var body: some View {
         ZStack {
             MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: false, borderColor: borderColor, backgroundColor: backgroundColor) {
-                pageBodyContents(orientation: screenOrientation)
+                pageBodyContents(orientation: screenOrientation, layerVisibility: MangaBook.shared.layerVisibility)
             }
             #if os(iOS)
             .statusBar(hidden: true)
@@ -204,10 +288,14 @@ public struct MangaFullPageView: View {
             }
         }
         .onAppear {
+            // Connect to gamepad
             connectGamepad(viewID: uniqueID, handler: { controller, gamepadInfo in
                 isGamepadConnected = true
-                buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
-                buttonAUsage(viewID: uniqueID, "Show the **Action Menu**.")
+                buttonMenuUsage(viewID: uniqueID, "Return to the **Cover Page Menu**.")
+                leftShoulderUsage(viewID: uniqueID, "Return to the **Previous Page**.")
+                rightShoulderUsage(viewID: uniqueID, "Go to the **Next Page**, **Continue Game** or **End Game** based on the state displayed in the right hand corner.")
+                buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help** or hide any **Tips** currently being displayed.")
+                buttonBUsage(viewID: uniqueID, "Show or hide the **Actions Menu**.")
             })
         }
         .onRotate {orientation in
@@ -232,6 +320,20 @@ public struct MangaFullPageView: View {
                 MangaBook.shared.changeView(viewID: "[ACTION]")
             }
         }
+        .onGamepadLeftShoulder(viewID: uniqueID) { isPressed, pressure in
+            if isPressed {
+                if page.previousPage != "" {
+                    MangaBook.shared.displayPage(id: page.previousPage)
+                }
+            }
+        }
+        .onGamepadRightShoulder(viewID: uniqueID) { isPressed, pressure in
+            if isPressed {
+                if page.nextPage != "" {
+                    MangaBook.shared.displayPage(id: page.nextPage)
+                }
+            }
+        }
         #if os(tvOS)
         .onMoveCommand { direction in
             //Debug.info(subsystem: "MangaPageContainerView", category: "mainContents", "AppleTV Move: \(direction)")
@@ -249,13 +351,13 @@ public struct MangaFullPageView: View {
     /// Draws the contents of the page.
     /// - Parameter orientation: The current screen orientation.
     /// - Returns: Returns a view containing the body.
-    @ViewBuilder func pageBodyContents(orientation:UIDeviceOrientation) -> some View {
+    @ViewBuilder func pageBodyContents(orientation:UIDeviceOrientation, layerVisibility:MangaLayerManager.ElementVisibility) -> some View {
         ZStack {
-            ZoomView(minimumZoom: 1.0, maximumZoom: 2.0, initialZoom: 1.0, buttonSize: zoomButtonSize, zoomChangedHandler: {zoom in
+            ZoomView(minimumZoom: 0.8, maximumZoom: 2.0, initialZoom: 1.0, buttonSize: zoomButtonSize, zoomChangedHandler: {zoom in
                 let factor = CGFloat(10.0 * zoom)
                 zoomBuffer = CGFloat(30 * factor)
             }) {
-                pageContents()
+                pageContents(layerVisibility: layerVisibility)
             }
             .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
             
@@ -271,21 +373,51 @@ public struct MangaFullPageView: View {
     
     /// Creates the main body of the cover.
     /// - Returns: Returns a view representing the body of the cover.
-    @ViewBuilder func pageContents() -> some View {
+    @ViewBuilder func pageContents(layerVisibility:MangaLayerManager.ElementVisibility) -> some View {
         ZStack {
-            if imageSource == .appBundle {
-                Image(page.imageName)
-                    .resizable()
-                    .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
-            } else {
-                if let image = MangaWorks.rawImage(name: page.imageName, withExtension: "jpg") {
-                    Image(uiImage: image)
-                        .resizable()
-                        .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
+            // Display panels
+            MangaLayerManager.panelsOverlay(page: page, width: screenWidth, height: screenHeight, panelGutter: panelGutter)
+            
+            // Display action selector
+            if let hud = page.actions {
+                MangaActionSelector(locationID: page.id, title: hud.title, leftSide: hud.leftSide, rightSide: hud.rightSide, maxEntries: hud.maxEntries, boxWidth: screenWidth, boxHeight: screenHalfHeight, pageWidth: screenWidth, pageHeight: screenHeight, isGamepadConnected: $isGamepadConnected)
+            }
+            
+            // Display PIN entry
+            if let pin = page.pin {
+                if isGamepadConnected {
+                    MangaGamePadPinEntry(pin:pin, boxWidth: screenWidth, boxHeight: screenHalfHeight, pageWidth: screenWidth, pageHeight: screenHeight, editorID: "Pin-\(page.id)")
+                } else {
+                    MangaPinEntryView(pin:pin, boxWidth: screenWidth, boxHeight: screenHalfHeight, pageWidth: screenWidth, pageHeight: screenHeight)
                 }
             }
+            
+            // Display Symbol Entry
+            if let symbol = page.symbol {
+                if isGamepadConnected {
+                    MangaGamePadSymbolEntry(symbol: symbol, boxWidth: screenWidth, boxHeight: screenHalfHeight, pageWidth: screenWidth, pageHeight: screenHeight, editorID: "Symbol-\(page.id)")
+                } else {
+                    MangaSymbolEntryView(symbol: symbol, boxWidth: screenWidth, boxHeight: screenHalfHeight)
+                }
+            }
+            
+            // The details
+            ZStack {
+                // Overlay Layers
+                MangaLayerManager.detailImageOverlay(page: page, layerVisibility: layerVisibility, padding: layerPadding)
+                
+                MangaLayerManager.captionOverlay(page: page, layerVisibility: layerVisibility, padding: layerPadding)
+                
+                MangaLayerManager.wordArtOverlay(page: page, layerVisibility: layerVisibility, padding: layerPadding)
+                
+                MangaLayerManager.balloonOverlay(page: page, layerVisibility: layerVisibility, padding: layerPadding)
+            }
+            .frame(width: screenWidth, height: screenHeight)
+            
         }
         .frame(width: MangaPageScreenMetrics.screenHalfWidth + zoomBuffer, height: MangaPageScreenMetrics.screenHeight + zoomBuffer)
+        .clipped()
+        //.padding(.horizontal)
     }
     
     /// Draws the header and footer overlay contents.
@@ -366,5 +498,5 @@ public struct MangaFullPageView: View {
 }
 
 #Preview {
-    MangaFullPageView(imageSource: .packageBundle, page: MangaPage(id: "00", pageType: .fullPageImage, imageName: "MysticManor01").addWeather(weather: .rain))
+    MangaPanelsView(page: MangaPage(id: "00", pageType: .panelsPage))
 }

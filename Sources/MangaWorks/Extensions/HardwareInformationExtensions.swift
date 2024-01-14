@@ -41,7 +41,7 @@ extension HardwareInformation {
     
     /// Returns an adjustment ratio to properly scale the app's UI based on the device the app is running on. The app is being designed on an iPad Pro 11-inch so all adjustments are based off of this device's screen width.
     public static var deviceRatioWidth:Float {
-        return Float(screenWidth) / 834.0
+        return Float(screenHalfWidth) / 834.0 // KKM: Changed from width
     }
     
     /// Returns an adjustment ratio to properly scale the app's UI based on the device the app is running on. The app is being designed on an iPad Pro 11-inch so all adjustments are based off of this device's screen height.

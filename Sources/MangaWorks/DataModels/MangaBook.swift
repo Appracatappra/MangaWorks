@@ -33,10 +33,7 @@ import ODRManager
     /// Handle the MangaBook requesting the app to change views.
     public typealias RequestChangeView = (String) -> Void
     
-    /// Handles the MangaBook requesting the app to change the layer visibility.
-    public typealias RequestChangeLayerVisibility = (Int) -> Void
-    
-    /// Handles a generic event for the MangaBook.
+     /// Handles a generic event for the MangaBook.
     public typealias EventHandler = () -> Void
     
     // MARK: - Static Properties
@@ -170,7 +167,7 @@ import ODRManager
         compiler.register(name: "changeLayerVisibility", parameterNames: ["visibility"], parameterTypes: [.string]) { parameters in
             
             if let visibility = parameters["visibility"] {
-                MangaBook.shared.changeLayerVisibility(visibility: visibility.int)
+                MangaBook.shared.changeLayerVisibility(visibility: visibility.string)
             }
             
             return nil
@@ -325,6 +322,9 @@ import ODRManager
     /// A collection of menu items that will be represented by the action menu.
     public var actionMenuItems:[MangaPageAction] = []
     
+    /// Holds the current layervisibility for the panels and panorama viewers.
+    public var layerVisibility:MangaLayerManager.ElementVisibility = .empty
+    
     // MARK: - Events
     /// Handle the user wanting to load an external page.
     public var onRequestExternalPage:RequestExternalPage? = nil
@@ -337,9 +337,6 @@ import ODRManager
     
     /// Handle the user wanting to change views.
     public var onRequestChangeView:RequestChangeView? = nil
-    
-    /// Handle the user wanting to change the layer visibility.
-    public var onRequestChangeLayerVisibility:RequestChangeLayerVisibility? = nil
     
     /// Handle the player starting a new game.
     public var onStartNewGame:EventHandler? = nil
@@ -770,22 +767,17 @@ import ODRManager
     }
     
     /// Request that the app changes the layer visibility.
-    /// - Parameter visibility: The visibility as an integer.
-    public func changeLayerVisibility(visibility:Int) {
-        if let onRequestChangeLayerVisibility {
-            Execute.onMain {
-                // Ask app to change views.
-                onRequestChangeLayerVisibility(visibility)
-            }
-        } else {
-            Debug.error(subsystem: "MangaWorks", category: "Change View", "ERRROR: OnRequestChangeLayerVisibility not defined.")
-        }
+    /// - Parameter visibility: The visibility as a string.
+    public func changeLayerVisibility(visibility:String) {
+        var value:MangaLayerManager.ElementVisibility = .empty
+        value.from(visibility)
+        changeLayerVisibility(visibility: value)
     }
     
     /// Request that the app changes the layer visibility.
     /// - Parameter visibility: The new layer visibility.
     public func changeLayerVisibility(visibility:MangaLayerManager.ElementVisibility) {
-        changeLayerVisibility(visibility: visibility.rawValue)
+        layerVisibility = visibility
     }
     
     /// Pushes the id of the last page visited onto the stack.

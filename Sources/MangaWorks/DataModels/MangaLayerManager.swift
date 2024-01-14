@@ -5,11 +5,13 @@
 //  Created by Kevin Mullins on 1/3/24.
 //
 
-import Foundation
 import SwiftUI
-
-// Defines an operator used to provide syntatic sugar when converting a `ElementVisibility` to an `Int`.
-prefix operator ⊛
+import SwiftletUtilities
+import SwiftUIKit
+import LogManager
+import GraceLanguage
+import SwiftUIGamepad
+import SpriteKit
 
 /// Manages all of the layers that are built up to create a MangaWorks page. The layers include the panels and all of the elements that overlay to create the final displayed page.
 open class MangaLayerManager {
@@ -92,14 +94,120 @@ open class MangaLayerManager {
         /// Display  a conversation B interaction result.
         case displayConversationResultB
         
-        /// Syntatic sugar to convert a `ElementVisibility` to an `Int`.
-        /// - Parameter lhs: The `ElementVisibility`  to convert.
-        /// - Returns: The value converted to an `Int`.
-        public static prefix func ⊛(lhs:ElementVisibility) -> Int {
-            return lhs.rawValue
+        
+        // MARK: - Computed Properties
+        /// Returns the enum as a string value.
+        public var asString:String {
+            switch self {
+            case .empty:
+                return "empty"
+            case .displayNothing:
+                return "displayNothing"
+            case .displayAlways:
+                return "displayAlways"
+            case .displaySearch:
+                return "displaySearch"
+            case .displaySearchAlt:
+                return "displaySearchAlt"
+            case .displayUse:
+                return "displayUse"
+            case .displayUseAlt:
+                return "displayUseAlt"
+            case .displayTalk:
+                return "displayTalk"
+            case .displayTalkAlt:
+                return "displayTalkAlt"
+            case .displayExamine:
+                return "displayExamine"
+            case .displayExamineAlt:
+                return "displayExamineAlt"
+            case .displayNav:
+                return "displayNav"
+            case .displayNavAlt:
+                return "displayNavAlt"
+            case .displayAttack:
+                return "displayAttack"
+            case .displayAttackAlt:
+                return "displayAttackAlt"
+            case .displayHack:
+                return "displayHack"
+            case .displayHackAlt:
+                return "displayHackAlt"
+            case .displayCall:
+                return "displayCall"
+            case .displayCallAlt:
+                return "displayCallAlt"
+            case .displayNextLocation:
+                return "displayNextLocation"
+            case .displayConversationA:
+                return "displayConversationA"
+            case .displayConversationB:
+                return "displayConversationB"
+            case .displayConversationResultA:
+                return "displayConversationResultA"
+            case .displayConversationResultB:
+                return "displayConversationResultB"
+            }
         }
         
         // MARK: - Functions
+        /// Gets the value from a `String` and defaults to `empty` if the conversion is invalid.
+        /// - Parameter value: The value holding the string to convert.
+        public mutating func from(_ value:String) {
+            switch value {
+            case "empty":
+                self = .empty
+            case "displayNothing":
+                self = .displayNothing
+            case "displayAlways":
+                self = .displayAlways
+            case "displaySearch":
+                self = .displaySearch
+            case "displaySearchAlt":
+                self = .displaySearchAlt
+            case "displayUse":
+                self = .displayUse
+            case "displayUseAlt":
+                self = .displayUseAlt
+            case "displayTalk":
+                self = .displayTalk
+            case "displayTalkAlt":
+                self = .displayTalkAlt
+            case "displayExamine":
+                self = .displayExamine
+            case "displayExamineAlt":
+                self = .displayExamineAlt
+            case "displayNav":
+                self = .displayNav
+            case "displayNavAlt":
+                self = .displayNavAlt
+            case "displayAttack":
+                self = .displayAttack
+            case "displayAttackAlt":
+                self = .displayAttackAlt
+            case "displayHack":
+                self = .displayHack
+            case "displayHackAlt":
+                self = .displayHackAlt
+            case "displayCall":
+                self = .displayCall
+            case "displayCallAlt":
+                self = .displayCallAlt
+            case "displayNextLocation":
+                self = .displayNextLocation
+            case "displayConversationA":
+                self = .displayConversationA
+            case "displayConversationB":
+                self = .displayConversationB
+            case "displayConversationResultA":
+                self = .displayConversationResultA
+            case "displayConversationResultB":
+                self = .displayConversationResultB
+            default:
+                self = .empty
+            }
+        }
+        
         /// Gets the value from an `Int` and defaults to `empty` if the conversion is invalid.
         /// - Parameter value: The value holding the Int to convert.
         public mutating func from(_ value:Int) {
@@ -109,6 +217,7 @@ open class MangaLayerManager {
                 self = .empty
             }
         }
+        
     }
     
     // MARK: - Static Properties
@@ -183,12 +292,12 @@ open class MangaLayerManager {
     ///   - layverVisibility: The layver visibility to generate the overlay for.
     ///   - padding: The padding between the elements and the page edge.
     /// - Returns: A `View` containing the fully laid out overlay.
-    @ViewBuilder public static func detailImageOverlay(page:MangaPage, layverVisibility:ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0, padding:CGFloat) -> some View {
+    @ViewBuilder public static func detailImageOverlay(page:MangaPage, layerVisibility:ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0, padding:CGFloat) -> some View {
         VStack {
             // Top Row
             HStack {
                 // Leading
-                if let image = page.getDetailImage(at: .topLeading, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .topLeading, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                         .padding(.leading, padding + 15.0)
                         .padding(.top, padding + 15.0)
@@ -197,7 +306,7 @@ open class MangaLayerManager {
                 }
 
                 // Center
-                if let image = page.getDetailImage(at: .topCenter, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .topCenter, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                         .padding(.top, padding + 15.0)
                 } else {
@@ -205,7 +314,7 @@ open class MangaLayerManager {
                 }
 
                 // Trialing
-                if let image = page.getDetailImage(at: .topTrailing, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .topTrailing, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                         .padding(.trailing, padding + 15.0)
                         .padding(.top, padding + 15.0)
@@ -219,7 +328,7 @@ open class MangaLayerManager {
             // Upper Middle Row
             HStack {
                 // Leading
-                if let image = page.getDetailImage(at: .upperMiddleLeading, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .upperMiddleLeading, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                         .padding(.leading, padding + 15.0)
                 } else {
@@ -227,14 +336,14 @@ open class MangaLayerManager {
                 }
 
                 // Center
-                if let image = page.getDetailImage(at: .upperMiddleCenter, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .upperMiddleCenter, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                 } else {
                     Spacer()
                 }
 
                 // Trialing
-                if let image = page.getDetailImage(at: .upperMiddleTrailing, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .upperMiddleTrailing, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                         .padding(.trailing, padding + 15.0)
                 } else {
@@ -247,7 +356,7 @@ open class MangaLayerManager {
             // Lower Middle Row
             HStack {
                 // Leading
-                if let image = page.getDetailImage(at: .lowerMiddleLeading, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .lowerMiddleLeading, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                         .padding(.leading, padding + 15.0)
                 } else {
@@ -255,14 +364,14 @@ open class MangaLayerManager {
                 }
 
                 // Center
-                if let image = page.getDetailImage(at: .lowerMiddleCenter, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .lowerMiddleCenter, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                 } else {
                     Spacer()
                 }
 
                 // Trialing
-                if let image = page.getDetailImage(at: .lowerMiddleTrailing, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .lowerMiddleTrailing, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                         .padding(.trailing, padding + 15.0)
                 } else {
@@ -275,7 +384,7 @@ open class MangaLayerManager {
             // Bottom Row
             HStack {
                 // Leading
-                if let image = page.getDetailImage(at: .bottomLeading, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .bottomLeading, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                         .padding(.leading, padding + 15.0)
                         .padding(.bottom, padding + 15.0)
@@ -284,7 +393,7 @@ open class MangaLayerManager {
                 }
                 
                 // Center
-                if let image = page.getDetailImage(at: .bottomCenter, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .bottomCenter, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                         .padding(.bottom, padding + 15.0)
                 } else {
@@ -292,7 +401,7 @@ open class MangaLayerManager {
                 }
                 
                 // Trailing
-                if let image = page.getDetailImage(at: .bottomTrailing, for: layverVisibility, pitch: pitch, yaw: yaw) {
+                if let image = page.getDetailImage(at: .bottomTrailing, for: layerVisibility, pitch: pitch, yaw: yaw) {
                     image.view
                         .padding(.trailing, padding + 15.0)
                         .padding(.bottom, padding + 15.0)
@@ -311,8 +420,8 @@ open class MangaLayerManager {
     ///   - padding: The outer edge padding for the overlay.
     /// - Returns: The generated view.
     @ViewBuilder public static func panelsOverlay(page:MangaPage, width:CGFloat, height:CGFloat, panelGutter:CGFloat) -> some View {
-        let panelWidth:CGFloat = (width - (panelGutter * 2.0)) / 3.0
-        let panelHeight:CGFloat = (height - (panelGutter * 3.0)) / 4.0
+        let panelWidth:CGFloat = width / 3.0//(width - (panelGutter * 2.0)) / 3.0
+        let panelHeight:CGFloat = height / 4.0 //(height - (panelGutter * 3.0)) / 4.0
         let x = CGFloat(0)
         let y = CGFloat(0)
         let xIncrement:CGFloat = x + panelWidth + panelGutter
@@ -506,7 +615,6 @@ open class MangaLayerManager {
                     Spacer()
                 }
             }
-            
         }
     }
     

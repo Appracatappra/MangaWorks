@@ -26,8 +26,10 @@ public struct MangaGamePadSymbolEntry: View {
     ///   - fontColor: The font color.
     ///   - boxWidth: The input control width.
     ///   - boxHeight: The input control height.
+    ///   - pageWidth: The full page width.
+    ///   - pageHeight: The full page height.
     ///   - editorID: The input control unique ID.
-    public init(avatarImage: String = MangaWorks.inputAvatarImage, backgroundImage: String = MangaWorks.inputBackgroundImage, symbol: MangaPageSymbol, font: Font = ComicFonts.KomikaTight.ofSize(24), fontColor: Color = MangaWorks.controlForegroundColor, boxWidth: CGFloat = MangaPageScreenMetrics.screenHalfWidth, boxHeight: CGFloat = MangaPageScreenMetrics.screenHalfHeight, editorID: String = "SymbolEntry") {
+    public init(avatarImage: String = MangaWorks.inputAvatarImage, backgroundImage: String = MangaWorks.inputBackgroundImage, symbol: MangaPageSymbol, font: Font = ComicFonts.KomikaTight.ofSize(24), fontColor: Color = MangaWorks.controlForegroundColor, boxWidth: CGFloat = MangaPageScreenMetrics.screenHalfWidth, boxHeight: CGFloat = MangaPageScreenMetrics.screenHalfHeight, pageWidth:CGFloat = MangaPageScreenMetrics.screenHalfWidth, pageHeight:CGFloat = MangaPageScreenMetrics.screenHeight, editorID: String = "SymbolEntry") {
         self.avatarImage = avatarImage
         self.backgroundImage = backgroundImage
         self.symbol = symbol
@@ -35,6 +37,8 @@ public struct MangaGamePadSymbolEntry: View {
         self.fontColor = fontColor
         self.boxWidth = boxWidth
         self.boxHeight = boxHeight
+        self.pageWidth = pageWidth
+        self.pageHeight = pageHeight
         self.editorID = editorID
     }
     
@@ -59,6 +63,12 @@ public struct MangaGamePadSymbolEntry: View {
     
     /// The input control height.
     public var boxHeight:CGFloat = MangaPageScreenMetrics.screenHalfHeight
+    
+    /// The input page width.
+    public var pageWidth:CGFloat = MangaPageScreenMetrics.screenHalfWidth
+    
+    /// The input page height.
+    public var pageHeight:CGFloat = MangaPageScreenMetrics.screenHeight
     
     /// The input control unique ID.
     public var editorID:String = "SymbolEntry"
@@ -227,6 +237,7 @@ public struct MangaGamePadSymbolEntry: View {
             .frame(width: boxWidth, height: boxHeight, alignment: .center)
             .clipped()
         }
+        .frame(width: pageWidth, height: pageHeight)
         .onAppear {
             dpadUsage(viewID: editorID, "Use the **Up**, **Down**, **Left** and **Right** arrows to highlight an **Entry Element** from the **Entry Form**.")
             buttonXUsage(viewID: editorID, "Activate the highlighted **Entry Element**. Turn the elements on an off to form a pattern.")

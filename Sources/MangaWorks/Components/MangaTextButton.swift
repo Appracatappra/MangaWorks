@@ -64,11 +64,12 @@ public struct MangaTextButton: View {
     /// The body of the control.
     public var body: some View {
         if isEnabled {
-            ContentButton() {
+            ContentButton(content:{
                 Text(title)
                     .font(font)
                     .foregroundColor(fontColor)
-            }
+            }, action: onClicked)
+            
         } else {
             Text(title)
                 .font(font)
@@ -78,5 +79,5 @@ public struct MangaTextButton: View {
 }
 
 #Preview {
-    MangaTextButton()
+    MangaTextButton(title: "Hello World")
 }

@@ -120,13 +120,9 @@ public struct MangaActionView: View {
         Button(action: {
             Execute.onMain {
                 SpeechManager.shared.stopSpeaking()
+                SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                 if action != "" {
-                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
-                    do {
-                        try GraceRuntime.shared.run(script: action)
-                    } catch {
-                        Log.error(subsystem: "MangaWorks", category: "MangaActionView", "Error: \(error)")
-                    }
+                    MangaWorks.runGraceScript(action)
                 }
             }
         }) {

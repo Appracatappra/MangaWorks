@@ -26,9 +26,11 @@ public struct MangaGamePadPinEntry: View {
     ///   - fontColor: The font to draw the input in.
     ///   - boxWidth: The input width.
     ///   - boxHeight: The Input Height.
+    ///   - pageWidth: The full page width.
+    ///   - pageHeight: The full page height.
     ///   - borderColor: The input border color.
     ///   - editorID: The unique id of the editor.
-    public init(avatarImage: String = MangaWorks.inputAvatarImage, backgroundImage: String = MangaWorks.inputBackgroundImage, pin: MangaPagePin, font: Font = ComicFonts.KomikaTight.ofSize(24), fontColor: Color = MangaWorks.controlForegroundColor, boxWidth: CGFloat = MangaPageScreenMetrics.screenHalfWidth, boxHeight: CGFloat = MangaPageScreenMetrics.screenHalfHeight, borderColor: Color  = MangaWorks.controlBorderColor, editorID:String = "PinEntry") {
+    public init(avatarImage: String = MangaWorks.inputAvatarImage, backgroundImage: String = MangaWorks.inputBackgroundImage, pin: MangaPagePin, font: Font = ComicFonts.KomikaTight.ofSize(24), fontColor: Color = MangaWorks.controlForegroundColor, boxWidth: CGFloat = MangaPageScreenMetrics.screenHalfWidth, boxHeight: CGFloat = MangaPageScreenMetrics.screenHalfHeight, pageWidth:CGFloat = MangaPageScreenMetrics.screenHalfWidth, pageHeight:CGFloat = MangaPageScreenMetrics.screenHeight, borderColor: Color  = MangaWorks.controlBorderColor, editorID:String = "PinEntry") {
         self.avatarImage = avatarImage
         self.backgroundImage = backgroundImage
         self.pin = pin
@@ -36,6 +38,8 @@ public struct MangaGamePadPinEntry: View {
         self.fontColor = fontColor
         self.boxWidth = boxWidth
         self.boxHeight = boxHeight
+        self.pageWidth = pageWidth
+        self.pageHeight = pageHeight
         self.borderColor = borderColor
         self.editorID = editorID
     }
@@ -61,6 +65,12 @@ public struct MangaGamePadPinEntry: View {
     
     /// The Input Height.
     public var boxHeight:CGFloat = MangaPageScreenMetrics.screenHalfHeight
+    
+    /// The input page width.
+    public var pageWidth:CGFloat = MangaPageScreenMetrics.screenHalfWidth
+    
+    /// The input page height.
+    public var pageHeight:CGFloat = MangaPageScreenMetrics.screenHeight
     
     /// The input border color.
     public var borderColor:Color = MangaWorks.controlBorderColor
@@ -214,6 +224,7 @@ public struct MangaGamePadPinEntry: View {
             .frame(width: boxWidth, height: boxHeight, alignment: .center)
             .clipped()
         }
+        .frame(width: pageWidth, height: pageHeight)
         .onAppear {
             dpadUsage(viewID: editorID, "Use the **Up**, **Down**, **Left** and **Right** arrows to highlight an **Entry Element** from the **Entry Form**.")
             buttonXUsage(viewID: editorID, "Activate the highlighted **Entry Element**.")

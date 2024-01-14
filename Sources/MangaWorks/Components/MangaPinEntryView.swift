@@ -26,8 +26,10 @@ public struct MangaPinEntryView: View {
     ///   - fontColor: The font color.
     ///   - boxWidth: The control width.
     ///   - boxHeight: The control height.
+    ///   - pageWidth: The full page width.
+    ///   - pageHeight: The full page height.
     ///   - borderColor: The control border color.
-    public init(avatarImage: String = MangaWorks.inputAvatarImage, backgroundImage: String = MangaWorks.inputBackgroundImage, pin: MangaPagePin = MangaPagePin(title: ""), font: Font = ComicFonts.KomikaTight.ofSize(24), fontColor: Color = MangaWorks.controlForegroundColor, boxWidth: CGFloat = MangaPageScreenMetrics.screenWidth, boxHeight: CGFloat = MangaPageScreenMetrics.screenHalfHeight, borderColor: Color = MangaWorks.controlBorderColor) {
+    public init(avatarImage: String = MangaWorks.inputAvatarImage, backgroundImage: String = MangaWorks.inputBackgroundImage, pin: MangaPagePin = MangaPagePin(title: ""), font: Font = ComicFonts.KomikaTight.ofSize(24), fontColor: Color = MangaWorks.controlForegroundColor, boxWidth: CGFloat = MangaPageScreenMetrics.screenWidth, boxHeight: CGFloat = MangaPageScreenMetrics.screenHalfHeight, pageWidth:CGFloat = MangaPageScreenMetrics.screenHalfWidth, pageHeight:CGFloat = MangaPageScreenMetrics.screenHeight, borderColor: Color = MangaWorks.controlBorderColor) {
         self.avatarImage = avatarImage
         self.backgroundImage = backgroundImage
         self.pin = pin
@@ -35,6 +37,8 @@ public struct MangaPinEntryView: View {
         self.fontColor = fontColor
         self.boxWidth = boxWidth
         self.boxHeight = boxHeight
+        self.pageWidth = pageWidth
+        self.pageHeight = pageHeight
         self.borderColor = borderColor
     }
     
@@ -59,6 +63,12 @@ public struct MangaPinEntryView: View {
     
     /// The control height.
     public var boxHeight:CGFloat = MangaPageScreenMetrics.screenHalfHeight
+    
+    /// The input page width.
+    public var pageWidth:CGFloat = MangaPageScreenMetrics.screenHalfWidth
+    
+    /// The input page height.
+    public var pageHeight:CGFloat = MangaPageScreenMetrics.screenHeight
     
     /// The control border color.
     public var borderColor:Color = MangaWorks.controlBorderColor
@@ -211,6 +221,7 @@ public struct MangaPinEntryView: View {
             .frame(width: boxWidth, height: boxHeight, alignment: .center)
             .clipped()
         }
+        .frame(width: pageWidth, height: pageHeight)
     }
     
     // MARK: - Functions

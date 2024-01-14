@@ -33,8 +33,10 @@ public struct MangaActionSelector: View {
     ///   - maxEntries: The maximum number of menu items to display.
     ///   - boxWidth: The input control width.
     ///   - boxHeight: The input control height.
+    ///   - pageWidth: The full page width.
+    ///   - pageHeight: The full page height.
     ///   - isGamepadConnected: If `true` a gamepad is connected.
-    public init(avatarImage: String = MangaWorks.inputAvatarImage, backgroundImage: String = MangaWorks.inputBackgroundImage, locationID: String = "", title: String = "", leftSide: [MangaPageAction] = [], rightSide: [MangaPageAction] = [], font: Font = ComicFonts.KomikaTight.ofSize(24), fontColor: Color = MangaWorks.controlForegroundColor, menuGradient: [Color] = MangaWorks.menuGradient, menuSelectedGradient: [Color] = MangaWorks.menuSelectedGradient, maxEntries: Int = 2, boxWidth: CGFloat = MangaPageScreenMetrics.screenHalfWidth, boxHeight: CGFloat = MangaPageScreenMetrics.screenHalfHeight, isGamepadConnected: Binding<Bool>) {
+    public init(avatarImage: String = MangaWorks.inputAvatarImage, backgroundImage: String = MangaWorks.inputBackgroundImage, locationID: String = "", title: String = "", leftSide: [MangaPageAction] = [], rightSide: [MangaPageAction] = [], font: Font = ComicFonts.KomikaTight.ofSize(24), fontColor: Color = MangaWorks.controlForegroundColor, menuGradient: [Color] = MangaWorks.menuGradient, menuSelectedGradient: [Color] = MangaWorks.menuSelectedGradient, maxEntries: Int = 2, boxWidth: CGFloat = MangaPageScreenMetrics.screenHalfWidth, boxHeight: CGFloat = MangaPageScreenMetrics.screenHalfHeight, pageWidth:CGFloat = MangaPageScreenMetrics.screenHalfWidth, pageHeight:CGFloat = MangaPageScreenMetrics.screenHeight, isGamepadConnected: Binding<Bool>) {
         self.avatarImage = avatarImage
         self.backgroundImage = backgroundImage
         self.locationID = locationID
@@ -48,6 +50,8 @@ public struct MangaActionSelector: View {
         self.maxEntries = maxEntries
         self.boxWidth = boxWidth
         self.boxHeight = boxHeight
+        self.pageWidth = pageWidth
+        self.pageHeight = pageHeight
         self._isGamepadConnected = isGamepadConnected
     }
     
@@ -90,6 +94,12 @@ public struct MangaActionSelector: View {
     
     /// The input control height.
     public var boxHeight:CGFloat = MangaPageScreenMetrics.screenHalfHeight
+    
+    /// The input page width.
+    public var pageWidth:CGFloat = MangaPageScreenMetrics.screenHalfWidth
+    
+    /// The input page height.
+    public var pageHeight:CGFloat = MangaPageScreenMetrics.screenHeight
     
     // MARK: - Bindings
     /// If `true` a gamepad is connected.
@@ -150,6 +160,7 @@ public struct MangaActionSelector: View {
             .frame(width: boxWidth, height: boxHeight, alignment: .center)
             .clipped()
         }
+        .frame(width: pageWidth, height: pageHeight)
     }
     
     // MARK: - Functions
