@@ -162,7 +162,7 @@ public struct MangaActionSelector: View {
             menu.addItem(title: MangaWorks.expandMacros(in: item.text), enabled: MangaWorks.evaluateCondition(item.condition)) {
                 Execute.onMain {
                     SpeechManager.shared.stopSpeaking()
-                    SoundManager.shared.playSoundEffect(sound: "Click_Electronic_06.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Electronic_06", ofType: "mp3"))
                     MangaWorks.runGraceScript(item.excute)
                 }
             }
@@ -172,7 +172,7 @@ public struct MangaActionSelector: View {
             menu.addItem(title: MangaWorks.expandMacros(in: item.text), enabled: MangaWorks.evaluateCondition(item.condition)) {
                 Execute.onMain {
                     SpeechManager.shared.stopSpeaking()
-                    SoundManager.shared.playSoundEffect(sound: "Click_Electronic_06.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Electronic_06", ofType: "mp3"))
                     MangaWorks.runGraceScript(item.excute)
                 }
             }

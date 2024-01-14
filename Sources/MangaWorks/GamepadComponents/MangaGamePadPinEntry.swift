@@ -223,17 +223,17 @@ public struct MangaGamePadPinEntry: View {
             switch direction {
             case .up:
                 if cursorY > 0 {
-                    SoundManager.shared.playSoundEffect(sound: "Click_Standard_05.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                     cursorY -= 1
                 }
             case .down:
                 if cursorY < 3 {
-                    SoundManager.shared.playSoundEffect(sound: "Click_Standard_05.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                     cursorY += 1
                 }
             case .left:
                 if cursorX > 0 {
-                    SoundManager.shared.playSoundEffect(sound: "Click_Standard_05.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                     cursorX -= 1
                     if cursorX < 2 {
                         cursorY = 0
@@ -241,7 +241,7 @@ public struct MangaGamePadPinEntry: View {
                 }
             case .right:
                 if cursorX < 4 {
-                    SoundManager.shared.playSoundEffect(sound: "Click_Standard_05.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                     cursorX += 1
                 }
             default:
@@ -253,7 +253,7 @@ public struct MangaGamePadPinEntry: View {
         }
         .onGamepadButtonX(viewID: editorID) {ispressed in
             if ispressed {
-                SoundManager.shared.playSoundEffect(sound: "Menu_Select_00.mp3")
+                SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Menu_Select_00", ofType: "mp3"))
                 switch cursorX {
                 case 0:
                     // Clear

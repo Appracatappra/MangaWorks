@@ -236,17 +236,17 @@ public struct MangaGamePadSymbolEntry: View {
             switch direction {
             case .up:
                 if cursorY > 0 {
-                    SoundManager.shared.playSoundEffect(sound: "Click_Standard_05.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                     cursorY -= 1
                 }
             case .down:
                 if cursorY < 3 {
-                    SoundManager.shared.playSoundEffect(sound: "Click_Standard_05.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                     cursorY += 1
                 }
             case .left:
                 if cursorX > 0 {
-                    SoundManager.shared.playSoundEffect(sound: "Click_Standard_05.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                     cursorX -= 1
                     if cursorX < 1 {
                         cursorY = 0
@@ -254,7 +254,7 @@ public struct MangaGamePadSymbolEntry: View {
                 }
             case .right:
                 if cursorX < 4 {
-                    SoundManager.shared.playSoundEffect(sound: "Click_Standard_05.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                     cursorX += 1
                 }
             default:
@@ -266,11 +266,12 @@ public struct MangaGamePadSymbolEntry: View {
         }
         .onGamepadButtonX(viewID: editorID) {ispressed in
             if ispressed {
+                SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Menu_Select_00", ofType: "mp3"))
                 SoundManager.shared.playSoundEffect(sound: "Menu_Select_00.mp3")
                 switch cursorX {
                 case 0:
                     // Enter
-                    SoundManager.shared.playSoundEffect(sound: "Click_Electronic_06.mp3")
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Electronic_06", ofType: "mp3"))
                     let desiredPattern = MangaWorks.expandMacros(in: symbol.symbolValue)
                     if desiredPattern != "" {
                         if symbolPattern() == desiredPattern {
