@@ -207,7 +207,7 @@ public struct MangaFullPageView: View {
             connectGamepad(viewID: uniqueID, handler: { controller, gamepadInfo in
                 isGamepadConnected = true
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
-                buttonAUsage(viewID: uniqueID, "Show the **Action Menu**.")
+                buttonBUsage(viewID: uniqueID, "Show the **Action Menu**.")
             })
         }
         .onRotate {orientation in

@@ -341,6 +341,9 @@ import ODRManager
     /// Handle the player starting a new game.
     public var onStartNewGame:EventHandler? = nil
     
+    /// Handle the player loading an existing game.
+    public var onRestoreGameState:EventHandler? = nil
+    
     /// Handle the player saving the game state.
     public var onSaveState:EventHandler? = nil
     
@@ -391,6 +394,12 @@ import ODRManager
     /// - Parameter value: A serialized string representing the object.
     public func load(from value:String) {
         
+        // Request to "start" a new game so all the state only items are build before being loaded
+        // and restored from storage.
+        if let onRestoreGameState {
+            onRestoreGameState()
+        }
+        
         guard value != "" else {
             return
         }
@@ -439,10 +448,12 @@ import ODRManager
         self.chapters = []
         self.currentPage = MangaPage(id: "00", pageType: .fullPageImage)
         
+        // Does the hosting app need to setup a new game?
         guard let onStartNewGame else {
             return
         }
         
+        // Yes, allow the host to configure the game.
         onStartNewGame()
     }
     
@@ -830,6 +841,8 @@ import ODRManager
         switch newPageID {
         case "<<":
             newPageID = popLastPageID()
+        case "[CURRENT]":
+            newPageID = "\(currentPage.chapter)|\(currentPage.id)"
         case "[COVER]":
             changeView(viewID: "[COVER]")
             return
