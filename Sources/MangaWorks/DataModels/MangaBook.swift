@@ -325,6 +325,15 @@ import ODRManager
     /// Holds the current layervisibility for the panels and panorama viewers.
     public var layerVisibility:MangaLayerManager.ElementVisibility = .empty
     
+    /// Holds the results of an inline conversation.
+    public var conversationResult1:String = ""
+    
+    /// Holds the results of an inline conversation.
+    public var conversationResult2:String = ""
+    
+    /// Holds the results of an inline conversation.
+    public var conversationResult3:String = ""
+    
     // MARK: - Events
     /// Handle the user wanting to load an external page.
     public var onRequestExternalPage:RequestExternalPage? = nil

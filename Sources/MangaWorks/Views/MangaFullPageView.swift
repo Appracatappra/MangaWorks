@@ -354,7 +354,7 @@ public struct MangaFullPageView: View {
             Spacer()
             
             ZStack {
-                Text("Page: \(page.id)")
+                Text("Page: \(page.id) \(page.title)")
                     .font(ComicFonts.Komika.ofSize(footerTextSize))
                     .foregroundColor(.black)
                     .padding(.trailing)

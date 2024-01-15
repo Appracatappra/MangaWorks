@@ -2,7 +2,7 @@
 //  SwiftUIView.swift
 //  
 //
-//  Created by Kevin Mullins on 1/14/24.
+//  Created by Kevin Mullins on 1/15/24.
 //
 
 import SwiftUI
@@ -12,9 +12,11 @@ import LogManager
 import GraceLanguage
 import SwiftUIGamepad
 import SpriteKit
+import SwiftUIPanoramaViewer
+import SoundManager
 
 /// Displays a full page image as the main contents of the page.
-public struct MangaPanelsView: View {
+public struct MangaPanoramaView: View {
     
     // MARK: - Initializers
     /// Creates a new instance.
@@ -24,7 +26,7 @@ public struct MangaPanelsView: View {
     ///   - backgroundColor: The background color of the page.
     ///   - isGamepadRequired: If `true`, a gamepad is required to run the app.
     ///   - isAttachedToGameCenter: If `true`, the app is attached to Game Center.
-    public init(uniqueID: String = "FullPageView", page: MangaPage = MangaPage(id: "00", pageType: .panelsPage), backgroundColor: Color = .white, isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
+    public init(uniqueID: String = "FullPageView", page: MangaPage = MangaPage(id: "00", pageType: .panoramaPage), backgroundColor: Color = .white, isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
         self.uniqueID = uniqueID
         self.page = page
         self.backgroundColor = backgroundColor
@@ -34,10 +36,10 @@ public struct MangaPanelsView: View {
     
     // MARK: - Properties
     /// The unique ID of the container used to tie in gamepad support.
-    public var uniqueID:String = "PanelsView"
+    public var uniqueID:String = "PanoramaView"
     
     // The `MangaPage` to display.
-    public var page:MangaPage = MangaPage(id: "00", pageType: .panelsPage)
+    public var page:MangaPage = MangaPage(id: "00", pageType: .panoramaPage)
     
     /// The background color of the page.
     public var backgroundColor: Color = .white
@@ -60,6 +62,24 @@ public struct MangaPanelsView: View {
     
     /// Holds a buffer that allows the image to be fully scrollable and the zoom level changes.
     @State private var zoomBuffer:CGFloat = CGFloat(0.0)
+    
+    /// If `true`, show the navigation marker.
+    @State var showNavigationMarker:Bool = false
+    
+    /// The currently active interaction.
+    @State var interaction:MangaPageInteraction? = nil
+    
+    /// The currently active navigation point.
+    @State var nextNavPoint:MangaPageNavigationPoint? = nil
+    
+    /// The current rotation pitch.
+    @State var rotationPitch:Float = 0.0
+    
+    /// The current rotation yaw.
+    @State var rotationYaw:Float = 0.0
+    
+    /// The current rotation indicator position.
+    @State var rotationIndicator:Float = 0.0
     
     // MARK: - Computed Properties
     /// Returns the size of the footer text.
@@ -262,6 +282,16 @@ public struct MangaPanelsView: View {
         }
     }
     
+    /// Binds a UI Image to a given image name.
+    /// - Parameter name: The name of the image to bind.
+    /// - Returns: Returns the bound image for the name.
+    func bindImage(_ name:String) -> Binding<UIImage?> {
+      return .init(
+        get: { UIImage(named: name) },
+        set: { let _ = $0 }
+      )
+    }
+    
     // MARK: - Control Body
     /// The body of the control.
     public var body: some View {
@@ -353,13 +383,15 @@ public struct MangaPanelsView: View {
     /// - Returns: Returns a view containing the body.
     @ViewBuilder func pageBodyContents(orientation:UIDeviceOrientation, layerVisibility:MangaLayerManager.ElementVisibility) -> some View {
         ZStack {
-            ZoomView(minimumZoom: 0.8, maximumZoom: 2.0, initialZoom: 1.0, buttonSize: zoomButtonSize, zoomChangedHandler: {zoom in
-                let factor = CGFloat(10.0 * zoom)
-                zoomBuffer = CGFloat(30 * factor)
-            }) {
-                pageContents(layerVisibility: layerVisibility)
-            }
-            .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
+//            ZoomView(minimumZoom: 0.8, maximumZoom: 2.0, initialZoom: 1.0, buttonSize: zoomButtonSize, zoomChangedHandler: {zoom in
+//                let factor = CGFloat(10.0 * zoom)
+//                zoomBuffer = CGFloat(30 * factor)
+//            }) {
+//                pageContents(layerVisibility: layerVisibility)
+//            }
+            
+            pageContents(layerVisibility: layerVisibility)
+            //.frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
             
             // Weather system
             if page.hasWeather {
@@ -375,49 +407,169 @@ public struct MangaPanelsView: View {
     /// - Returns: Returns a view representing the body of the cover.
     @ViewBuilder func pageContents(layerVisibility:MangaLayerManager.ElementVisibility) -> some View {
         ZStack {
-            // Display panels
-            MangaLayerManager.panelsOverlay(page: page, width: screenWidth, height: screenHeight, panelGutter: panelGutter)
-            
-            // Display action selector
-            if let hud = page.actions {
-                MangaActionSelector(locationID: page.id, title: hud.title, leftSide: hud.leftSide, rightSide: hud.rightSide, maxEntries: hud.maxEntries, boxWidth: screenWidth, boxHeight: screenHalfHeight, pageWidth: screenWidth, pageHeight: screenHeight, isGamepadConnected: $isGamepadConnected)
-            }
-            
-            // Display PIN entry
-            if let pin = page.pin {
-                if isGamepadConnected {
-                    MangaGamePadPinEntry(pin:pin, boxWidth: screenWidth, boxHeight: screenHalfHeight, pageWidth: screenWidth, pageHeight: screenHeight, editorID: "Pin-\(page.id)")
-                } else {
-                    MangaPinEntryView(pin:pin, boxWidth: screenWidth, boxHeight: screenHalfHeight, pageWidth: screenWidth, pageHeight: screenHeight)
+            // Display Panorama
+            PanoramaViewer(image: bindImage(page.imageName), panoramaType: .spherical, controlMethod: .touch, backgroundColor: .white,
+            cameraMoved: { pitch, yaw, roll in
+                // TODO: Showing Pitch and Yaw for building out the game.
+                Debug.log("pitch: \(Int(pitch)), yaw: \(Int(yaw))")
+                
+                // Update content based on rotation
+                Execute.onMain {
+                    let page = MangaBook.shared.currentPage
+                    nextNavPoint = page.navigationPointHit(pitch: pitch, yaw: yaw)
+                    showNavigationMarker = (nextNavPoint != nil)
+                    
+                    rotationIndicator = yaw
+
+                    if MangaBook.shared.layerVisibility != .empty {
+                        MangaBook.shared.layerVisibility = .empty
+                    }
+
+                    MangaLayerManager.updateCaptionLayout(page.getCaptionLayout(pitch: pitch, yaw: yaw), changed: {
+                        rotationPitch = pitch
+                        rotationYaw = yaw
+                    })
+                    MangaLayerManager.updateBalloonLayout(page.getBalloonLayout(pitch: pitch, yaw: yaw), changed: {
+                        rotationPitch = pitch
+                        rotationYaw = yaw
+                    })
+                    MangaLayerManager.updateWordArtLayout(page.getWordArtLayout(pitch: pitch, yaw: yaw), changed: {
+                        rotationPitch = pitch
+                        rotationYaw = yaw
+                    })
+                    MangaLayerManager.updateDetailImageLayout(page.getDetailImageLayout(pitch: pitch, yaw: yaw), changed: {
+                        rotationPitch = pitch
+                        rotationYaw = yaw
+                    })
+
+                    interaction = page.interactionHit(pitch: pitch, yaw: yaw)
+
+                    // Read any new text popped up because of the rotation change.
+                    if MangaStateManager.autoReadPage {
+                        page.readNewText(for: MangaBook.shared.layerVisibility, pitch: rotationPitch, yaw: rotationYaw)
+                    }
                 }
-            }
-            
-            // Display Symbol Entry
-            if let symbol = page.symbol {
-                if isGamepadConnected {
-                    MangaGamePadSymbolEntry(symbol: symbol, boxWidth: screenWidth, boxHeight: screenHalfHeight, pageWidth: screenWidth, pageHeight: screenHeight, editorID: "Symbol-\(page.id)")
-                } else {
-                    MangaSymbolEntryView(symbol: symbol, boxWidth: screenWidth, boxHeight: screenHalfHeight)
-                }
-            }
+            })
+            .frame(width: screenWidth - 10, height: screenHeight + 20)
             
             // The details
             ZStack {
                 // Overlay Layers
-                MangaLayerManager.detailImageOverlay(page: page, layerVisibility: layerVisibility, padding: layerPadding)
+                MangaLayerManager.detailImageOverlay(page: page, layerVisibility: layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
                 
-                MangaLayerManager.captionOverlay(page: page, layerVisibility: layerVisibility, padding: layerPadding)
+                MangaLayerManager.captionOverlay(page: page, layerVisibility: layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
                 
-                MangaLayerManager.wordArtOverlay(page: page, layerVisibility: layerVisibility, padding: layerPadding)
+                MangaLayerManager.wordArtOverlay(page: page, layerVisibility: layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
                 
-                MangaLayerManager.balloonOverlay(page: page, layerVisibility: layerVisibility, padding: layerPadding)
+                MangaLayerManager.balloonOverlay(page: page, layerVisibility: layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
             }
             .frame(width: screenWidth, height: screenHeight)
             
+            // Display inline conversations
+            if MangaBook.shared.layerVisibility == .displayConversationA {
+                if let conversation = page.conversationA?.appendDoneIfNeeded() {
+                    MangaConversationView(locationID: "Conversation", portrait: conversation.portrait, name: conversation.name, message: conversation.message, leftSide: conversation.leftSide, rightSide: conversation.rightSide, maxEntries: conversation.maxEntries, boxWidth: screenWidth, isGamepadConnected: $isGamepadConnected)
+                }
+            } else if MangaBook.shared.layerVisibility == .displayConversationB {
+                if let conversation = page.conversationB?.appendDoneIfNeeded() {
+                    MangaConversationView(locationID: "Conversation", portrait: conversation.portrait, name: conversation.name, message: conversation.message, leftSide: conversation.leftSide, rightSide: conversation.rightSide, maxEntries: conversation.maxEntries, boxWidth: screenWidth, isGamepadConnected: $isGamepadConnected)
+                }
+            } else if MangaBook.shared.layerVisibility == .displayConversationResultA {
+                if let conversation = page.conversationA {
+                    MangaConversationResultView(locationID: "Conversation", actor: conversation.actor, portrait: conversation.portrait, name: conversation.name, result1: MangaWorks.expandMacros(in: MangaBook.shared.conversationResult1), result2: MangaWorks.expandMacros(in: MangaBook.shared.conversationResult2), result3: MangaWorks.expandMacros(in: MangaBook.shared.conversationResult3), boxWidth: screenWidth, isGamepadConnected: $isGamepadConnected)
+                }
+            } else if MangaBook.shared.layerVisibility == .displayConversationResultB {
+                if let conversation = page.conversationB {
+                    MangaConversationResultView(locationID: "Conversation", actor: conversation.actor, portrait: conversation.portrait, name: conversation.name, result1: MangaWorks.expandMacros(in: MangaBook.shared.conversationResult1), result2: MangaWorks.expandMacros(in: MangaBook.shared.conversationResult2), result3: MangaWorks.expandMacros(in: MangaBook.shared.conversationResult3), boxWidth: screenWidth, isGamepadConnected: $isGamepadConnected)
+                }
+            }
+            
+            Image("HUDReticle")
+                .resizable()
+                .frame(width: 128, height: 128)
+                .opacity(0.50)
+                .allowsHitTesting(false)
+            
+            actionButtons()
+            
+            // Direction Indicator
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    
+                    CompassView()
+                        .frame(width: 50.0, height: 50.0)
+                        .rotationEffect(Angle(degrees: Double(rotationIndicator)))
+                }
+            }
+            .frame(width: screenWidth - 10, height: screenHeight + 20)
         }
         .frame(width: MangaPageScreenMetrics.screenHalfWidth + zoomBuffer, height: MangaPageScreenMetrics.screenHeight + zoomBuffer)
         .clipped()
         //.padding(.horizontal)
+    }
+    
+    @ViewBuilder func actionButtons() -> some View {
+        // Action Buttons
+        if let interaction = interaction {
+            VStack {
+                Spacer()
+                
+                if isGamepadConnected {
+                    ZStack {
+                        MangaIconButton(iconName: interaction.action.icon) {
+                            //handleInteraction(interaction: interaction)
+                        }
+                        
+                        ScaledImageView(imageName: GamepadManager.gamepadOne.gampadInfo.buttonXImage, scale: 0.70)
+                            .offset(x:50.0, y:50.0)
+                    }
+                } else {
+                    MangaIconButton(iconName: interaction.action.icon) {
+                        //handleInteraction(interaction: interaction)
+                    }
+                }
+                
+                Spacer()
+            }
+        } else if showNavigationMarker {
+            VStack {
+                Spacer()
+                
+                if isGamepadConnected {
+                    ZStack {
+                        MangaIconButton(iconName: "arrow.up.circle.fill") {
+                            handleNavigation()
+                        }
+                        
+                        ScaledImageView(imageName: GamepadManager.gamepadOne.gampadInfo.buttonXImage, scale: 0.70)
+                            .offset(x:50.0, y:50.0)
+                    }
+                } else {
+                    MangaIconButton(iconName: "arrow.up.circle.fill") {
+                        handleNavigation()
+                    }
+                }
+                
+                Spacer()
+            }
+        }
+    }
+    
+    func handleNavigation() {
+        SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
+        if let nextNavPoint {
+            PanoramaManager.shouldUpdateImage = true
+            PanoramaManager.shouldResetCameraAngle = false
+            MangaBook.shared.displayPage(id: MangaWorks.expandMacros(in: nextNavPoint.tag))
+            
+            if nextNavPoint.soundEffect != "" {
+                SoundManager.shared.playSoundEffect(sound: nextNavPoint.soundEffect, channel: .channel03)
+            }
+        }
+        
+        nextNavPoint = nil
     }
     
     /// Draws the header and footer overlay contents.
@@ -498,5 +650,5 @@ public struct MangaPanelsView: View {
 }
 
 #Preview {
-    MangaPanelsView(page: MangaPage(id: "00", pageType: .panelsPage))
+    MangaPanoramaView(page: MangaPage(id: "00", pageType: .panoramaPage, imageName: "PanoramaG04"))
 }
