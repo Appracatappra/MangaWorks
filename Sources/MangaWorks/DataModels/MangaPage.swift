@@ -735,6 +735,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
             call @adjustIntState('points', \(points));
             call @changePage('\(nextMangaPageID)');
             call @changeLayerVisibility(\(visibility.rawValue));
+            call @handleLayerChange();
         }
         """
         
@@ -940,9 +941,13 @@ open class MangaPage: Identifiable, SimpleSerializeable {
                 return caption
             }
         } else if caption.layerVisibility == layerVisibility {
-            return caption
+            if MangaWorks.evaluateCondition(caption.condition) {
+                return caption
+            }
         } else if PanoramaManager.targetHit(pitch: pitch, yaw: yaw, pitchLeading: caption.pitchLeading, pitchTrailing: caption.pitchTrailing, yawLeading: caption.yawLeading, yawTrailing: caption.yawTrailing) {
-            return caption
+            if MangaWorks.evaluateCondition(caption.condition) {
+                return caption
+            }
         }
         
         return nil
@@ -1028,9 +1033,13 @@ open class MangaPage: Identifiable, SimpleSerializeable {
                 return balloon
             }
         } else if balloon.layerVisibility == layerVisibility {
-            return balloon
+            if MangaWorks.evaluateCondition(balloon.condition) {
+                return balloon
+            }
         } else if PanoramaManager.targetHit(pitch: pitch, yaw: yaw, pitchLeading: balloon.pitchLeading, pitchTrailing: balloon.pitchTrailing, yawLeading: balloon.yawLeading, yawTrailing: balloon.yawTrailing) {
-            return balloon
+            if MangaWorks.evaluateCondition(balloon.condition) {
+                return balloon
+            }
         }
         
         return nil
@@ -1272,9 +1281,13 @@ open class MangaPage: Identifiable, SimpleSerializeable {
                 return word
             }
         } else if word.layerVisibility == layerVisibility {
-            return word
+            if MangaWorks.evaluateCondition(word.condition) {
+                return word
+            }
         } else if PanoramaManager.targetHit(pitch: pitch, yaw: yaw, pitchLeading: word.pitchLeading, pitchTrailing: word.pitchTrailing, yawLeading: word.yawLeading, yawTrailing: word.yawTrailing) {
-            return word
+            if MangaWorks.evaluateCondition(word.condition) {
+                return word
+            }
         }
         
         return nil
@@ -1365,9 +1378,13 @@ open class MangaPage: Identifiable, SimpleSerializeable {
                 return image
             }
         } else if image.layerVisibility == layerVisibility {
-            return image
+            if MangaWorks.evaluateCondition(image.condition) {
+                return image
+            }
         } else if PanoramaManager.targetHit(pitch: pitch, yaw: yaw, pitchLeading: image.pitchLeading, pitchTrailing: image.pitchTrailing, yawLeading: image.yawLeading, yawTrailing: image.yawTrailing) {
-            return image
+            if MangaWorks.evaluateCondition(image.condition) {
+                return image
+            }
         }
         
         return nil

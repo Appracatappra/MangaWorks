@@ -207,6 +207,7 @@ import SimpleSerializer
         let script:String = """
         main {
             call @changeLayerVisibility(0);
+            call @handleLayerChange();
         }
         """
         

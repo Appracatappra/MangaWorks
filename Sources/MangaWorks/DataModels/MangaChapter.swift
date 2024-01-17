@@ -43,6 +43,48 @@ import Observation
             
             return GraceVariable(name: "result", value: value, type: .bool)
         }
+        
+        // Add handleLayerChange
+        compiler.register(name: "handleLayerChange", parameterNames: [], parameterTypes: []) { parameters in
+            
+            MangaChapter.handleLayerChange()
+            
+            return nil
+        }
+    }
+    
+    /// Handles the layer changing on a page.
+    public static func handleLayerChange() {
+        let page = MangaBook.shared.currentPage
+        
+        Execute.onMain {
+            switch MangaBook.shared.layerVisibility {
+            case MangaLayerManager.ElementVisibility.displayNextLocation:
+                // Change Location??
+                break
+            case MangaLayerManager.ElementVisibility.displayConversationA:
+                //dataStore.inlineConversation = .displayConversationA
+                if MangaStateManager.autoReadPage {
+                    if let conversation = page.conversationA {
+                        let phrase = MangaWorks.expandMacros(in: conversation.message)
+                        MangaPage.sayPhrase(phrase, inVoice: conversation.actor)
+                    }
+                }
+            case MangaLayerManager.ElementVisibility.displayConversationB:
+                //dataStore.inlineConversation = .displayConversationB
+                if MangaStateManager.autoReadPage {
+                    if let conversation = page.conversationB {
+                        let phrase = MangaWorks.expandMacros(in: conversation.message)
+                        MangaPage.sayPhrase(phrase, inVoice: conversation.actor)
+                    }
+                }
+            default:
+                // Read all visible text on the page
+                if MangaStateManager.autoReadPage {
+                    //page.readText(for: MangaBook.shared.layerVisibility, pitch: rotationPitch, yaw: rotationYaw)
+                }
+            }
+        }
     }
     
     // MARK: - Properties

@@ -163,8 +163,18 @@ import ODRManager
             return nil
         }
         
-        // Add changeLayerVisibility
+        // Add changeLayerVisibility (takes an integer)
         compiler.register(name: "changeLayerVisibility", parameterNames: ["visibility"], parameterTypes: [.string]) { parameters in
+            
+            if let visibility = parameters["visibility"] {
+                MangaBook.shared.changeLayerVisibility(visibility: visibility.int)
+            }
+            
+            return nil
+        }
+        
+        // Add setLayerVisibility (takes a string)
+        compiler.register(name: "setLayerVisibility", parameterNames: ["visibility"], parameterTypes: [.string]) { parameters in
             
             if let visibility = parameters["visibility"] {
                 MangaBook.shared.changeLayerVisibility(visibility: visibility.string)
@@ -607,6 +617,17 @@ import ODRManager
         }
     }
     
+    // !!!: - Notes
+    /// Saves an entry to the notebook.
+    /// - Parameters:
+    ///   - notebookID: The ID of the entry to save.
+    ///   - image: An image for the entry.
+    ///   - title: The title of the entry.
+    ///   - entry: The body of the entry.
+    public func addNote(notebookID: String = "", image: String = "", title: String = "", entry: String = "") {
+        notebook.saveEntry(notebookID: notebookID, image: image, title: title, entry: "")
+    }
+    
     // !!!: - Chanpters
     /// Returns the given chapter.
     /// - Parameter id: The id of the chapter to return.
@@ -795,6 +816,14 @@ import ODRManager
     }
     
     /// Request that the app changes the layer visibility.
+    /// - Parameter visibility: The visibility as an int.
+    public func changeLayerVisibility(visibility:Int) {
+        var value:MangaLayerManager.ElementVisibility = .empty
+        value.from(visibility)
+        changeLayerVisibility(visibility: value)
+    }
+    
+    /// Request that the app changes the layer visibility.
     /// - Parameter visibility: The new layer visibility.
     public func changeLayerVisibility(visibility:MangaLayerManager.ElementVisibility) {
         layerVisibility = visibility
@@ -953,6 +982,10 @@ import ODRManager
     
     /// Continues an already started game.
     public func continueGame() {
+        
+        if currentPageID.contains("*") {
+            currentPageID = popLastPageID()
+        }
         
         guard currentPageID != "" else {
             changeView(viewID: "[COVER]")

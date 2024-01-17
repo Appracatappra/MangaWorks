@@ -14,6 +14,7 @@ import SwiftUIGamepad
 import SpriteKit
 import SwiftUIPanoramaViewer
 import SoundManager
+import SpeechManager
 
 /// Displays a full page image as the main contents of the page.
 public struct MangaPanoramaView: View {
@@ -519,7 +520,7 @@ public struct MangaPanoramaView: View {
                 if isGamepadConnected {
                     ZStack {
                         MangaIconButton(iconName: interaction.action.icon) {
-                            //handleInteraction(interaction: interaction)
+                            handleInteraction(interaction: interaction)
                         }
                         
                         ScaledImageView(imageName: GamepadManager.gamepadOne.gampadInfo.buttonXImage, scale: 0.70)
@@ -527,7 +528,7 @@ public struct MangaPanoramaView: View {
                     }
                 } else {
                     MangaIconButton(iconName: interaction.action.icon) {
-                        //handleInteraction(interaction: interaction)
+                        handleInteraction(interaction: interaction)
                     }
                 }
                 
@@ -570,6 +571,23 @@ public struct MangaPanoramaView: View {
         }
         
         nextNavPoint = nil
+    }
+    
+    func handleInteraction(interaction: MangaPageInteraction) {
+        // Handle interaction
+        SpeechManager.shared.stopSpeaking()
+        switch interaction.action {
+        case .use:
+            SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Electronic_06", ofType: "mp3"))
+        default:
+            SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
+        }
+        
+        if interaction.notbookID != "" {
+            MangaBook.shared.addNote(notebookID: interaction.notbookID, image: interaction.notebookImage, title: interaction.notebookTitle, entry: interaction.notebookEntry)
+        }
+        
+        MangaWorks.runGraceScript(interaction.handler)
     }
     
     /// Draws the header and footer overlay contents.
