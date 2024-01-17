@@ -52,7 +52,18 @@ import ODRManager
         let compiler = GraceCompiler.shared
         
         // Add getState.
-        compiler.register(name: "getState", parameterNames: ["key"], parameterTypes: [.string], returnType: .int) { parameters in
+        compiler.register(name: "getState", parameterNames: ["key"], parameterTypes: [.string], returnType: .string) { parameters in
+            var value = ""
+            
+            if let key = parameters["key"] {
+                value = MangaBook.shared.getStateString(key: key.string)
+            }
+            
+            return GraceVariable(name: "result", value: value, type: .string)
+        }
+        
+        // Add getStateInt.
+        compiler.register(name: "getStateInt", parameterNames: ["key"], parameterTypes: [.string], returnType: .int) { parameters in
             var value = ""
             
             if let key = parameters["key"] {
@@ -60,6 +71,28 @@ import ODRManager
             }
             
             return GraceVariable(name: "result", value: value, type: .int)
+        }
+        
+        // Add getStateDouble.
+        compiler.register(name: "getStateDouble", parameterNames: ["key"], parameterTypes: [.string], returnType: .float) { parameters in
+            var value = ""
+            
+            if let key = parameters["key"] {
+                value = MangaBook.shared.getStateString(key: key.string)
+            }
+            
+            return GraceVariable(name: "result", value: value, type: .float)
+        }
+        
+        // Add getStateDouble.
+        compiler.register(name: "getStateBool", parameterNames: ["key"], parameterTypes: [.string], returnType: .bool) { parameters in
+            var value = ""
+            
+            if let key = parameters["key"] {
+                value = MangaBook.shared.getStateString(key: key.string)
+            }
+            
+            return GraceVariable(name: "result", value: value, type: .bool)
         }
         
         // Add setState
