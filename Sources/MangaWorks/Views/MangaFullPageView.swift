@@ -12,6 +12,7 @@ import LogManager
 import GraceLanguage
 import SwiftUIGamepad
 import SpriteKit
+import SoundManager
 
 /// Displays a full page image as the main contents of the page.
 public struct MangaFullPageView: View {
@@ -306,6 +307,7 @@ public struct MangaFullPageView: View {
         HStack {
             if page.previousPage != "" {
                 MangaButton(title: "< Prev", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Flag2_TurnPage", ofType: "mp3"), channel: .channel03)
                     MangaBook.shared.displayPage(id: page.previousPage)
                 }
                 .padding(.leading)
@@ -315,6 +317,7 @@ public struct MangaFullPageView: View {
             
             if page.nextPage != "" {
                 MangaButton(title: "Next >", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Flag2_TurnPage", ofType: "mp3"), channel: .channel03)
                     MangaBook.shared.displayPage(id: page.nextPage)
                 }
                 .padding(.trailing)
