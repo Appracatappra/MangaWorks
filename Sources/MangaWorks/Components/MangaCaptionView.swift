@@ -78,15 +78,7 @@ public struct MangaCaptionView: View {
     
     // MARK: - Computed Properties
     private var text:String {
-        var value = ""
-        
-        do {
-            try value = GraceRuntime.shared.expandMacros(in: caption)
-        } catch {
-            value = caption
-        }
-        
-        return value
+        return MangaWorks.expandMacros(in: caption)
     }
     
     // MARK: - Control Body
@@ -151,9 +143,7 @@ public struct MangaCaptionView: View {
                         }
                     }
                     if expandOnTap {
-                        // TODO: Testing
-                        //MasterDataStore.sharedDataStore.detailTitle = "Caption"
-                        //MasterDataStore.sharedDataStore.detailText = text
+                        MangaBook.shared.showDetails(title: "Caption", text: text)
                     }
                 }
             .offset(x: CGFloat(xOffset), y: CGFloat(yOffset))

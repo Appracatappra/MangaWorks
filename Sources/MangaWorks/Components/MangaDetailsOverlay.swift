@@ -15,22 +15,17 @@ import SoundManager
 
 /// Displays a zoom in detail of a text item in the manga.
 public struct MangaDetailsOverlay: View {
-    // MARK: - Event Handlers
-    /// Handles the user requesting to close the overlay.
-    public typealias CloseDetails = () -> Void
-    
+
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
     ///   - detailsTitle: The detail title to display.
     ///   - detailsText: The body of the detail to display.
     ///   - isGamepadConnected: If `true` a gamepad is connected to the device.
-    ///   - onCloseDetails: Handls the user wanting to close the overlay.
-    public init(detailsTitle: String = "", detailsText: String = "", isGamepadConnected: Binding<Bool>, onCloseDetails: CloseDetails? = nil) {
+    public init(detailsTitle: String = "", detailsText: String = "", isGamepadConnected: Binding<Bool>) {
         self.detailsTitle = detailsTitle
         self.detailsText = detailsText
         self._isGamepadConnected = isGamepadConnected
-        self.onCloseDetails = onCloseDetails
     }
     
     // MARK: - Properties
@@ -43,10 +38,6 @@ public struct MangaDetailsOverlay: View {
     // MARK: - States
     /// If `true` a gamepad is connected to the device.
     @Binding public var isGamepadConnected:Bool
-    
-    // MARK: - Event Handlers
-    /// Handls the user wanting to close the overlay.
-    public var onCloseDetails:CloseDetails? = nil
     
     // MARK: - Computed Properties
     /// Returns the padding based on the device.
@@ -102,9 +93,7 @@ public struct MangaDetailsOverlay: View {
             MangaIconButton(iconName: "x.circle.fill") {
                 SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                 Execute.onMain {
-                    if let onCloseDetails {
-                        onCloseDetails()
-                    }
+                    MangaBook.shared.showDetailView = false
                 }
             }
             .padding(.top)
@@ -135,9 +124,7 @@ public struct MangaDetailsOverlay: View {
             MangaIconButton(iconName: "x.circle.fill") {
                 SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
                 Execute.onMain {
-                    if let onCloseDetails {
-                        onCloseDetails()
-                    }
+                    MangaBook.shared.showDetailView = false
                 }
             }
             .padding(.top)

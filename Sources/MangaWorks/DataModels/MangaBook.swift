@@ -402,6 +402,15 @@ import ODRManager
     /// Handle the player saving the game state.
     public var onSaveState:EventHandler? = nil
     
+    /// If `true`, show the details overlay in the pano viewer.
+    public var showDetailView:Bool = false
+    
+    /// The title of the details to display.
+    public var detailTitle:String = ""
+    
+    /// The text of the details to display.
+    public var detailText:String = ""
+    
     // MARK: - Computed Properties
     /// Returns the total number of pages in the book.
     public var totalPageCount:Int {
@@ -663,6 +672,17 @@ import ODRManager
     public func addNote(notebookID: String = "", image: String = "", title: String = "", entry: String = "") {
         notebook.saveEntry(notebookID: notebookID, image: image, title: title, entry: entry)
         simulatediPhoneNotification = MangaDashboardNotification(icon: "book.pages.fill", title: "New Note", description: "A new note has been added to your notebook.")
+    }
+    
+    // !!!: - details
+    /// Displays the deetails overlay in the Panoviewer.
+    /// - Parameters:
+    ///   - title: The title of the details to show.
+    ///   - text: The text body of the details to show.
+    public func showDetails(title:String, text:String) {
+        detailTitle = title
+        detailText = text
+        showDetailView = true
     }
     
     // !!!: - Chanpters

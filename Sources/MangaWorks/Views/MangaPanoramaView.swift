@@ -304,8 +304,15 @@ public struct MangaPanoramaView: View {
             .statusBar(hidden: true)
             #endif
             
+            // Display header and footer
             MangaPageOverlayView(uniqueID: uniqueID) {
                 pageOverlayContents()
+            }
+            
+            // Display details.
+            if MangaBook.shared.showDetailView {
+                MangaDetailsOverlay(detailsTitle: MangaBook.shared.detailTitle, detailsText: MangaBook.shared.detailText, isGamepadConnected: $isGamepadConnected)
+                    .ignoresSafeArea()
             }
             
             // Display gamepad help
@@ -384,15 +391,7 @@ public struct MangaPanoramaView: View {
     /// - Returns: Returns a view containing the body.
     @ViewBuilder func pageBodyContents(orientation:UIDeviceOrientation, layerVisibility:MangaLayerManager.ElementVisibility) -> some View {
         ZStack {
-//            ZoomView(minimumZoom: 0.8, maximumZoom: 2.0, initialZoom: 1.0, buttonSize: zoomButtonSize, zoomChangedHandler: {zoom in
-//                let factor = CGFloat(10.0 * zoom)
-//                zoomBuffer = CGFloat(30 * factor)
-//            }) {
-//                pageContents(layerVisibility: layerVisibility)
-//            }
-            
             pageContents(layerVisibility: layerVisibility)
-            //.frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
             
             // Weather system
             if page.hasWeather {
@@ -585,6 +584,10 @@ public struct MangaPanoramaView: View {
         
         if interaction.notbookID != "" {
             MangaBook.shared.addNote(notebookID: interaction.notbookID, image: interaction.notebookImage, title: interaction.notebookTitle, entry: interaction.notebookEntry)
+        }
+        
+        if interaction.soundEffect != "" {
+            SoundManager.shared.playSoundEffect(path: interaction.soundEffect, channel: .channel03)
         }
         
         MangaWorks.runGraceScript(interaction.handler)

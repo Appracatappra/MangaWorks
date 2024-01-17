@@ -357,8 +357,7 @@ public struct MangaSheechBalloonView: View {
                         }
                     }
                     if expandOnTap {
-                        //MasterDataStore.sharedDataStore.detailTitle = type.rawValue.replacing("Balloon", with: "")
-                        //MasterDataStore.sharedDataStore.detailText = text
+                        MangaBook.shared.showDetails(title: type.rawValue.replacing("Balloon", with: ""), text: text)
                     }
                 }
                 .offset(x: CGFloat(xOffset), y: CGFloat(yOffset))

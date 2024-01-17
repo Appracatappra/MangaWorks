@@ -653,11 +653,12 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     ///   - notebookEntry: The notebook entry to record the interaction in.
     ///   - notebookImage: An optional image that can be attached to a notebook entry.
     ///   - condition: A Grace Language condition that must be met for this interaction to be active.
+    ///   - soundEffect: A sound effect to play when the user takes this action.
     /// - Returns: Returns self.
-    @discardableResult public func addInteraction(action:MangaPageInteraction.ActionType, title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displayNothing, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", condition:String = "", handler:String = "") -> MangaPage {
+    @discardableResult public func addInteraction(action:MangaPageInteraction.ActionType, title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displayNothing, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", condition:String = "", handler:String = "", soundEffect:String = "") -> MangaPage {
         
         // Add new interaction point
-        interactions.append(MangaPageInteraction(action: action, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: handler))
+        interactions.append(MangaPageInteraction(action: action, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: handler, soundEffect: soundEffect))
         
         return self
     }
@@ -673,8 +674,9 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     ///   - notebookEntry: The notebook entry to record the interaction in.
     ///   - notebookImage: An optional image that can be attached to a notebook entry.
     ///   - itemID: The ID of the item that is hidden at the given location.
+    ///   - soundEffect: A sound effect to play when the user takes this action.
     /// - Returns: Returns self.
-    @discardableResult public func addItemInteraction(title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displaySearch, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", itemID:String = "") -> MangaPage {
+    @discardableResult public func addItemInteraction(title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displaySearch, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", itemID:String = "", soundEffect:String = "") -> MangaPage {
         
         // Test for an item being used.
         let condition = "@containsItem('\(itemID)');"
@@ -683,7 +685,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         let handler = "call @takeItem('\(itemID)');"
         
         // Add new interaction point
-        interactions.append(MangaPageInteraction(action: .search, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage:notebookImage, condition: condition, handler: handler))
+        interactions.append(MangaPageInteraction(action: .search, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage:notebookImage, condition: condition, handler: handler, soundEffect: soundEffect))
         
         return self
     }
@@ -728,6 +730,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     ///   - visibility: The layer object ot make visible when the user activates this interaction.
     ///   - nextMangaPageID: The new location to view.
     ///   - condition: The script that controls in the interaction is visible or not.
+    ///   - soundEffect: A sound effect to play when the user takes this action.
     /// - Returns: Returns self.
     @discardableResult public func addInteraction(action:MangaPageInteraction.ActionType, title:String, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", soundEffect:String = "", visibility:MangaLayerManager.ElementVisibility = .displayNothing, nextMangaPageID:String = "", points:Int = 0, condition:String = "") -> MangaPage {
         
@@ -745,7 +748,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         """
         
         // Add new interaction point
-        interactions.append(MangaPageInteraction(action: action, title: title, displayElement: visibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: script))
+        interactions.append(MangaPageInteraction(action: action, title: title, displayElement: visibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: script, soundEffect: soundEffect))
         
         return self
     }

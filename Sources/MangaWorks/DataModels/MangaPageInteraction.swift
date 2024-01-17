@@ -88,6 +88,9 @@ open class MangaPageInteraction: SimpleSerializeable {
     /// The Layer Manager element to display when the user takes this action.
     public var displayElement:MangaLayerManager.ElementVisibility = .displayNothing
     
+    /// A sound effect to play when the user takes this action.
+    public var soundEffect:String = ""
+    
     /// A notebook to record a message in for the player when this interaction is triggered.
     public var notbookID:String = ""
     
@@ -125,6 +128,7 @@ open class MangaPageInteraction: SimpleSerializeable {
             .append(action)
             .append(title)
             .append(displayElement)
+            .append(soundEffect)
             .append(notbookID)
             .append(notebookTitle)
             .append(notebookEntry)
@@ -153,7 +157,8 @@ open class MangaPageInteraction: SimpleSerializeable {
     ///   - notebookImage: An optional notbook image that can be added to an entry.
     ///   - condition: A Grace Language Script that must evaluate to `true` before this instraction is available.
     ///   - handler: A Grace Language Script to run when the user triggeres this interaction.
-    init(action:ActionType, title:String, displayElement:MangaLayerManager.ElementVisibility, pitch:Float = 0.0, yaw:Float = 0.0, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", condition:String = "", handler:String = "") {
+    ///   - soundEffect: A sound effect to play when the user takes this action.
+    init(action:ActionType, title:String, displayElement:MangaLayerManager.ElementVisibility, pitch:Float = 0.0, yaw:Float = 0.0, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", condition:String = "", handler:String = "", soundEffect:String = "") {
         // Initialize
         self.action = action
         self.title = title
@@ -168,6 +173,7 @@ open class MangaPageInteraction: SimpleSerializeable {
         self.notebookImage = notebookImage
         self.handler = handler
         self.condition = condition
+        self.soundEffect = soundEffect
     }
     
     /// Creates a new instance.
@@ -178,6 +184,7 @@ open class MangaPageInteraction: SimpleSerializeable {
         self.action.from(deserializer.int())
         self.title = deserializer.string()
         self.displayElement.from(deserializer.int())
+        self.soundEffect = deserializer.string()
         self.notbookID = deserializer.string()
         self.notebookTitle = deserializer.string()
         self.notebookEntry = deserializer.string()
