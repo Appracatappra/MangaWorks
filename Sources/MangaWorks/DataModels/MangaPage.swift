@@ -286,6 +286,9 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     /// The blueprint image for this page.
     public var blueprints:String = ""
     
+    /// Holds any note attached to this location.
+    public var note:MangaNotebookEntry = MangaNotebookEntry()
+    
     /// The last caption read.
     public var lastReadCaptions:String = ""
     
@@ -333,6 +336,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
             .append(children: hints, divider: Divider.pageElements)
             .append(map)
             .append(blueprints)
+            .append(note)
         
         return serializer.value
     }
@@ -522,6 +526,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         self.hints = deserializer.children(divider: Divider.pageElements)
         self.map = deserializer.string()
         self.blueprints = deserializer.string()
+        self.note = deserializer.child()
         
         // Finalize
         if let conversationA {
@@ -777,6 +782,19 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         actions = element
         
         return element
+    }
+    
+    // !!!: Notes
+    /// Adds a notebook entry to this page.
+    /// - Parameters:
+    ///   - notebookID: The unique ID of the notebook entry.
+    ///   - image: An optional image for the entry.
+    ///   - title: The title of the entry.
+    ///   - entry: The body of the entry.
+    @discardableResult public func addNote(notebookID: String = "", image: String = "", title: String = "", entry: String = "") -> MangaPage {
+        note = MangaNotebookEntry(notebookID: notebookID, image: image, title: title, entry: entry)
+        
+        return self
     }
     
     // !!!: Conversation

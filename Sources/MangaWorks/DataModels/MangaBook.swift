@@ -377,6 +377,9 @@ import ODRManager
     /// Holds the results of an inline conversation.
     public var conversationResult3:String = ""
     
+    /// A notification to display in the simulated iPhone on the landscape view.
+    public var simulatediPhoneNotification:MangaDashboardNotification? = nil
+    
     // MARK: - Events
     /// Handle the user wanting to load an external page.
     public var onRequestExternalPage:RequestExternalPage? = nil
@@ -658,7 +661,8 @@ import ODRManager
     ///   - title: The title of the entry.
     ///   - entry: The body of the entry.
     public func addNote(notebookID: String = "", image: String = "", title: String = "", entry: String = "") {
-        notebook.saveEntry(notebookID: notebookID, image: image, title: title, entry: "")
+        notebook.saveEntry(notebookID: notebookID, image: image, title: title, entry: entry)
+        simulatediPhoneNotification = MangaDashboardNotification(icon: "book.pages.fill", title: "New Note", description: "A new note has been added to your notebook.")
     }
     
     // !!!: - Chanpters
@@ -930,6 +934,14 @@ import ODRManager
         guard let page = getPage(id: MangaWorks.expandMacros(in: newPageID)) else {
             Debug.error(subsystem: "MangaWorks", category: "Display Page", "ERROR: Page '\(id)' not found.")
             return
+        }
+        
+        // Clear any existing notification
+        simulatediPhoneNotification = nil
+        
+        // Add any notes
+        if page.note.notebookID != "" {
+            addNote(notebookID: page.note.notebookID, image: page.note.image, title: page.note.title, entry: page.note.entry)
         }
         
         // Save last location

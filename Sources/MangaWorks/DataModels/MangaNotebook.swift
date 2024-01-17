@@ -40,7 +40,7 @@ import SimpleSerializer
     /// Creates a new instance.
     /// - Parameter value: A serialized string representing the object.
     public required init(from value: String) {
-        let deserializer = Deserializer(text: value, divider: Divider.notebookEntry)
+        let deserializer = Deserializer(text: value, divider: Divider.notebook)
         
         self.title = deserializer.string()
         self.entries = deserializer.children(divider: Divider.notebookEntries)

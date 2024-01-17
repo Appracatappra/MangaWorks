@@ -180,7 +180,7 @@ public struct MangaDashboardiPhoneView: View {
                 }
                 .frame(width: boxWidth)
                 
-                if let notification = MangaWorks.simulatediPhoneNotification {
+                if let notification = MangaBook.shared.simulatediPhoneNotification {
                     MangaDashboardNotificationView(iconName: notification.icon, title: notification.title, description: notification.description, boxWidth: boxWidth, fontAsjustment: fontAdjustment)
                         .padding(.top, 50.0)
                 }

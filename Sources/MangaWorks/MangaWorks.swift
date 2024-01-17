@@ -34,9 +34,6 @@ open class MangaWorks {
     }
     
     // MARK: Static Properties
-    /// A notification to display in the simulated iPhone on the landscape view.
-    public static var simulatediPhoneNotification:MangaDashboardNotification? = nil
-    
     /// The default font color for Manga Actions.
     public static var actionFontColor:Color = .white
     
