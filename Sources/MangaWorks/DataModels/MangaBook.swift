@@ -143,16 +143,20 @@ import ODRManager
         }
         
         // Add adjustIntState
-        compiler.register(name: "adjustIntState", parameterNames: ["key", "value", "lowerLimit"], parameterTypes: [.string, .int, .int]) { parameters in
+        compiler.register(name: "adjustIntState", parameterNames: ["key", "value", "lowerLimit", "upperLimit"], parameterTypes: [.string, .int, .int, .int]) { parameters in
             
             if let key = parameters["key"] {
                 if let value = parameters["value"] {
                     if let lowerLimit = parameters["lowerLimit"] {
-                        var num:Int = MangaBook.shared.getStateInt(key: key.string) + value.int
-                        if num < lowerLimit.int {
-                            num = lowerLimit.int
+                        if let upperLimit = parameters["upperLimit"] {
+                            var num:Int = MangaBook.shared.getStateInt(key: key.string) + value.int
+                            if num < lowerLimit.int {
+                                num = lowerLimit.int
+                            } else if num > upperLimit.int {
+                                num = upperLimit.int
+                            }
+                            MangaBook.shared.setStateInt(key: key.string, value: num)
                         }
-                        MangaBook.shared.setStateInt(key: key.string, value: num)
                     }
                 }
             }
@@ -161,12 +165,21 @@ import ODRManager
         }
         
         // Add adjustDoubleState
-        compiler.register(name: "adjustDoubleState", parameterNames: ["key", "value"], parameterTypes: [.string, .int]) { parameters in
+        compiler.register(name: "adjustDoubleState", parameterNames: ["key", "value", "lowerLimit", "upperLimit"], parameterTypes: [.string, .float, .float, .float]) { parameters in
             
             if let key = parameters["key"] {
                 if let value = parameters["value"] {
-                    let num:Double = MangaBook.shared.getStateDouble(key: key.string) + Double(value.float)
-                    MangaBook.shared.setStateDouble(key: key.string, value: num)
+                    if let lowerLimit = parameters["lowerLimit"] {
+                        if let upperLimit = parameters["upperLimit"] {
+                            var num:Double = MangaBook.shared.getStateDouble(key: key.string) + Double(value.float)
+                            if num < Double(lowerLimit.float) {
+                                num = Double(lowerLimit.float)
+                            } else if num > Double(upperLimit.float) {
+                                num = Double(upperLimit.float)
+                            }
+                            MangaBook.shared.setStateDouble(key: key.string, value: num)
+                        }
+                    }
                 }
             }
             

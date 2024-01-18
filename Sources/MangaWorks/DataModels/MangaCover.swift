@@ -246,7 +246,7 @@ import Observation
         
         main {
             call @playSoundEffect('\(soundEffect)', 3);
-            call @adjustIntState('points', \(points));
+            call @adjustIntState('points', \(points), 0, 10000000);
             call @changePage('\(nextMangaPageID)');
         }
         """
