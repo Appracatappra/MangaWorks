@@ -143,12 +143,17 @@ import ODRManager
         }
         
         // Add adjustIntState
-        compiler.register(name: "adjustIntState", parameterNames: ["key", "value"], parameterTypes: [.string, .int]) { parameters in
+        compiler.register(name: "adjustIntState", parameterNames: ["key", "value", "lowerLimit"], parameterTypes: [.string, .int, .int]) { parameters in
             
             if let key = parameters["key"] {
                 if let value = parameters["value"] {
-                    let num:Int = MangaBook.shared.getStateInt(key: key.string) + value.int
-                    MangaBook.shared.setStateInt(key: key.string, value: num)
+                    if let lowerLimit = parameters["lowerLimit"] {
+                        var num:Int = MangaBook.shared.getStateInt(key: key.string) + value.int
+                        if num < lowerLimit.int {
+                            num = lowerLimit.int
+                        }
+                        MangaBook.shared.setStateInt(key: key.string, value: num)
+                    }
                 }
             }
             
@@ -411,6 +416,9 @@ import ODRManager
     /// A notification to display in the simulated iPhone on the landscape view.
     public var simulatediPhoneNotification:MangaDashboardNotification? = nil
     
+    /// Holds the last inventory item selected.
+    public var lastItem:MangaInventoryItem? = nil
+    
     // MARK: - Events
     /// Handle the user wanting to load an external page.
     public var onRequestExternalPage:RequestExternalPage? = nil
@@ -584,11 +592,14 @@ import ODRManager
     ///   - onAquire: A Grace Langauge Script to run when the player acquires the item.
     ///   - onLost: A Grace Language Script to run if the player loses the item.
     ///   - onUse: A Grace Language Script to run if the player uses the item.
-    public func addItem(imageSource: MangaWorks.Source = .appBundle, id: String = "", category:String = "", status: MangaInventoryItem.ItemStatus = .unAssigned, mangaPageID: String = "", image: String = "", title: String = "", description: String = "", isConsumable: Bool = false, initialQualtity: Int = 1, quantityRemaining: Int = 1, onAquire: String = "", onLost: String = "", onUse: String = "") {
+    /// - Returns: Returns self.
+    @discardableResult public func addItem(imageSource: MangaWorks.Source = .appBundle, id: String = "", category:String = "", status: MangaInventoryItem.ItemStatus = .unAssigned, mangaPageID: String = "", image: String = "", title: String = "", description: String = "", isConsumable: Bool = false, initialQualtity: Int = 1, quantityRemaining: Int = 1, onAquire: String = "", onLost: String = "", onUse: String = "") -> MangaBook {
         
         let item = MangaInventoryItem(imageSource: imageSource, id: id, category: category, status: status, mangaPageID: mangaPageID, image: image, title: title, description: description, isConsumable: isConsumable, initialQualtity: initialQualtity, quantityRemaining:quantityRemaining, onAquire: onAquire, onLost: onLost, onUse: onUse)
         
         items.append(item)
+        
+        return self
     }
     
     /// Returns all of the items that are currently in the player's inventory.
@@ -747,11 +758,18 @@ import ODRManager
     /// - Parameters:
     ///   - category: An optional category of item to pick.
     ///   - key: The trigger point key.
+    ///   - addToInventory: If `true` annd the item to the user's inventory.
     /// - Returns: The item if one is available else returns `nil`
-    @discardableResult public func takeRandomItem(category:String, for key:String) -> MangaInventoryItem? {
+    @discardableResult public func takeRandomItem(category:String, for key:String, addToInventory:Bool = true) -> MangaInventoryItem? {
         
-        // Mark as used.
+        // Already triggered?
         if key != "" {
+            let isTriggered = getStateBool(key: key)
+            if isTriggered {
+                return nil
+            }
+            
+            // Mark as used
             trigger(key:key)
         }
         
@@ -762,7 +780,11 @@ import ODRManager
         for item in items {
             if category == "" || item.category == category {
                 if item.status == .unAssigned {
-                    takeItem(id: item.id)
+                    if addToInventory {
+                        takeItem(id: item.id)
+                    } else {
+                        item.status = .discarded
+                    }
                     return item
                 }
             }

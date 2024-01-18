@@ -51,6 +51,28 @@ import Observation
             
             return nil
         }
+        
+        // Add handleLayerChange
+        compiler.register(name: "triggerEvent", parameterNames: ["theme", "key", "category", "take"], parameterTypes: [.int, .string, .string, .bool]) { parameters in
+            
+            if let theme = parameters["theme"] {
+                let currentTheme = MangaBook.shared.getStateInt(key: "Theme")
+                if theme.int == 0 || theme.int == currentTheme {
+                    if let key = parameters["key"] {
+                        if let category = parameters["category"] {
+                            if let take = parameters["take"] {
+                                if let item = MangaBook.shared.takeRandomItem(category: category.string, for: key.string, addToInventory: take.bool) {
+                                    MangaBook.shared.lastItem = item
+                                    MangaWorks.runGraceScript(item.onAquire)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return nil
+        }
     }
     
     /// Handles the layer changing on a page.
