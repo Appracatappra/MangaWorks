@@ -39,6 +39,9 @@ import Observation
         /// The item has been dropped on a given `MangaPage`.
         case droppedOnMangaPage
         
+        /// The item has been discarded and is gone for the rest of the game.
+        case discarded
+        
         // MARK: - Functions
         /// Gets the value from an `unAssigned` and defaults to `topLeading` if the conversion is invalid.
         /// - Parameter value: The value holding the Int to convert.
@@ -57,6 +60,9 @@ import Observation
     
     /// The unique ID of the inventory item.
     public var id:String = ""
+    
+    /// Allows the item to be grouped with similar items.
+    public var category:String = ""
     
     /// The status of the inventory item.
     public var status:ItemStatus = .unAssigned
@@ -96,6 +102,7 @@ import Observation
     public var serialized: String {
         let serializer = Serializer(divider: Divider.item)
             .append(id)
+            .append(category)
             .append(status)
             .append(mangaPageID)
             .append(quantityRemaining)
@@ -120,6 +127,7 @@ import Observation
     /// - Parameters:
     ///   - imageSource: The source for the items images.
     ///   - id: The unique ID of the inventory item.
+    ///   - category: Allows the item to be grouped with similar items.
     ///   - status: The status of the inventory item.
     ///   - mangaPageID: The ID of the `MangaPage` that the item has been hidden or dropped on.
     ///   - image: The image of the item to display in the game's UI.
@@ -131,9 +139,10 @@ import Observation
     ///   - onAquire: A Grace Langauge Script to run when the player acquires the item.
     ///   - onLost: A Grace Language Script to run if the player loses the item.
     ///   - onUse: A Grace Language Script to run if the player uses the item.
-    public init(imageSource: MangaWorks.Source = .appBundle, id: String = "", status: ItemStatus = .unAssigned, mangaPageID: String = "", image: String = "", title: String = "", description: String = "", isConsumable: Bool = false, initialQualtity: Int = 1, quantityRemaining: Int = 1, onAquire: String = "", onLost: String = "", onUse: String = "") {
+    public init(imageSource: MangaWorks.Source = .appBundle, id: String = "", category:String = "", status: ItemStatus = .unAssigned, mangaPageID: String = "", image: String = "", title: String = "", description: String = "", isConsumable: Bool = false, initialQualtity: Int = 1, quantityRemaining: Int = 1, onAquire: String = "", onLost: String = "", onUse: String = "") {
         self.imageSource = imageSource
         self.id = id
+        self.category = category
         self.status = status
         self.mangaPageID = mangaPageID
         self.image = image
@@ -153,6 +162,7 @@ import Observation
         let deserializer = Deserializer(text: value, divider: Divider.item)
         
         self.id = deserializer.string()
+        self.category = deserializer.string()
         self.status.from(deserializer.int())
         self.mangaPageID = deserializer.string()
         self.quantityRemaining = deserializer.int()

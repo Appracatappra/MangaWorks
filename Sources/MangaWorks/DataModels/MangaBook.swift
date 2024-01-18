@@ -216,23 +216,28 @@ import ODRManager
             return nil
         }
         
-        // Add containsItem.
-        compiler.register(name: "containsItem", parameterNames: ["key"], parameterTypes: [.string], returnType: .bool) { parameters in
+        // Add itemOnPage.
+        compiler.register(name: "itemOnPage", parameterNames: ["key"], parameterTypes: [.string], returnType: .bool) { parameters in
             var value = ""
             
             if let key = parameters["key"] {
-                let result = MangaBook.shared.containsItem(id: key.string)
-                value = "\(result)"
+                if MangaBook.shared.itemOnPage(mangaPageID: key.string) != nil {
+                    value = "true"
+                } else {
+                    value = "false"
+                }
             }
             
             return GraceVariable(name: "result", value: value, type: .bool)
         }
         
         // Add takeItem
-        compiler.register(name: "takeItem", parameterNames: ["key"], parameterTypes: [.string]) { parameters in
+        compiler.register(name: "takeItem", parameterNames: ["id", "key"], parameterTypes: [ .string, .string]) { parameters in
             
-            if let key = parameters["key"] {
-                MangaBook.shared.takeItem(id: key.string)
+            if let id = parameters["id"] {
+                if let key = parameters["key"] {
+                    MangaBook.shared.takeItem(id: id.string, for: key.string)
+                }
             }
             
             return nil
@@ -250,6 +255,26 @@ import ODRManager
             return nil
         }
         
+        // Add discardItem
+        compiler.register(name: "discardItem", parameterNames: ["key"], parameterTypes: [.string]) { parameters in
+            
+            if let key = parameters["key"] {
+                MangaBook.shared.discardItem(id: key.string)
+            }
+            
+            return nil
+        }
+        
+        // Add restoreItems
+        compiler.register(name: "restoreItems", parameterNames: ["category"], parameterTypes: [.string, .any]) { parameters in
+            
+            if let category = parameters["category"] {
+                MangaBook.shared.restoreItems(category: category.string)
+            }
+            
+            return nil
+        }
+        
         // Add useItem
         compiler.register(name: "useItem", parameterNames: ["key"], parameterTypes: [.string]) { parameters in
             
@@ -261,12 +286,14 @@ import ODRManager
         }
         
         // Add notTriggered.
-        compiler.register(name: "notTriggered", parameterNames: ["key"], parameterTypes: [.string], returnType: .bool) { parameters in
+        compiler.register(name: "notTriggered", parameterNames: ["theme", "key"], parameterTypes: [.int, .string], returnType: .bool) { parameters in
             var value = ""
             
-            if let key = parameters["key"] {
-                let result = MangaBook.shared.notTriggered(mangaPageID: key.string)
-                value = "\(result)"
+            if let theme = parameters["theme"] {
+                if let key = parameters["key"] {
+                    let result = MangaBook.shared.notTriggered(theme: theme.int, key: key.string)
+                    value = "\(result)"
+                }
             }
             
             return GraceVariable(name: "result", value: value, type: .bool)
@@ -276,20 +303,24 @@ import ODRManager
         compiler.register(name: "trigger", parameterNames: ["key"], parameterTypes: [.string]) { parameters in
             
             if let key = parameters["key"] {
-                MangaBook.shared.trigger(mangaPageID: key.string)
+                MangaBook.shared.trigger(key: key.string)
             }
             
             return nil
         }
         
         // Add takeRandomItem
-        compiler.register(name: "takeRandomItem", parameterNames: ["key"], parameterTypes: [.string]) { parameters in
+        compiler.register(name: "takeRandomItem", parameterNames: ["category", "key"], parameterTypes: [.string, .string], returnType: .string) { parameters in
             
-            if let key = parameters["key"] {
-                MangaBook.shared.takeRandomItem(for: key.string)
+            if let category = parameters["category"] {
+                if let key = parameters["key"] {
+                    if let item = MangaBook.shared.takeRandomItem(category: category.string, for: key.string) {
+                        return GraceVariable(name: "result", value: item.id, type: .string)
+                    }
+                }
             }
             
-            return nil
+            return GraceVariable(name: "result", value: "", type: .string)
         }
         
         // Add saveNotebookEntry
@@ -537,6 +568,29 @@ import ODRManager
     }
     
     // !!!: - Inventory Items
+    /// Adds a new item to the available inventory.
+    /// - Parameters:
+    ///   - imageSource: The source for the items images.
+    ///   - id: The unique ID of the inventory item.
+    ///   - category: Allows the item to be grouped with similar items.
+    ///   - status: The status of the inventory item.
+    ///   - mangaPageID: The ID of the `MangaPage` that the item has been hidden or dropped on.
+    ///   - image: The image of the item to display in the game's UI.
+    ///   - title: The title of the item.
+    ///   - description: The full description of the item.
+    ///   - isConsumable: If `true`, the item is consumable and can be used up during game play.
+    ///   - initialQualtity: The initial quantity of a consumable item.
+    ///   - quantityRemaining: The remaining quantity of a consumable item.
+    ///   - onAquire: A Grace Langauge Script to run when the player acquires the item.
+    ///   - onLost: A Grace Language Script to run if the player loses the item.
+    ///   - onUse: A Grace Language Script to run if the player uses the item.
+    public func addItem(imageSource: MangaWorks.Source = .appBundle, id: String = "", category:String = "", status: MangaInventoryItem.ItemStatus = .unAssigned, mangaPageID: String = "", image: String = "", title: String = "", description: String = "", isConsumable: Bool = false, initialQualtity: Int = 1, quantityRemaining: Int = 1, onAquire: String = "", onLost: String = "", onUse: String = "") {
+        
+        let item = MangaInventoryItem(imageSource: imageSource, id: id, category: category, status: status, mangaPageID: mangaPageID, image: image, title: title, description: description, isConsumable: isConsumable, initialQualtity: initialQualtity, quantityRemaining:quantityRemaining, onAquire: onAquire, onLost: onLost, onUse: onUse)
+        
+        items.append(item)
+    }
+    
     /// Returns all of the items that are currently in the player's inventory.
     /// - Returns: Returns a collection of items the player is carrying.
     public func playerInventory() -> [MangaInventoryItem] {
@@ -565,26 +619,35 @@ import ODRManager
         return nil
     }
     
-    /// Checks to see if the given item is hidden on a Manga Page.
-    /// - Parameter id: THe id of the item to check.
-    /// - Returns: Returns `true` if the item is hidden on a page, else returns false.
-    public func containsItem(id:String) -> Bool {
+    /// Returns any item on the given page.
+    /// - Parameter mangaPageID: The ID of the page to check for items.
+    /// - Returns: Returns the item or `nil` if not found.
+    public func itemOnPage(mangaPageID:String) -> MangaInventoryItem? {
         
-        if let item = getItem(id: id) {
-            return item.status == .hiddenOnMangaPage
+        for item in items {
+            if item.mangaPageID == mangaPageID {
+                return item
+            }
         }
         
-        // Not found
-        return false
+        return nil
     }
     
-    /// Takes an item from a `MangaPage` and places it in the player's inventory.
-    /// - Parameter id: The id of the item to take.
-    public func takeItem(id:String) {
+    
+    /// Takes the given item from available inventory and places it in the player's inventory.
+    /// - Parameters:
+    ///   - id: The ID of the item to take.
+    ///   - key: The optional trigger location  that the item has come from.
+    public func takeItem(id:String, for key:String = "") {
         
         // Ensure the item can be found.
         guard let item = getItem(id: id) else {
             return
+        }
+        
+        // Mark as used
+        if key != "" {
+            trigger(key: key)
         }
         
         // Place the item in the player's inventory
@@ -614,6 +677,34 @@ import ODRManager
         MangaWorks.runGraceScript(item.onLost)
     }
     
+    /// Removes the given item from play for the rest of the game.
+    /// - Parameter id: The id of the item to discard.
+    public func discardItem(id:String) {
+        // Ensure the item can be found.
+        guard let item = getItem(id: id) else {
+            return
+        }
+        
+        // remove the item
+        item.status = .discarded
+        
+        // Execute lost script
+        MangaWorks.runGraceScript(item.onLost)
+    }
+    
+    /// Restores any discarded items back to the available inventory.
+    /// - Parameter category: The optional category of items to restore. If "" all discarded items will be restored.
+    public func restoreItems(category:String) {
+        
+        for item in items {
+            if category == "" || item.category == category {
+                if item.status == .discarded {
+                    item.status = .unAssigned
+                }
+            }
+        }
+    }
+    
     /// Uses the current item.
     /// - Parameter id: The id of the item to use.
     public func useItem(id:String) {
@@ -627,39 +718,57 @@ import ODRManager
         MangaWorks.runGraceScript(item.onUse)
     }
     
-    /// Checks to see if a random inventory spot has been triggered.
-    /// - Parameter mangaPageID: The ID of the manga page checking for a trigger.
-    /// - Returns: Returns `true` if the item interaction has not been used, else returns `false`.
-    public func notTriggered(mangaPageID:String) -> Bool {
-        let key = "triggered\(mangaPageID)"
+    
+    /// Checks to see if an interaction point has been triggered.
+    /// - Parameters:
+    ///   - theme: The theme to test against. If the theme is 0, all themes will match.
+    ///   - key: The trigger point key.
+    /// - Returns: Returns `true` if the point has not been triggered, else returns `false`.
+    public func notTriggered(theme:Int = 0, key:String) -> Bool {
+        
+        if theme != 0 {
+            if getStateInt(key: "Theme") != theme {
+                return false
+            }
+        }
         
         return !getStateBool(key: key)
     }
     
-    /// Triggers a random inventory item for a given manga page.
-    /// - Parameter mangaPageID: The id of the manga page to trigger.
-    public func trigger(mangaPageID:String) {
-        let key = "triggered\(mangaPageID)"
+    
+    /// Marks a given interaction point as triggered.
+    /// - Parameter key: The trigger point key to set.
+    public func trigger(key:String) {
         setStateBool(key: key, value: true)
     }
     
-    /// Takes the next random unused item.
-    /// - Parameter mangaPageID: The ID of the page that the item is being taken from.
-    public func takeRandomItem(for mangaPageID:String) {
+    
+    /// Takes a random item from the available inventory
+    /// - Parameters:
+    ///   - category: An optional category of item to pick.
+    ///   - key: The trigger point key.
+    /// - Returns: The item if one is available else returns `nil`
+    @discardableResult public func takeRandomItem(category:String, for key:String) -> MangaInventoryItem? {
         
         // Mark as used.
-        trigger(mangaPageID: mangaPageID)
+        if key != "" {
+            trigger(key:key)
+        }
         
         // Shuffle items
         items.shuffle()
         
         // Find the next unsed item and add it to the inventory
         for item in items {
-            if item.status == .unAssigned {
-                takeItem(id: item.id)
-                return
+            if category == "" || item.category == category {
+                if item.status == .unAssigned {
+                    takeItem(id: item.id)
+                    return item
+                }
             }
         }
+        
+        return nil
     }
     
     // !!!: - Notes

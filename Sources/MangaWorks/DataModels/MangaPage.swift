@@ -665,59 +665,6 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     
     /// Creates a new interaction and adds it to the collection.
     /// - Parameters:
-    ///   - title: The title of the interaction.
-    ///   - layerVisibility: The layer visibility for this interaction.
-    ///   - pitch: The pitch to display the interaction at.
-    ///   - yaw: The yaw to display the interaction at.
-    ///   - notebookID: The notebook to record the interaction in.
-    ///   - notebookTitle: The notebook title to record the interaction in.
-    ///   - notebookEntry: The notebook entry to record the interaction in.
-    ///   - notebookImage: An optional image that can be attached to a notebook entry.
-    ///   - itemID: The ID of the item that is hidden at the given location.
-    ///   - soundEffect: A sound effect to play when the user takes this action.
-    /// - Returns: Returns self.
-    @discardableResult public func addItemInteraction(title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displaySearch, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", itemID:String = "", soundEffect:String = "") -> MangaPage {
-        
-        // Test for an item being used.
-        let condition = "@containsItem('\(itemID)');"
-        
-        // Take the item and add it to inventory.
-        let handler = "call @takeItem('\(itemID)');"
-        
-        // Add new interaction point
-        interactions.append(MangaPageInteraction(action: .search, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage:notebookImage, condition: condition, handler: handler, soundEffect: soundEffect))
-        
-        return self
-    }
-    
-    /// Creates a new interaction and adds it to the collection.
-    /// - Parameters:
-    ///   - title: The title of the interaction.
-    ///   - layerVisibility: The layer visibility for this interaction.
-    ///   - pitch: The pitch to display the interaction at.
-    ///   - yaw: The yaw to display the interaction at.
-    ///   - notebookID: The notebook to record the interaction in.
-    ///   - notebookTitle: The notebook title to record the interaction in.
-    ///   - notebookEntry: The notebook entry to record the interaction in.
-    ///   - notebookImage: An optional image that can be attached to a notebook entry.
-    ///   - itemID: The ID of the item that is hidden at the given location.
-    /// - Returns: Returns self.
-    @discardableResult public func addRandomItemInteraction(title:String, layerVisibility:MangaLayerManager.ElementVisibility = .displaySearch, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "") -> MangaPage {
-        
-        // Test for an item being used.
-        let condition = "@notTriggered('\(self.id)');"
-        
-        // Take the item and add it to inventory.
-        let handler = "call @takeRandomItem('\(self.id)');"
-        
-        // Add new interaction point
-        interactions.append(MangaPageInteraction(action: .search, title: title, displayElement: layerVisibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: handler))
-        
-        return self
-    }
-    
-    /// Creates a new interaction and adds it to the collection.
-    /// - Parameters:
     ///   - action: The type of interaction to create
     ///   - title: The title for the interaction
     ///   - pitch: The pitch to display the interaction at.
