@@ -273,6 +273,17 @@ import ODRManager
             return nil
         }
         
+        // Add playerHasItem.
+        compiler.register(name: "playerHasItem", parameterNames: ["key"], parameterTypes: [.string], returnType: .bool) { parameters in
+            var value = false
+            
+            if let key = parameters["key"] {
+                value = MangaBook.shared.playerHasItem(id: key.string)
+            }
+            
+            return GraceVariable(name: "result", value: "\(value)", type: .bool)
+        }
+        
         // Add discardItem
         compiler.register(name: "discardItem", parameterNames: ["key"], parameterTypes: [.string]) { parameters in
             
@@ -629,6 +640,18 @@ import ODRManager
         return inventory
     }
     
+    /// Checks to see if the player is carying a given item.
+    /// - Parameter id: The item in question.
+    /// - Returns: Returns `true` if the character is carying an item,  else returns `false`.
+    public func playerHasItem(id:String) -> Bool {
+        
+        if let item = getItem(id: id) {
+            return (item.status == .inPlayerInventory)
+        }
+        
+        return false
+    }
+    
     /// Gets an item from the inventory item collection by id.
     /// - Parameter id: The id of the item to load.
     /// - Returns: Returns the item if found else returns `nil`
@@ -772,11 +795,12 @@ import ODRManager
     ///   - category: An optional category of item to pick.
     ///   - key: The trigger point key.
     ///   - addToInventory: If `true` annd the item to the user's inventory.
+    ///   - ignoreTriggerState: If `true`, ignore the trigger state and always execute.
     /// - Returns: The item if one is available else returns `nil`
-    @discardableResult public func takeRandomItem(category:String, for key:String, addToInventory:Bool = true) -> MangaInventoryItem? {
+    @discardableResult public func takeRandomItem(category:String, for key:String, addToInventory:Bool = true, ignoreTriggerState:Bool = false) -> MangaInventoryItem? {
         
         // Already triggered?
-        if key != "" {
+        if key != "" && !ignoreTriggerState {
             let isTriggered = getStateBool(key: key)
             if isTriggered {
                 return nil

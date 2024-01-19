@@ -73,6 +73,36 @@ import Observation
             
             return nil
         }
+        
+        // Add triggerEventOnCount: this triggers the event ever fourth time the player crosses it.
+        compiler.register(name: "triggerEventOnCount", parameterNames: ["theme", "key", "category", "take"], parameterTypes: [.int, .string, .string, .bool]) { parameters in
+            
+            if let theme = parameters["theme"] {
+                let currentTheme = MangaBook.shared.getStateInt(key: "Theme")
+                if theme.int == 0 || theme.int == currentTheme {
+                    if let key = parameters["key"] {
+                        if let category = parameters["category"] {
+                            if let take = parameters["take"] {
+                                var count:Int = MangaBook.shared.getStateInt(key: "\(key)Count")
+                                if count == 0 {
+                                    if let item = MangaBook.shared.takeRandomItem(category: category.string, for: key.string, addToInventory: take.bool, ignoreTriggerState: true) {
+                                        MangaBook.shared.lastItem = item
+                                        MangaWorks.runGraceScript(item.onAquire)
+                                    }
+                                }
+                                
+                                count += 1
+                                if count >= 4 {
+                                    MangaBook.shared.setStateInt(key: "\(key)Count", value: count)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return nil
+        }
     }
     
     /// Handles the layer changing on a page.

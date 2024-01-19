@@ -42,6 +42,9 @@ import Observation
         /// The item has been discarded and is gone for the rest of the game.
         case discarded
         
+        /// The item is is use, but not by a player. This state keeps an item from being randomily selected.
+        case inUse
+        
         // MARK: - Functions
         /// Gets the value from an `unAssigned` and defaults to `topLeading` if the conversion is invalid.
         /// - Parameter value: The value holding the Int to convert.
