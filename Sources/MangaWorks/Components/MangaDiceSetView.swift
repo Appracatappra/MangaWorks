@@ -107,6 +107,7 @@ public struct MangaDiceSetView: View {
             Text(" = \(total)")
                 .font(.system(size: titleSize, weight: .bold, design: .default))
                 .foregroundColor(fontColor)
+                .shadow(radius: 10)
         }
         
     }
