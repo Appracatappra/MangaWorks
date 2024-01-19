@@ -298,7 +298,7 @@ public struct MangaPanoramaView: View {
     public var body: some View {
         ZStack {
             MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: false, borderColor: borderColor, backgroundColor: backgroundColor) {
-                pageBodyContents(orientation: screenOrientation, layerVisibility: MangaBook.shared.layerVisibility)
+                pageBodyContents(orientation: screenOrientation)
             }
             #if os(iOS)
             .statusBar(hidden: true)
@@ -389,9 +389,9 @@ public struct MangaPanoramaView: View {
     /// Draws the contents of the page.
     /// - Parameter orientation: The current screen orientation.
     /// - Returns: Returns a view containing the body.
-    @ViewBuilder func pageBodyContents(orientation:UIDeviceOrientation, layerVisibility:MangaLayerManager.ElementVisibility) -> some View {
+    @ViewBuilder func pageBodyContents(orientation:UIDeviceOrientation) -> some View {
         ZStack {
-            pageContents(layerVisibility: layerVisibility)
+            pageContents()
             
             // Weather system
             if page.hasWeather {
@@ -405,7 +405,7 @@ public struct MangaPanoramaView: View {
     
     /// Creates the main body of the cover.
     /// - Returns: Returns a view representing the body of the cover.
-    @ViewBuilder func pageContents(layerVisibility:MangaLayerManager.ElementVisibility) -> some View {
+    @ViewBuilder func pageContents() -> some View {
         ZStack {
             // Display Panorama
             PanoramaViewer(image: bindImage(page.imageName), panoramaType: .spherical, controlMethod: .touch, backgroundColor: .white,
@@ -455,13 +455,13 @@ public struct MangaPanoramaView: View {
             // The details
             ZStack {
                 // Overlay Layers
-                MangaLayerManager.detailImageOverlay(page: page, layerVisibility: layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
+                MangaLayerManager.detailImageOverlay(page: page, layerVisibility: MangaBook.shared.layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
                 
-                MangaLayerManager.captionOverlay(page: page, layerVisibility: layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
+                MangaLayerManager.captionOverlay(page: page, layerVisibility:  MangaBook.shared.layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
                 
-                MangaLayerManager.wordArtOverlay(page: page, layerVisibility: layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
+                MangaLayerManager.wordArtOverlay(page: page, layerVisibility:  MangaBook.shared.layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
                 
-                MangaLayerManager.balloonOverlay(page: page, layerVisibility: layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
+                MangaLayerManager.balloonOverlay(page: page, layerVisibility:  MangaBook.shared.layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
             }
             .frame(width: screenWidth, height: screenHeight)
             

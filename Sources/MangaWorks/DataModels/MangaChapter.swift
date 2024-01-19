@@ -83,7 +83,8 @@ import Observation
                     if let key = parameters["key"] {
                         if let category = parameters["category"] {
                             if let take = parameters["take"] {
-                                var count:Int = MangaBook.shared.getStateInt(key: "\(key)Count")
+                                let trigger = "\(key.string)Count"
+                                var count = MangaBook.shared.getStateInt(key: trigger)
                                 if count == 0 {
                                     if let item = MangaBook.shared.takeRandomItem(category: category.string, for: key.string, addToInventory: take.bool, ignoreTriggerState: true) {
                                         MangaBook.shared.lastItem = item
@@ -92,9 +93,10 @@ import Observation
                                 }
                                 
                                 count += 1
-                                if count >= 4 {
-                                    MangaBook.shared.setStateInt(key: "\(key)Count", value: count)
+                                if count >= 30 {
+                                 count = 0
                                 }
+                                MangaBook.shared.setStateInt(key: trigger, value: count)
                             }
                         }
                     }
