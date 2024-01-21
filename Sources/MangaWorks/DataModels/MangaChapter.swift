@@ -145,6 +145,9 @@ import Observation
     /// The chapter's unique ID.
     public var id:String = ""
     
+    /// Holds the title of the chapter.
+    public var title:String = ""
+    
     /// If `true` this `MangaChapter` can be purged when not in use.
     public var isPurgable:Bool = true
     
@@ -156,6 +159,7 @@ import Observation
     public var serialized: String {
         let serializer = Serializer(divider: Divider.chapter)
             .append(id)
+            .append(title)
             .append(isPurgable)
             .append(children: pages, divider: Divider.pages)
         
@@ -171,9 +175,11 @@ import Observation
     /// Creates a new instance.
     /// - Parameters:
     ///   - id: The chapter's unique ID.
+    ///   - title: The title of the chapter.
     ///   - isPurgable: If `true` this `MangaChapter` can be purged when not in use.
-    public init(id: String, isPurgable:Bool = true) {
+    public init(id: String, title:String, isPurgable:Bool = true) {
         self.id = id
+        self.title = title
         self.isPurgable = isPurgable
     }
     
@@ -183,6 +189,7 @@ import Observation
         let deserializer = Deserializer(text: value, divider: Divider.chapter)
         
         self.id = deserializer.string()
+        self.title = deserializer.string()
         self.isPurgable = deserializer.bool()
         self.pages = deserializer.children(divider: Divider.pages)
     }

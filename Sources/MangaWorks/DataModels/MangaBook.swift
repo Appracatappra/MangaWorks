@@ -900,9 +900,10 @@ import ODRManager
     /// Returns an existing or creates a new chapter.
     /// - Parameters:
     ///   - id: The id of the chapter to fetch or create.
+    ///   - title: The title of the chapter.
     ///   - isPurgable: If `true` this `MangaChapter` can be purged when not in use.
     /// - Returns: Returns the requested chapter.
-    private func newOrExistingChapter(id:String, isPurgable:Bool = true) -> MangaChapter {
+    private func newOrExistingChapter(id:String, title:String, isPurgable:Bool = true) -> MangaChapter {
         // Scan all chapters.
         for chapter in chapters {
             if chapter.id == id {
@@ -911,7 +912,7 @@ import ODRManager
         }
         
         // Create, store and return new chapter.
-        let chapter = MangaChapter(id: id, isPurgable: isPurgable)
+        let chapter = MangaChapter(id: id, title:title, isPurgable: isPurgable)
         chapters.append(chapter)
         return chapter
     }
@@ -919,10 +920,11 @@ import ODRManager
     /// Creates a new chapter if it does not already exist.
     /// - Parameters:
     ///   - id: The unique ID of the chapter.
+    ///   - title: The title of the chapter.
     ///   - isPurgable: If `true` this `MangaChapter` can be purged when not in use.
     /// - Returns: Returns the new chapter.
-    public func addChapter(id: String, isPurgable:Bool = true) -> MangaChapter {
-        return newOrExistingChapter(id: id, isPurgable: isPurgable)
+    public func addChapter(id: String, title:String, isPurgable:Bool = true) -> MangaChapter {
+        return newOrExistingChapter(id: id, title:title, isPurgable: isPurgable)
     }
     
     // !!!: - Pages
@@ -973,6 +975,7 @@ import ODRManager
     /// Adds a page to the given chapter. The chapter will be created if it does not already exist.
     /// - Parameters:
     ///   - chapter: The chapter to add the page to.
+    ///   - chapterTitle: The title for the chapter
     ///   - id: The unique ID of the page.
     ///   - pageType: The type of page to add.
     ///   - imageName: The full page or panorama image to add to the page.
@@ -990,9 +993,9 @@ import ODRManager
     ///   - prefetchResourceTag: The tag of the ODR resource to prefetch when this page loads.
     ///   - hintTag: The ID of any hints attached to this page.
     /// - Returns: Returns self.
-    @discardableResult public func addPage(chapter:String, id:String, pageType:MangaPage.PageType, imageName:String = "", title:String = "", pageNumber:Int = 0, previousPage:String = "", nextPage:String = "", showStats:Bool = false, endGame:Bool = false, suppressReadings:Bool = false, map:String = "", blueprint:String = "", loadResourceTag:String = "", releaseResourceTag:String = "", prefetchResourceTag:String = "", hintTag:String = "") -> MangaBook {
+    @discardableResult public func addPage(chapter:String, chapterTitle:String, id:String, pageType:MangaPage.PageType, imageName:String = "", title:String = "", pageNumber:Int = 0, previousPage:String = "", nextPage:String = "", showStats:Bool = false, endGame:Bool = false, suppressReadings:Bool = false, map:String = "", blueprint:String = "", loadResourceTag:String = "", releaseResourceTag:String = "", prefetchResourceTag:String = "", hintTag:String = "") -> MangaBook {
         
-        let chapter = newOrExistingChapter(id: chapter)
+        let chapter = newOrExistingChapter(id: chapter, title: chapterTitle)
         chapter.addPage(id: id, pageType: pageType, imageName: imageName, title: title, pageNumber: pageNumber, previousPage: previousPage, nextPage: nextPage, showStats: showStats, endGame: endGame, suppressReadings: suppressReadings, map: map, blueprint: blueprint, loadResourceTag: loadResourceTag, releaseResourceTag: releaseResourceTag, prefetchResourceTag: prefetchResourceTag, hintTag: hintTag)
         
         return self

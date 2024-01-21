@@ -263,6 +263,15 @@ public struct MangaPanelsView: View {
         }
     }
     
+    /// Gets the title of the chapter.
+    private var chapter:String {
+        if let chapter = MangaBook.shared.getChapter(id: page.chapter) {
+            return chapter.title
+        } else {
+            return page.chapter
+        }
+    }
+    
     // MARK: - Control Body
     /// The body of the control.
     public var body: some View {
@@ -464,7 +473,7 @@ public struct MangaPanelsView: View {
         HStack {
             
             ZStack {
-                Text("Chapter: \(page.chapter)")
+                Text("Chapter: \(chapter)")
                     .font(ComicFonts.Komika.ofSize(footerTextSize))
                     .foregroundColor(.black)
                     .padding(.leading)
