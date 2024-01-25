@@ -307,7 +307,7 @@ public struct MangaPanoramaView: View {
     public var body: some View {
         ZStack {
             MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: false, borderColor: borderColor, backgroundColor: backgroundColor) {
-                pageBodyContents(orientation: screenOrientation, pageID: MangaBook.shared.currentPageID)
+                pageBodyContents(orientation: screenOrientation)
             }
             #if os(iOS)
             .statusBar(hidden: true)
@@ -398,9 +398,9 @@ public struct MangaPanoramaView: View {
     /// Draws the contents of the page.
     /// - Parameter orientation: The current screen orientation.
     /// - Returns: Returns a view containing the body.
-    @ViewBuilder func pageBodyContents(orientation:UIDeviceOrientation, pageID:String ) -> some View {
+    @ViewBuilder func pageBodyContents(orientation:UIDeviceOrientation) -> some View {
         ZStack {
-            pageContents(pageID: pageID)
+            pageContents()
             
             // Weather system
             if page.hasWeather {
@@ -414,7 +414,7 @@ public struct MangaPanoramaView: View {
     
     /// Creates the main body of the cover.
     /// - Returns: Returns a view representing the body of the cover.
-    @ViewBuilder func pageContents(pageID: String) -> some View {
+    @ViewBuilder func pageContents() -> some View {
         ZStack {
             // Display Panorama
             PanoramaViewer(image: bindImage(page.imageName), panoramaType: .spherical, controlMethod: .touch, backgroundColor: .white,
