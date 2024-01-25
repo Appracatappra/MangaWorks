@@ -215,7 +215,7 @@ import ODRManager
         }
         
         // Add changeLayerVisibility (takes an integer)
-        compiler.register(name: "changeLayerVisibility", parameterNames: ["visibility"], parameterTypes: [.string]) { parameters in
+        compiler.register(name: "changeLayerVisibility", parameterNames: ["visibility"], parameterTypes: [.int]) { parameters in
             
             if let visibility = parameters["visibility"] {
                 MangaBook.shared.changeLayerVisibility(visibility: visibility.int)
@@ -1126,6 +1126,10 @@ import ODRManager
             Debug.error(subsystem: "MangaWorks", category: "Display Page", "ERROR: Page '\(id)' not found.")
             return
         }
+        
+        // Ensure the panorama manager resets the pano image.
+        PanoramaManager.shouldUpdateImage = true
+        PanoramaManager.shouldResetCameraAngle = false
         
         // Clear any existing notification
         simulatediPhoneNotification = nil

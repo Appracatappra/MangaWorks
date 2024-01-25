@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 import SwiftletUtilities
 import GraceLanguage
+import SoundManager
 
 /// Handles game specific states for Manga based games.
 open class MangaStateManager {
@@ -54,8 +55,15 @@ open class MangaStateManager {
                 switch key.string {
                 case "playBackgroundMusic":
                     MangaStateManager.playBackgroundMusic = !MangaStateManager.playBackgroundMusic
+                    if !MangaStateManager.playBackgroundMusic {
+                        SoundManager.shared.stopBackgroundMusic()
+                    }
                 case "playBackgroundSounds":
                     MangaStateManager.playBackgroundSounds = !MangaStateManager.playBackgroundSounds
+                    if !MangaStateManager.playBackgroundSounds {
+                        SoundManager.shared.stopBackgroundSound()
+                        SoundManager.shared.stopBackgroundWeather()
+                    }
                 case "playSoundEffects":
                     MangaStateManager.playSoundEffects = !MangaStateManager.playSoundEffects
                 case "speakText":
