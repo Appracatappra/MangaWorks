@@ -225,7 +225,7 @@ public struct MangaNotebookView: View {
         case 1133:
             return 0.25
         default:
-            Debug.log(">>>> Screen Width: \(HardwareInformation.screenWidth)")
+            //Debug.log(">>>> Screen Width: \(HardwareInformation.screenWidth)")
             if HardwareInformation.isPhone {
                 return 0.3
             } else if HardwareInformation.isPad {

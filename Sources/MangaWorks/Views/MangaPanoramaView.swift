@@ -296,7 +296,7 @@ public struct MangaPanoramaView: View {
         case 430:
             return 0
         default:
-            Debug.log(">>>> Screen Width: \(HardwareInformation.screenWidth)")
+            //Debug.log(">>>> Screen Width: \(HardwareInformation.screenWidth)")
             return 20
         }
     }

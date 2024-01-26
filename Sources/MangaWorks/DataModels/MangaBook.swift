@@ -124,6 +124,86 @@ import ODRManager
         }
         
         // Add hasGameStarted
+        compiler.register(name: "hasChatResult", parameterNames: ["id"], parameterTypes: [.int], returnType: .bool) { parameters in
+            var value = "false"
+            
+            if let id = parameters["id"] {
+                switch id.int {
+                case 1:
+                    if MangaBook.shared.conversationResult1 != "" {
+                        value = "true"
+                    }
+                case 2:
+                    if MangaBook.shared.conversationResult2 != "" {
+                        value = "true"
+                    }
+                case 3:
+                    if MangaBook.shared.conversationResult3 != "" {
+                        value = "true"
+                    }
+                case 4:
+                    if MangaBook.shared.conversationResult4 != "" {
+                        value = "true"
+                    }
+                default:
+                    break;
+                }
+            }
+            
+            return GraceVariable(name: "result", value: value, type: .bool)
+        }
+        
+        // Add hasGameStarted
+        compiler.register(name: "getChatResult", parameterNames: ["id"], parameterTypes: [.int], returnType: .string) { parameters in
+            var value = ""
+            
+            if let id = parameters["id"] {
+                switch id.int {
+                case 1:
+                    value = MangaBook.shared.conversationResult1
+                case 2:
+                    value = MangaBook.shared.conversationResult2
+                case 3:
+                    value = MangaBook.shared.conversationResult3
+                case 4:
+                    value = MangaBook.shared.conversationResult4
+                default:
+                    break;
+                }
+            }
+            
+            return GraceVariable(name: "result", value: value, type: .string)
+        }
+        
+        // Add hasGameStarted
+        compiler.register(name: "setChatResult", parameterNames: ["id", "value"], parameterTypes: [.int, .string]) { parameters in
+            
+            if let id = parameters["id"] {
+                if let value = parameters["value"] {
+                    var text = ""
+                    if value.string != "EMPTY_STRING" {
+                        text = value.string
+                    }
+                    
+                    switch id.int {
+                    case 1:
+                        MangaBook.shared.conversationResult1 = text
+                    case 2:
+                        MangaBook.shared.conversationResult2 = text
+                    case 3:
+                        MangaBook.shared.conversationResult3 = text
+                    case 4:
+                        MangaBook.shared.conversationResult4 = text
+                    default:
+                        break;
+                    }
+                }
+            }
+            
+            return nil
+        }
+        
+        // Add hasGameStarted
         compiler.register(name: "hasGameStarted", parameterNames: [], parameterTypes: [], returnType: .bool) { parameters in
             var value = ""
             
@@ -451,6 +531,9 @@ import ODRManager
     
     /// Holds the results of an inline conversation.
     public var conversationResult3:String = ""
+    
+    /// Holds the results of an inline conversation.
+    public var conversationResult4:String = ""
     
     /// A notification to display in the simulated iPhone on the landscape view.
     public var simulatediPhoneNotification:MangaDashboardNotification? = nil
@@ -1097,7 +1180,10 @@ import ODRManager
         if lastPageStack.count == 0 {
             lastPageStack.append(id)
         } else {
-            lastPageStack.insert(id, at: 0)
+            // Has the page already been pushed onto the stack?
+            if id != lastPageStack[0] {
+                lastPageStack.insert(id, at: 0)
+            }
         }
         
         // Only save the last ten pages
