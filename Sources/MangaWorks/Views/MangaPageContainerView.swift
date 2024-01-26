@@ -84,7 +84,7 @@ public struct MangaPageContainerView<Content: View>: View {
         mainContents()
             .onRotate { newOrientation in
                 Execute.onMain {
-                    orientation = newOrientation
+                    orientation = HardwareInformation.correctOrientation(newOrientation)
                 }
             }
     }

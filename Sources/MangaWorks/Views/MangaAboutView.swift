@@ -59,7 +59,7 @@ public struct MangaAboutView: View {
     @State private var isGamepadConnected:Bool = false
     
     /// Tracks changes in the manga page orientation.
-    @State private var screenOrientation:UIDeviceOrientation = .unknown
+    @State private var screenOrientation:UIDeviceOrientation = HardwareInformation.deviceOrientation
     
     // MARK: - Computed Properties
     /// Returns the size of the footer text.
@@ -103,6 +103,29 @@ public struct MangaAboutView: View {
         }
     }
     
+    private var textSize:Float {
+        switch HardwareInformation.screenWidth {
+        case 744:
+            return 18
+        case 1024:
+            return 18
+        default:
+            Debug.log(">>>> Screen Width: \(HardwareInformation.screenWidth)")
+            if HardwareInformation.isPhone {
+                return 16
+            } else if HardwareInformation.isPad {
+                switch HardwareInformation.deviceOrientation {
+                case .landscapeLeft, .landscapeRight:
+                    return 16
+                default:
+                    return 18
+                }
+            } else {
+                return 18
+            }
+        }
+    }
+    
     /// The card width.
     private var cardWidth:Float {
         return Float(HardwareInformation.screenHalfWidth - 100)
@@ -115,10 +138,17 @@ public struct MangaAboutView: View {
     
     /// Gets the inset for the comic page.
     private var insetHorizontal:CGFloat {
-        if HardwareInformation.isPhone {
-            return CGFloat(20.0)
-        } else {
-            return CGFloat(90.0)
+        switch HardwareInformation.screenWidth {
+        case 375:
+            return CGFloat(80.0)
+        case 393:
+            return CGFloat(50.0)
+        default:
+            if HardwareInformation.isPhone {
+                return CGFloat(20.0)
+            } else {
+                return CGFloat(90.0)
+            }
         }
     }
     
@@ -193,7 +223,7 @@ public struct MangaAboutView: View {
             })
         }
         .onRotate {orientation in
-            screenOrientation = orientation
+            screenOrientation = HardwareInformation.correctOrientation(orientation)
         }
         .onDisappear {
             disconnectGamepad(viewID: uniqueID)
@@ -335,7 +365,7 @@ public struct MangaAboutView: View {
                     if MangaWorks.evaluateCondition(action.condition) {
                         Text(markdown: MangaWorks.expandMacros(in: action.text))
                             .foregroundColor(.black)
-                            .font(ComicFonts.Komika.ofSize(18))
+                            .font(ComicFonts.Komika.ofSize(textSize))
                         .padding(.bottom, menuPadding)
                     }
                 }

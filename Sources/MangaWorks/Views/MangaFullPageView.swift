@@ -62,7 +62,7 @@ public struct MangaFullPageView: View {
     @State private var isGamepadConnected:Bool = false
     
     /// Tracks changes in the manga page orientation.
-    @State private var screenOrientation:UIDeviceOrientation = .unknown
+    @State private var screenOrientation:UIDeviceOrientation = HardwareInformation.deviceOrientation
     
     /// Holds a buffer that allows the image to be fully scrollable and the zoom level changes.
     @State private var zoomBuffer:CGFloat = CGFloat(0.0)
@@ -173,9 +173,14 @@ public struct MangaFullPageView: View {
     /// Defines the zoom button size based on the device.
     private var zoomButtonSize:CGFloat {
         if HardwareInformation.isPhone {
-            return 18.0
+            return 12.0
         } else {
-            return 24.0
+            switch screenOrientation {
+            case .landscapeLeft, .landscapeRight:
+                return 14.0
+            default:
+                return 24.0
+            }
         }
     }
     
@@ -212,7 +217,7 @@ public struct MangaFullPageView: View {
             })
         }
         .onRotate {orientation in
-            screenOrientation = orientation
+            screenOrientation = HardwareInformation.correctOrientation(orientation)
         }
         .onDisappear {
             disconnectGamepad(viewID: uniqueID)

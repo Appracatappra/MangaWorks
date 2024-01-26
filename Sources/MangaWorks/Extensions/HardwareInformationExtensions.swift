@@ -12,6 +12,7 @@ import SwiftletUtilities
 
 extension HardwareInformation {
     
+    // MARK: - Computed Properties
     /// Returns the width of the main screen of the device the app is running on divided by two.
     public static var screenHalfWidth:Int {
         let screenSize: CGRect = UIScreen.main.bounds
@@ -84,6 +85,27 @@ extension HardwareInformation {
             } else {
                 return HardwareInformation.deviceRatioWidth * HardwareInformation.deviceRatioHeight
             }
+        }
+    }
+    
+    // MARK: - Functions
+    /// Enforces that the orientation is a form of portrait or landscape only.
+    /// - Parameter orientation: The current orientation as reported by the device.
+    /// - Returns: Either the reported orientation or a calculated `.landscapeLeft` or `.portrait` if required.
+    public static func correctOrientation(_ orientation:UIDeviceOrientation) -> UIDeviceOrientation {
+        
+        // Do we need to calculate the orientation?
+        switch orientation {
+        case .faceDown, .faceUp, .unknown:
+            // Yes, check to see if the device is in the portriat or landscape mode.
+            if screenWidth > screenHeight {
+                return .landscapeLeft
+            } else {
+                return .portrait
+            }
+        default:
+            // No change was required
+            return orientation
         }
     }
 }

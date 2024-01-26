@@ -56,7 +56,7 @@ public struct MangaActionMenuView: View {
     @State private var isGamepadConnected:Bool = false
     
     /// Tracks changes in the manga page orientation.
-    @State private var screenOrientation:UIDeviceOrientation = .unknown
+    @State private var screenOrientation:UIDeviceOrientation = HardwareInformation.deviceOrientation
     
     // MARK: - Computed Properties
     /// Returns the size of the footer text.
@@ -189,7 +189,7 @@ public struct MangaActionMenuView: View {
             })
         }
         .onRotate {orientation in
-            screenOrientation = orientation
+            screenOrientation = HardwareInformation.correctOrientation(orientation)
         }
         .onDisappear {
             disconnectGamepad(viewID: uniqueID)

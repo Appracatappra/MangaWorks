@@ -59,7 +59,7 @@ public struct MangaPanoramaView: View {
     @State private var isGamepadConnected:Bool = false
     
     /// Tracks changes in the manga page orientation.
-    @State private var screenOrientation:UIDeviceOrientation = .unknown
+    @State private var screenOrientation:UIDeviceOrientation = HardwareInformation.deviceOrientation
     
     /// Holds a buffer that allows the image to be fully scrollable and the zoom level changes.
     @State private var zoomBuffer:CGFloat = CGFloat(0.0)
@@ -283,6 +283,15 @@ public struct MangaPanoramaView: View {
         }
     }
     
+    private var panoHeightAdjust:CGFloat {
+        switch HardwareInformation.screenWidth {
+        case 375:
+            return -40
+        default:
+            return 20
+        }
+    }
+    
     /// Binds a UI Image to a given image name.
     /// - Parameter name: The name of the image to bind.
     /// - Returns: Returns the bound image for the name.
@@ -299,6 +308,15 @@ public struct MangaPanoramaView: View {
             return chapter.title
         } else {
             return page.chapter
+        }
+    }
+    
+    private var compassSize:CGFloat {
+        switch HardwareInformation.screenWidth {
+        case 375:
+            return 30.0
+        default:
+            return 50.0
         }
     }
     
@@ -346,7 +364,7 @@ public struct MangaPanoramaView: View {
             })
         }
         .onRotate {orientation in
-            screenOrientation = orientation
+            screenOrientation = HardwareInformation.correctOrientation(orientation)
         }
         .onDisappear {
             disconnectGamepad(viewID: uniqueID)
@@ -459,7 +477,7 @@ public struct MangaPanoramaView: View {
                     }
                 }
             })
-            .frame(width: screenWidth - 10, height: screenHeight + 20)
+            .frame(width: screenWidth - 10, height: screenHeight + panoHeightAdjust)
             
             // The details
             ZStack {
@@ -472,7 +490,7 @@ public struct MangaPanoramaView: View {
                 
                 MangaLayerManager.balloonOverlay(page: page, layerVisibility:  MangaBook.shared.layerVisibility, pitch: rotationPitch, yaw: rotationYaw, padding: layerPadding)
             }
-            .frame(width: screenWidth, height: screenHeight)
+            .frame(width: screenWidth, height: screenHeight + panoHeightAdjust)
             
             // Display inline conversations
             if MangaBook.shared.layerVisibility == .displayConversationA {
@@ -508,11 +526,11 @@ public struct MangaPanoramaView: View {
                     Spacer()
                     
                     CompassView()
-                        .frame(width: 50.0, height: 50.0)
+                        .frame(width: compassSize, height: compassSize)
                         .rotationEffect(Angle(degrees: Double(rotationIndicator)))
                 }
             }
-            .frame(width: screenWidth - 10, height: screenHeight + 20)
+            .frame(width: screenWidth - 10, height: screenHeight + panoHeightAdjust)
         }
         .frame(width: MangaPageScreenMetrics.screenHalfWidth + zoomBuffer, height: MangaPageScreenMetrics.screenHeight + zoomBuffer)
         .clipped()

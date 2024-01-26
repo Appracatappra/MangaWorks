@@ -73,12 +73,20 @@ public struct MangaInventoryItemView: View {
     
     /// The title font size.
     private var titleSize:Float {
-        return 24
+        if HardwareInformation.isPhone {
+            return 16
+        } else {
+            return 24
+        }
     }
     
     /// The entry body font size.
     private var entrySize:Float {
-        return 18
+        if HardwareInformation.isPhone {
+            return 14
+        } else {
+            return 18
+        }
     }
     
     /// The card width.

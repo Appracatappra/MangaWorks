@@ -38,6 +38,7 @@ public struct MangaPageOverlayView<Content: View>: View {
     /// The contents to display in the manga page overlay.
     @ViewBuilder public var content: Content
     
+    // MARK: - States
     /// Holds the current device screen orientation.
     @State private var orientation = HardwareInformation.deviceOrientation
     
@@ -47,7 +48,7 @@ public struct MangaPageOverlayView<Content: View>: View {
         mainContents()
             .onRotate { newOrientation in
                 Execute.onMain {
-                    orientation = newOrientation
+                    orientation = HardwareInformation.correctOrientation(newOrientation)
                 }
             }
     }

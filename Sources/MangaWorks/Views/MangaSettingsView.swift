@@ -59,7 +59,7 @@ public struct MangaSettingsView: View {
     @State private var isGamepadConnected:Bool = false
     
     /// Tracks changes in the manga page orientation.
-    @State private var screenOrientation:UIDeviceOrientation = .unknown
+    @State private var screenOrientation:UIDeviceOrientation = HardwareInformation.deviceOrientation
     
     /// Holds a  UUID to force the view to refresh.
     @State private var refreshKey:String = ""
@@ -210,7 +210,7 @@ public struct MangaSettingsView: View {
             })
         }
         .onRotate {orientation in
-            screenOrientation = orientation
+            screenOrientation = HardwareInformation.correctOrientation(orientation)
         }
         .onDisappear {
             disconnectGamepad(viewID: uniqueID)

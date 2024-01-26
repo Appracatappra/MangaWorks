@@ -57,7 +57,7 @@ public struct MangaPanelsView: View {
     @State private var isGamepadConnected:Bool = false
     
     /// Tracks changes in the manga page orientation.
-    @State private var screenOrientation:UIDeviceOrientation = .unknown
+    @State private var screenOrientation:UIDeviceOrientation = HardwareInformation.deviceOrientation
     
     /// Holds a buffer that allows the image to be fully scrollable and the zoom level changes.
     @State private var zoomBuffer:CGFloat = CGFloat(0.0)
@@ -309,7 +309,7 @@ public struct MangaPanelsView: View {
             })
         }
         .onRotate {orientation in
-            screenOrientation = orientation
+            screenOrientation = HardwareInformation.correctOrientation(orientation)
         }
         .onDisappear {
             disconnectGamepad(viewID: uniqueID)

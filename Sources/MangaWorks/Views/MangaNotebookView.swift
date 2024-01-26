@@ -70,6 +70,9 @@ public struct MangaNotebookView: View {
     /// Holds the notebook entry that is currently being displayed.
     @State private var selectedNote:MangaNotebookEntry? = nil
     
+    /// Tracks changes in the manga page orientation.
+    @State private var screenOrientation:UIDeviceOrientation = HardwareInformation.deviceOrientation
+    
     // MARK: - Computed Properties
     /// Returns the size of the footer text.
     private var footerTextSize:Float {
@@ -149,12 +152,101 @@ public struct MangaNotebookView: View {
         }
     }
     
+    private var titleSize:Float {
+        switch HardwareInformation.screenWidth {
+        case 744:
+            return 24
+        case 1024:
+            return 24
+        default:
+            if HardwareInformation.isPhone {
+                return 16
+            } else if HardwareInformation.isPad {
+                switch HardwareInformation.deviceOrientation {
+                case .landscapeLeft, .landscapeRight:
+                    return 18
+                default:
+                    return 24
+                }
+            } else {
+                return 24
+            }
+        }
+    }
+    
+    private var headingSize:Float {
+        switch HardwareInformation.screenWidth {
+        case 744:
+            return 32
+        case 1024:
+            return 32
+        default:
+            if HardwareInformation.isPhone {
+                return 20
+            } else if HardwareInformation.isPad {
+                switch HardwareInformation.deviceOrientation {
+                case .landscapeLeft, .landscapeRight:
+                    return 28
+                default:
+                    return 32
+                }
+            } else {
+                return 32
+            }
+        }
+    }
+    
+    private var descriptionSize:Float {
+        switch HardwareInformation.screenWidth {
+        case 744:
+            return 20
+        case 1024:
+            return 20
+        default:
+            if HardwareInformation.isPhone {
+                return 16
+            } else if HardwareInformation.isPad {
+                switch HardwareInformation.deviceOrientation {
+                case .landscapeLeft, .landscapeRight:
+                    return 20
+                default:
+                    return 20
+                }
+            } else {
+                return 20
+            }
+        }
+    }
+    
+    var cardScale:Float {
+        switch HardwareInformation.screenWidth {
+        case 744:
+            return 0.4
+        case 1133:
+            return 0.25
+        default:
+            Debug.log(">>>> Screen Width: \(HardwareInformation.screenWidth)")
+            if HardwareInformation.isPhone {
+                return 0.3
+            } else if HardwareInformation.isPad {
+                switch screenOrientation {
+                case .landscapeLeft, .landscapeRight:
+                    return 0.3
+                default:
+                    return 0.5
+                }
+            } else {
+                return 0.5
+            }
+        }
+    }
+    
     // MARK: - Control Body
     /// The body of the control.
     public var body: some View {
         ZStack {
             MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: false, backgroundColor: backgroundColor) {
-                pageBodyContents()
+                pageBodyContents(orientation: screenOrientation)
             }
             #if os(iOS)
             .statusBar(hidden: true)
@@ -180,6 +272,9 @@ public struct MangaNotebookView: View {
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
                 buttonBUsage(viewID: uniqueID, "Returns to previous page, or closes an open note details.")
             })
+        }
+        .onRotate {orientation in
+            screenOrientation = HardwareInformation.correctOrientation(orientation)
         }
         .onDisappear {
             disconnectGamepad(viewID: uniqueID)
@@ -221,7 +316,7 @@ public struct MangaNotebookView: View {
     // MARK: - Functions
     /// Creates the main body of the cover.
     /// - Returns: Returns a view representing the body of the cover.
-    @ViewBuilder func pageBodyContents() -> some View {
+    @ViewBuilder func pageBodyContents(orientation:UIDeviceOrientation) -> some View {
         if isShowingDetails {
             noteDetails()
         } else {
@@ -356,23 +451,26 @@ public struct MangaNotebookView: View {
     /// Draws a view containing the selected note's details.
     /// - Returns: Returns a view containing the note's details.
     @ViewBuilder func noteDetails() -> some View {
-        VStack {
-            if let note = selectedNote {
-                if note.image != "" {
-                    if imageSource == .appBundle {
-                        ScaledImageView(imageName: note.image, scale: 0.4)
-                    } else {
-                        ScaledImageView(imageURL: MangaWorks.urlTo(resource: note.image, withExtension: "jpg"), scale: 0.4)
+        ScrollView {
+            VStack {
+                if let note = selectedNote {
+                    if note.image != "" {
+                        if imageSource == .appBundle {
+                            ScaledImageView(imageName: note.image, scale: cardScale)
+                        } else {
+                            ScaledImageView(imageURL: MangaWorks.urlTo(resource: note.image, withExtension: "jpg"), scale: cardScale)
+                        }
                     }
+                    
+                    Text(markdown: MangaWorks.expandMacros(in: note.title))
+                        .font(ComicFonts.KomikaBold.ofSize(titleSize))
+                        .foregroundColor(MangaWorks.actionTitleColor)
+                    
+                    Text(markdown: MangaWorks.expandMacros(in: note.entry))
+                        .font(ComicFonts.KomikaBold.ofSize(descriptionSize))
+                        .foregroundColor(MangaWorks.actionFontColor)
+                        .padding(.horizontal)
                 }
-                
-                Text(markdown: MangaWorks.expandMacros(in: note.title))
-                    .font(ComicFonts.KomikaBold.ofSize(32))
-                    .foregroundColor(MangaWorks.actionTitleColor)
-                
-                Text(markdown: MangaWorks.expandMacros(in: note.entry))
-                    .font(ComicFonts.KomikaBold.ofSize(18))
-                    .foregroundColor(MangaWorks.actionFontColor)
             }
         }
         .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal, height: MangaPageScreenMetrics.screenHeight - insetVertical)
