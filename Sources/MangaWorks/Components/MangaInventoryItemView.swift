@@ -91,17 +91,30 @@ public struct MangaInventoryItemView: View {
     
     /// The card width.
     private var cardWidth:CGFloat {
-        return MangaPageScreenMetrics.screenHalfWidth - 100
+        if HardwareInformation.isPhone {
+            return MangaPageScreenMetrics.screenHalfWidth - 80
+        } else {
+            return MangaPageScreenMetrics.screenHalfWidth - 100
+        }
     }
     
     /// The card height.
     private var cardHeight:CGFloat {
-        return CGFloat(150)
+        switch HardwareInformation.screenWidth {
+        case 375:
+            return 100
+        default:
+            if HardwareInformation.isPhone {
+                return 100
+            } else {
+                return 150
+            }
+        }
     }
     
     /// The card image width.
     private var cardImageWidth:CGFloat {
-        return cardWidth / CGFloat(4)
+        return cardWidth * CGFloat(0.25)
     }
     
     /// The card image height.
@@ -111,11 +124,7 @@ public struct MangaInventoryItemView: View {
     
     /// The card detais with.
     private var cardDetailsWidth:CGFloat {
-        if image == "" {
-            return cardWidth - CGFloat(25)
-        } else {
-            return cardWidth - cardImageWidth - CGFloat(25)
-        }
+        return cardWidth * CGFloat(0.75)
     }
     
     /// The card background color.
@@ -151,45 +160,45 @@ public struct MangaInventoryItemView: View {
     /// Draws the body of the notebook card.
     /// - Returns: Returns a view cotaining the body.
     @ViewBuilder private func contents() -> some View {
-        HStack {
-            if image != "" {
-                if item.imageSource == .appBundle {
-                    Image(image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: cardImageWidth, height: cardImageHeight)
-                } else {
-                    if let rawImage = MangaWorks.image(name: image, withExtension: "jpg") {
-                        Image(uiImage: rawImage)
+        HStack(spacing:5) {
+            ZStack {
+                if image != "" {
+                    if item.imageSource == .appBundle {
+                        Image(image)
                             .resizable()
-                            .scaledToFit()
+                            .scaledToFill()
                             .frame(width: cardImageWidth, height: cardImageHeight)
+                    } else {
+                        if let rawImage = MangaWorks.image(name: image, withExtension: "jpg") {
+                            Image(uiImage: rawImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: cardImageWidth, height: cardImageHeight)
+                        }
                     }
                 }
-                
-                Spacer()
             }
+            .frame(width: cardImageWidth, height: cardImageHeight)
+            .background(cardBorderColor)
+            .clipped()
             
             VStack(alignment: .leading) {
                 Text(markdown: title)
                     .font(titleFont.ofSize(titleSize))
                     .foregroundColor(MangaWorks.actionTitleColor)
                     .multilineTextAlignment(.leading)
-                    .padding(.horizontal)
                 
                 if quantity != "" {
                     Text(markdown: quantity)
                         .font(titleFont.ofSize(entrySize))
                         .foregroundColor(MangaWorks.actionTitleColor)
                         .multilineTextAlignment(.leading)
-                        .padding(.horizontal)
                 }
                 
                 Text(markdown: description)
                     .font(titleFont.ofSize(entrySize))
                     .foregroundColor(cardFontColor)
                     .multilineTextAlignment(.leading)
-                    .padding(.horizontal)
                     .frame(width: cardDetailsWidth)
             }
             .frame(width: cardDetailsWidth, height: cardImageHeight)

@@ -221,7 +221,11 @@ public struct MangaPanelsView: View {
     
     /// The adjusted screen width.
     private var screenWidth:CGFloat {
-        return CGFloat(HardwareInformation.screenHalfWidth - 80)
+        if HardwareInformation.isPhone {
+            return CGFloat(HardwareInformation.screenHalfWidth - 20)
+        } else {
+            return CGFloat(HardwareInformation.screenHalfWidth - 80)
+        }
     }
 
     /// The adjusted screen height.

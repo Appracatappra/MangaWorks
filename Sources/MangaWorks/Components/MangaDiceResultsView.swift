@@ -39,12 +39,20 @@ public struct MangaDiceResultsView: View {
     public var fontColor:Color = MangaWorks.controlForegroundColor
     
     // MARK: - Computed Properties
-    /// Gets the font size based on the deivce.
+    /// Gets the font size based on the device.
     private var titleSize:CGFloat {
         if HardwareInformation.isPhone {
-            return 18
+            return 24
         } else {
             return 64
+        }
+    }
+    
+    private var diceSize:CGFloat {
+        if HardwareInformation.isPhone {
+            return 70
+        } else {
+            return 100
         }
     }
     
@@ -66,14 +74,14 @@ public struct MangaDiceResultsView: View {
             if let image = MangaWorks.image(name: "Dice0\(diceValues[0])A") {
                 Image(uiImage: image)
                     .resizable()
-                    .frame(width: 100, height: 100, alignment: .center)
+                    .frame(width: diceSize, height: diceSize, alignment: .center)
             }
             
             if numberOfDice >= 2 {
                 if let image = MangaWorks.image(name: "Dice0\(diceValues[1])A") {
                     Image(uiImage: image)
                         .resizable()
-                        .frame(width: 100, height: 100, alignment: .center)
+                        .frame(width: diceSize, height: diceSize, alignment: .center)
                 }
             }
             
@@ -81,7 +89,7 @@ public struct MangaDiceResultsView: View {
                 if let image = MangaWorks.image(name: "Dice0\(diceValues[2])A") {
                     Image(uiImage: image)
                         .resizable()
-                        .frame(width: 100, height: 100, alignment: .center)
+                        .frame(width: diceSize, height: diceSize, alignment: .center)
                 }
             }
             
@@ -89,7 +97,7 @@ public struct MangaDiceResultsView: View {
                 if let image = MangaWorks.image(name: "Dice0\(diceValues[3])A") {
                     Image(uiImage: image)
                         .resizable()
-                        .frame(width: 100, height: 100, alignment: .center)
+                        .frame(width: diceSize, height: diceSize, alignment: .center)
                 }
             }
             

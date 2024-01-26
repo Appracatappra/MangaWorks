@@ -159,7 +159,7 @@ open class MangaStateManager {
     @AppStorage("speakText") public static var speakText: Bool = true
     
     /// If `true`, automatically read all of the text on a page when it loads.
-    @AppStorage("autoReadPage") public static var autoReadPage: Bool = true
+    @AppStorage("autoReadPage") public static var autoReadPage: Bool = false
     
     /// If `true`, read the text when it is tapped on.
     @AppStorage("readOnTap") public static var readOnTap: Bool = false

@@ -241,7 +241,11 @@ public struct MangaPanoramaView: View {
     
     /// The adjusted screen width.
     private var screenWidth:CGFloat {
-        return CGFloat(HardwareInformation.screenHalfWidth - 80)
+        if HardwareInformation.isPhone {
+            return CGFloat(HardwareInformation.screenHalfWidth - 20)
+        } else {
+            return CGFloat(HardwareInformation.screenHalfWidth - 80)
+        }
     }
 
     /// The adjusted screen height.
@@ -287,7 +291,12 @@ public struct MangaPanoramaView: View {
         switch HardwareInformation.screenWidth {
         case 375:
             return -40
+        case 393:
+            return 0
+        case 430:
+            return 0
         default:
+            Debug.log(">>>> Screen Width: \(HardwareInformation.screenWidth)")
             return 20
         }
     }
@@ -313,10 +322,12 @@ public struct MangaPanoramaView: View {
     
     private var compassSize:CGFloat {
         switch HardwareInformation.screenWidth {
-        case 375:
-            return 30.0
         default:
-            return 50.0
+            if HardwareInformation.isPhone {
+                return 30.0
+            } else {
+                return 50.0
+            }
         }
     }
     

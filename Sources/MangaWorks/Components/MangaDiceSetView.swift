@@ -61,17 +61,25 @@ public struct MangaDiceSetView: View {
     /// Gets the font size based on the device.
     private var titleSize:CGFloat {
         if HardwareInformation.isPhone {
-            return 18
+            return 24
         } else {
             return 64
+        }
+    }
+    
+    private var diceSize:Float {
+        if HardwareInformation.isPhone {
+            return 70
+        } else {
+            return 100
         }
     }
     
     // MARK: - Control Body
     /// The body of the control.
     public var body: some View {
-        HStack {
-            MangaDiceRoll(size: 100, completed: { value in
+        HStack(spacing:0) {
+            MangaDiceRoll(size: diceSize, completed: { value in
                 total += value
                 diceValues[0] = value
                 sendResults(forDice: 1)
@@ -79,7 +87,7 @@ public struct MangaDiceSetView: View {
             })
             
             if numberOfDice >= 2 && showDice2 {
-                MangaDiceRoll(size: 100, completed: { value in
+                MangaDiceRoll(size: diceSize, completed: { value in
                     total += value
                     diceValues[1] = value
                     sendResults(forDice: 2)
@@ -88,7 +96,7 @@ public struct MangaDiceSetView: View {
             }
         
             if numberOfDice >= 3 && showDice3 {
-                MangaDiceRoll(size: 100, completed: { value in
+                MangaDiceRoll(size: diceSize, completed: { value in
                     total += value
                     diceValues[2] = value
                     sendResults(forDice: 3)
@@ -97,7 +105,7 @@ public struct MangaDiceSetView: View {
             }
             
             if numberOfDice >= 4 && showDice4 {
-                MangaDiceRoll(size: 100, completed: { value in
+                MangaDiceRoll(size: diceSize, completed: { value in
                     total += value
                     diceValues[3] = value
                     sendResults(forDice: 4)

@@ -141,11 +141,9 @@ public struct MangaAboutView: View {
         switch HardwareInformation.screenWidth {
         case 375:
             return CGFloat(80.0)
-        case 393:
-            return CGFloat(50.0)
         default:
             if HardwareInformation.isPhone {
-                return CGFloat(20.0)
+                return CGFloat(50.0)
             } else {
                 return CGFloat(90.0)
             }
