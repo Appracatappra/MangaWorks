@@ -234,6 +234,21 @@ import ODRManager
             return nil
         }
         
+        // Add hasNote.
+        compiler.register(name: "hasNote", parameterNames: ["key"], parameterTypes: [.string], returnType: .bool) { parameters in
+            var value = ""
+            
+            if let key = parameters["key"] {
+                if MangaBook.shared.getNote(notebookID: key.string) != nil {
+                    value = "true"
+                } else {
+                    value = "false"
+                }
+            }
+            
+            return GraceVariable(name: "result", value: value, type: .bool)
+        }
+        
         // Add itemOnPage.
         compiler.register(name: "itemOnPage", parameterNames: ["key"], parameterTypes: [.string], returnType: .bool) { parameters in
             var value = ""
@@ -840,6 +855,13 @@ import ODRManager
     public func addNote(notebookID: String = "", image: String = "", title: String = "", entry: String = "") {
         notebook.saveEntry(notebookID: notebookID, image: image, title: title, entry: entry)
         simulatediPhoneNotification = MangaDashboardNotification(icon: "book.pages.fill", title: "New Note", description: "A new note has been added to your notebook.")
+    }
+    
+    /// Returns the requested notebook entry.
+    /// - Parameter notebookID: The id of the notebook entry to find.
+    /// - Returns: Returns the requested entry or `nil` if not found.
+    public func getNote(notebookID: String) -> MangaNotebookEntry? {
+        return notebook.getEntry(notebookID: notebookID)
     }
     
     // !!!: - details
