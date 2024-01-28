@@ -51,6 +51,15 @@ import ODRManager
     public static func registerGraceFunctions() {
         let compiler = GraceCompiler.shared
         
+        // Add getPlayerLocation.
+        compiler.register(name: "getPlayerLocation", parameterNames: [], parameterTypes: [], returnType: .string) { parameters in
+            var value = ""
+            
+            value = MangaBook.shared.currentPageID
+            
+            return GraceVariable(name: "result", value: value, type: .string)
+        }
+        
         // Add getState.
         compiler.register(name: "getState", parameterNames: ["key"], parameterTypes: [.string], returnType: .string) { parameters in
             var value = ""
@@ -180,20 +189,15 @@ import ODRManager
             
             if let id = parameters["id"] {
                 if let value = parameters["value"] {
-                    var text = ""
-                    if value.string != "EMPTY_STRING" {
-                        text = value.string
-                    }
-                    
                     switch id.int {
                     case 1:
-                        MangaBook.shared.conversationResult1 = text
+                        MangaBook.shared.conversationResult1 = value.string
                     case 2:
-                        MangaBook.shared.conversationResult2 = text
+                        MangaBook.shared.conversationResult2 = value.string
                     case 3:
-                        MangaBook.shared.conversationResult3 = text
+                        MangaBook.shared.conversationResult3 = value.string
                     case 4:
-                        MangaBook.shared.conversationResult4 = text
+                        MangaBook.shared.conversationResult4 = value.string
                     default:
                         break;
                     }
@@ -702,6 +706,7 @@ import ODRManager
     /// - Parameters:
     ///   - imageSource: The source for the items images.
     ///   - id: The unique ID of the inventory item.
+    ///   - type: The type of item being defined.
     ///   - category: Allows the item to be grouped with similar items.
     ///   - status: The status of the inventory item.
     ///   - mangaPageID: The ID of the `MangaPage` that the item has been hidden or dropped on.
@@ -715,9 +720,9 @@ import ODRManager
     ///   - onLost: A Grace Language Script to run if the player loses the item.
     ///   - onUse: A Grace Language Script to run if the player uses the item.
     /// - Returns: Returns self.
-    @discardableResult public func addItem(imageSource: MangaWorks.Source = .appBundle, id: String = "", category:String = "", status: MangaInventoryItem.ItemStatus = .unAssigned, mangaPageID: String = "", image: String = "", title: String = "", description: String = "", isConsumable: Bool = false, initialQualtity: Int = 1, quantityRemaining: Int = 1, onAquire: String = "", onLost: String = "", onUse: String = "") -> MangaBook {
+    @discardableResult public func addItem(imageSource: MangaWorks.Source = .appBundle, id: String = "", type:MangaInventoryItem.ItemType = .nonUsable, category:String = "", status: MangaInventoryItem.ItemStatus = .unAssigned, mangaPageID: String = "", image: String = "", title: String = "", description: String = "", isConsumable: Bool = false, initialQualtity: Int = 1, quantityRemaining: Int = 1, onAquire: String = "", onLost: String = "", onUse: String = "") -> MangaBook {
         
-        let item = MangaInventoryItem(imageSource: imageSource, id: id, category: category, status: status, mangaPageID: mangaPageID, image: image, title: title, description: description, isConsumable: isConsumable, initialQualtity: initialQualtity, quantityRemaining:quantityRemaining, onAquire: onAquire, onLost: onLost, onUse: onUse)
+        let item = MangaInventoryItem(imageSource: imageSource, id: id, type: type, category: category, status: status, mangaPageID: mangaPageID, image: image, title: title, description: description, isConsumable: isConsumable, initialQualtity: initialQualtity, quantityRemaining:quantityRemaining, onAquire: onAquire, onLost: onLost, onUse: onUse)
         
         items.append(item)
         
@@ -783,11 +788,21 @@ import ODRManager
     /// - Parameters:
     ///   - id: The ID of the item to take.
     ///   - key: The optional trigger location  that the item has come from.
-    public func takeItem(id:String, for key:String = "") {
+    ///   - addToInventory: If `true`, the selected item is added to the player's inventory, else it is discarded.
+    ///   - allowReuse: If `true`, an item can be taken again, else it cannot.
+    /// - Returns: Returns the item pulled if found, else returns `nil`.
+    @discardableResult public func takeItem(id:String, for key:String = "", addToInventory: Bool = true, allowReuse:Bool = false) -> MangaInventoryItem? {
         
         // Ensure the item can be found.
         guard let item = getItem(id: id) else {
-            return
+            return nil
+        }
+        
+        // Ensure the item hasn't already been used
+        if !allowReuse {
+            if item.status == .inPlayerInventory || item.status == .discarded {
+                return nil
+            }
         }
         
         // Mark as used
@@ -796,11 +811,17 @@ import ODRManager
         }
         
         // Place the item in the player's inventory
-        item.status = .inPlayerInventory
+        if addToInventory {
+            item.status = .inPlayerInventory
+        } else {
+            item.status = .discarded
+        }
         item.mangaPageID = ""
         
         // Execute acquire script
         MangaWorks.runGraceScript(item.onAquire)
+        
+        return item
     }
     
     /// Removes the given item from the player's inventory and places it in the current room.

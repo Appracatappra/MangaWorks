@@ -46,7 +46,7 @@ import Observation
         case inUse
         
         // MARK: - Functions
-        /// Gets the value from an `unAssigned` and defaults to `topLeading` if the conversion is invalid.
+        /// Gets the value from an `Int` and defaults to `unAssigned` if the conversion is invalid.
         /// - Parameter value: The value holding the Int to convert.
         public mutating func from(_ value:Int) {
             if let enumeration = ItemStatus(rawValue: value) {
@@ -57,12 +57,35 @@ import Observation
         }
     }
     
+    /// Defines the type of Item.
+    public enum ItemType: Int {
+        /// The item can not be directly used by the player.
+        case nonUsable = 0
+        
+        /// The item can not be directly used by the player.
+        case usable
+        
+        // MARK: - Functions
+        /// Gets the value from an `Int` and defaults to `nonUsable` if the conversion is invalid.
+        /// - Parameter value: The value holding the Int to convert.
+        public mutating func from(_ value:Int) {
+            if let enumeration = ItemType(rawValue: value) {
+                self = enumeration
+            } else {
+                self = .nonUsable
+            }
+        }
+    }
+    
     // MARK: - Properties
     /// The source for the items images.
     public var imageSource:MangaWorks.Source = .appBundle
     
     /// The unique ID of the inventory item.
     public var id:String = ""
+    
+    /// The type of item.
+    public var type:ItemType = .nonUsable
     
     /// Allows the item to be grouped with similar items.
     public var category:String = ""
@@ -112,6 +135,7 @@ import Observation
         
         if !MangaInventoryItem.serializeStateOnly {
             serializer.append(imageSource)
+                .append(type)
                 .append(image)
                 .append(title)
                 .append(description)
@@ -130,6 +154,7 @@ import Observation
     /// - Parameters:
     ///   - imageSource: The source for the items images.
     ///   - id: The unique ID of the inventory item.
+    ///   - type: The type of item being defined.
     ///   - category: Allows the item to be grouped with similar items.
     ///   - status: The status of the inventory item.
     ///   - mangaPageID: The ID of the `MangaPage` that the item has been hidden or dropped on.
@@ -142,9 +167,10 @@ import Observation
     ///   - onAquire: A Grace Langauge Script to run when the player acquires the item.
     ///   - onLost: A Grace Language Script to run if the player loses the item.
     ///   - onUse: A Grace Language Script to run if the player uses the item.
-    public init(imageSource: MangaWorks.Source = .appBundle, id: String = "", category:String = "", status: ItemStatus = .unAssigned, mangaPageID: String = "", image: String = "", title: String = "", description: String = "", isConsumable: Bool = false, initialQualtity: Int = 1, quantityRemaining: Int = 1, onAquire: String = "", onLost: String = "", onUse: String = "") {
+    public init(imageSource: MangaWorks.Source = .appBundle, id: String = "", type:ItemType = .nonUsable, category:String = "", status: ItemStatus = .unAssigned, mangaPageID: String = "", image: String = "", title: String = "", description: String = "", isConsumable: Bool = false, initialQualtity: Int = 1, quantityRemaining: Int = 1, onAquire: String = "", onLost: String = "", onUse: String = "") {
         self.imageSource = imageSource
         self.id = id
+        self.type = type
         self.category = category
         self.status = status
         self.mangaPageID = mangaPageID
@@ -171,6 +197,7 @@ import Observation
         self.quantityRemaining = deserializer.int()
         
         if !MangaInventoryItem.serializeStateOnly {
+            self.type.from(deserializer.int())
             self.imageSource.from(deserializer.int())
             self.image = deserializer.string()
             self.title = deserializer.string()

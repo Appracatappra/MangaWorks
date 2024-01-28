@@ -74,6 +74,27 @@ import Observation
             return nil
         }
         
+        // Add handleLayerChange
+        compiler.register(name: "triggerNamedEvent", parameterNames: ["theme", "key", "id", "take"], parameterTypes: [.int, .string, .string, .bool]) { parameters in
+            
+            if let theme = parameters["theme"] {
+                let currentTheme = MangaBook.shared.getStateInt(key: "Theme")
+                if theme.int == 0 || theme.int == currentTheme {
+                    if let key = parameters["key"] {
+                        if let id = parameters["id"] {
+                            if let take = parameters["take"] {
+                                if let item = MangaBook.shared.takeItem(id: id.string, for: key.string, addToInventory: take.bool) {
+                                    MangaBook.shared.lastItem = item
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            return nil
+        }
+        
         // Add triggerEventOnCount: this triggers the event ever fourth time the player crosses it.
         compiler.register(name: "triggerEventOnCount", parameterNames: ["theme", "key", "category", "take"], parameterTypes: [.int, .string, .string, .bool]) { parameters in
             

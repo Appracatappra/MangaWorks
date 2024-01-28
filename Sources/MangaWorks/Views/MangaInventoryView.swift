@@ -385,7 +385,7 @@ public struct MangaInventoryView: View {
             
             if isShowingDetails {
                 if let item = selectedItem {
-                    if item.onUse != "" {
+                    if item.type == .usable && item.onUse != "" {
                         MangaButton(title: "Use", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
                             MangaWorks.runGraceScript(item.onUse)
                         }

@@ -326,7 +326,7 @@ public struct MangaPanoramaView: View {
             if HardwareInformation.isPhone {
                 return 30.0
             } else {
-                return 50.0
+                return 40.0
             }
         }
     }
