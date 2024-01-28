@@ -272,10 +272,19 @@ public struct MangaGamePadPinEntry: View {
                 case 1:
                     // Enter
                     if value == validPIN {
-                        MangaBook.shared.displayPage(id: pin.succeedMangaPageID)
-                        MangaWorks.runGraceScript(pin.action)
+                        if pin.succeedMangaPageID == "" {
+                            MangaBook.shared.setStateBool(key: "PINCorrect", value: true)
+                            MangaWorks.runGraceScript(pin.action)
+                        } else {
+                            MangaBook.shared.displayPage(id: pin.succeedMangaPageID)
+                        }
                     } else {
-                        MangaBook.shared.displayPage(id: pin.failMangaPageID)
+                        if pin.failMangaPageID == "" {
+                            MangaBook.shared.setStateBool(key: "PINCorrect", value: false)
+                            MangaWorks.runGraceScript(pin.action)
+                        } else {
+                            MangaBook.shared.displayPage(id: pin.failMangaPageID)
+                        }
                     }
                 default:
                     guard value.count < 7 else {

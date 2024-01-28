@@ -294,10 +294,19 @@ public struct MangaPinEntryView: View {
                 MangaTextButton(title: "Enter", font: font, enabledColor: .white){
                     SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Electronic_06", ofType: "mp3"))
                     if value == validPIN {
-                        MangaBook.shared.displayPage(id: pin.succeedMangaPageID)
-                        MangaWorks.runGraceScript(pin.action)
+                        if pin.succeedMangaPageID == "" {
+                            MangaBook.shared.setStateBool(key: "PINCorrect", value: true)
+                            MangaWorks.runGraceScript(pin.action)
+                        } else {
+                            MangaBook.shared.displayPage(id: pin.succeedMangaPageID)
+                        }
                     } else {
-                        MangaBook.shared.displayPage(id: pin.failMangaPageID)
+                        if pin.failMangaPageID == "" {
+                            MangaBook.shared.setStateBool(key: "PINCorrect", value: false)
+                            MangaWorks.runGraceScript(pin.action)
+                        } else {
+                            MangaBook.shared.displayPage(id: pin.failMangaPageID)
+                        }
                     }
                 }
                 .padding()
