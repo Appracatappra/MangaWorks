@@ -65,6 +65,9 @@ import Observation
         /// The item can not be directly used by the player.
         case usable
         
+        /// The onUse actions will only be run by a trigger, not directly by the player.
+        case triggerable
+        
         // MARK: - Functions
         /// Gets the value from an `Int` and defaults to `nonUsable` if the conversion is invalid.
         /// - Parameter value: The value holding the Int to convert.
