@@ -1241,6 +1241,12 @@ import ODRManager
         case "[COVER]":
             changeView(viewID: "[COVER]")
             return
+        case "[CARD]":
+            changeView(viewID: "[CARD]")
+            return
+        case "[BATTLE]":
+            changeView(viewID: "[BATTLE]")
+            return
         default:
             break
         }
