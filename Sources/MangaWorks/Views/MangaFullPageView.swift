@@ -199,6 +199,12 @@ public struct MangaFullPageView: View {
                 pageOverlayContents()
             }
             
+            // Display details.
+            if MangaBook.shared.showDetailView {
+                MangaDetailsOverlay(detailsTitle: MangaBook.shared.detailTitle, detailsText: MangaBook.shared.detailText, isGamepadConnected: $isGamepadConnected)
+                    .ignoresSafeArea()
+            }
+            
             // Display gamepad help
             if showGamepadHelp {
                 GamepadHelpOverlay()

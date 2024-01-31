@@ -133,5 +133,5 @@ public struct MangaDetailsOverlay: View {
 }
 
 #Preview {
-    MangaDetailsOverlay(isGamepadConnected: .constant(false))
+    MangaDetailsOverlay(detailsTitle: "Test", detailsText: "This is a long text line to test and see how this control will handle it.", isGamepadConnected: .constant(false))
 }
