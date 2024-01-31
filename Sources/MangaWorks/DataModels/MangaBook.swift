@@ -1227,6 +1227,26 @@ import ODRManager
         return id
     }
     
+    /// Jumps to a randon location from this location.
+    /// - Returns: The ID of the location to run to.
+    func jumpToRandomPage() -> String {
+        let newPageID = popLastPageID()
+        
+        // Ensure that the page can be found.
+        guard let page = getPage(id: MangaWorks.expandMacros(in: newPageID)) else {
+            Debug.error(subsystem: "MangaWorks", category: "Display Page", "ERROR: Page '\(newPageID)' not found.")
+            return ""
+        }
+        
+        let destinations = page.navigationPoints
+        if destinations.count == 1 {
+            return destinations[0].tag
+        } else {
+            let n = Int.random(in: 0..<destinations.count)
+            return destinations[n].tag
+        }
+    }
+    
     /// Ask the app to display a given `MangaPage`.
     /// - Parameter id: The id of the page to display.
     public func displayPage(id:String) {
@@ -1238,6 +1258,8 @@ import ODRManager
             newPageID = popLastPageID()
         case "[CURRENT]":
             newPageID = "\(currentPage.chapter)|\(currentPage.id)"
+        case "[RANDOM]":
+            newPageID = jumpToRandomPage()
         case "[COVER]":
             changeView(viewID: "[COVER]")
             return
@@ -1253,12 +1275,13 @@ import ODRManager
         
         // Anything to process?
         guard newPageID != "" else {
+            Debug.error(subsystem: "MangaWorks", category: "Display Page", "ERROR: Unable to load \(id).")
             return
         }
         
         // Ensure that the page can be found.
         guard let page = getPage(id: MangaWorks.expandMacros(in: newPageID)) else {
-            Debug.error(subsystem: "MangaWorks", category: "Display Page", "ERROR: Page '\(id)' not found.")
+            Debug.error(subsystem: "MangaWorks", category: "Display Page", "ERROR: Page \(id) not found.")
             return
         }
         
