@@ -267,7 +267,7 @@ public struct MangaAboutView: View {
             }
             
             VStack {
-                Text(markdown: "About")
+                Text(markdown: aboutInfo.aboutName)
                     .font(ComicFonts.Troika.ofSize(48))
                     .foregroundColor(.black)
                     .padding(.top)

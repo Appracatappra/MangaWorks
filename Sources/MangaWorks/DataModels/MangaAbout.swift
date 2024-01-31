@@ -20,6 +20,9 @@ import Observation
 @Observable open class MangaAbout {
     
     // MARK: - Properties
+    /// Holds the name of the about page.
+    public var aboutName:String = "About"
+    
     /// The name of the program.
     public var programName:String = ""
     
@@ -36,6 +39,7 @@ import Observation
     /// Returns the object as a serialized string.
     public var serialized:String {
         let serializer = Serializer(divider: ",")
+            .append(aboutName)
             .append(programName)
             .append(copyright)
             .append(children: entries, divider: Divider.actionDivider)
@@ -47,10 +51,12 @@ import Observation
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
+    ///   - aboutName: Holds the name of the about page.
     ///   - programName: The name of the program.
     ///   - copyright: The copyright string.
     ///   - logoImage: A collection of entries in the about page.
-    public init(programName: String = "", copyright:String = "", logoImage: String = "") {
+    public init(aboutName:String = "About", programName: String = "", copyright:String = "", logoImage: String = "") {
+        self.aboutName = aboutName
         self.programName = programName
         self.copyright = copyright
         self.logoImage = logoImage
@@ -61,6 +67,7 @@ import Observation
     public init(from value:String) {
         let deserializer = Deserializer(text: value, divider: ",")
         
+        self.aboutName = deserializer.string()
         self.programName = deserializer.string()
         self.copyright = deserializer.string()
         self.entries = deserializer.children(divider: Divider.actionDivider)
