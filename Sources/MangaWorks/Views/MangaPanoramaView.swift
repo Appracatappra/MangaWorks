@@ -656,6 +656,27 @@ public struct MangaPanoramaView: View {
             
             Spacer()
             
+            HStack {
+                if MangaBook.shared.pageHasItems(mangaPageID: page.id) {
+                    Image(systemName: "giftcard.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(MangaWorks.actionForegroundColor)
+                }
+                
+                if page.map != "" {
+                    Image(systemName: "map.circle")
+                        .font(.system(size: 18))
+                        .foregroundColor(MangaWorks.actionForegroundColor)
+                }
+                
+                if page.blueprints != "" {
+                    Image(systemName: "building.2.crop.circle")
+                        .font(.system(size: 18))
+                        .foregroundColor(MangaWorks.actionForegroundColor)
+                }
+            }
+            .padding(.trailing, 30)
+            
             if page.nextPage != "" {
                 MangaButton(title: "Next >", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
                     MangaBook.shared.displayPage(id: page.nextPage)

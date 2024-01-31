@@ -348,6 +348,13 @@ import ODRManager
             return GraceVariable(name: "result", value: value, type: .bool)
         }
         
+        // Add currentPageHasItems.
+        compiler.register(name: "currentPageHasItems", parameterNames: [], parameterTypes: [], returnType: .bool) { parameters in
+            let value = MangaBook.shared.pageHasItems(mangaPageID: MangaBook.shared.currentPage.id)
+            
+            return GraceVariable(name: "result", value: "\(value)", type: .bool)
+        }
+        
         // Add takeItem
         compiler.register(name: "takeItem", parameterNames: ["id", "key"], parameterTypes: [ .string, .string]) { parameters in
             
@@ -783,6 +790,33 @@ import ODRManager
         return nil
     }
     
+    /// Checks to see if the page has anyitems dropped on it.
+    /// - Parameter mangaPageID: The ID of the page to check for items.
+    /// - Returns: Returns `true` if the page has items, else returns false.
+    public func pageHasItems(mangaPageID:String) -> Bool {
+        
+        for item in items {
+            if item.status == .droppedOnMangaPage && item.mangaPageID == mangaPageID {
+                return true
+            }
+        }
+        
+        return false
+    }
+    
+    /// Returns all of the items that are currently in the player's inventory.
+    /// - Returns: Returns a collection of items the player is carrying.
+    public func pageInventory(mangaPageID:String) -> [MangaInventoryItem] {
+        var inventory:[MangaInventoryItem] = []
+        
+        for item in items {
+            if item.status == .droppedOnMangaPage && item.mangaPageID == mangaPageID {
+                inventory.append(item)
+            }
+        }
+        
+        return inventory
+    }
     
     /// Takes the given item from available inventory and places it in the player's inventory.
     /// - Parameters:
@@ -1357,14 +1391,39 @@ import ODRManager
         // Execute any startup scripts
         MangaWorks.runGraceScript(page.onLoadAction)
         
+        // Are there any monsters on this page?
+        
+        
         // Request the app to show the page
-        if let onRequestDisplayPage {
+        if isMonsterOnPage(mangaPageID: page.id) {
+            Execute.onMain {
+                self.changeView(viewID: "[BATTLE]")
+            }
+        } else if let onRequestDisplayPage {
             Execute.onMain {
                 onRequestDisplayPage(page)
             }
         } else {
             Debug.error(subsystem: "MangaWorks", category: "Display Page", "Error: onRequestDisplayPage has not been defined.")
         }
+    }
+    
+    // !!!: - Monsters
+    /// Checks to see if a monster is on the given page and cues up the monster if it exists.
+    /// - Parameter mangaPageID: The page to check for monsters on.
+    /// - Returns: Returns `true` if a monster is on the page, else returns false.
+    public func isMonsterOnPage(mangaPageID:String) -> Bool {
+        let monsters:[String] = ["M01", "M02", "M03", "M04", "M05", "M06"]
+        
+        for monster in monsters {
+            let location = getStateString(key: "\(monster)Location")
+            if location == mangaPageID {
+                setStateString(key: "Monster", value: monster)
+                return true
+            }
+        }
+        
+        return false
     }
     
     // !!!: - Game State Management

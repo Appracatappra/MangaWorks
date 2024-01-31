@@ -272,6 +272,7 @@ public struct MangaInventoryView: View {
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
                 buttonBUsage(viewID: uniqueID, "Close an open note details.")
                 buttonYUsage(viewID: uniqueID, "Use the selected item.")
+                buttonXUsage(viewID: uniqueID, "Drop/Take the selected item.")
             })
         }
         .onRotate {orientation in
@@ -289,6 +290,17 @@ public struct MangaInventoryView: View {
         .onGamepadButtonA(viewID: uniqueID) { isPressed in
             if isPressed {
                 showGamepadHelp = !showGamepadHelp
+            }
+        }
+        .onGamepadButtonX(viewID: uniqueID) { isPressed in
+            if isPressed {
+                if let item = selectedItem {
+                    if item.status == .droppedOnMangaPage {
+                        takeItem(item: item)
+                    } else {
+                        dropItem()
+                    }
+                }
             }
         }
         .onGamepadButtonB(viewID: uniqueID) { isPressed in
@@ -385,11 +397,23 @@ public struct MangaInventoryView: View {
             
             if isShowingDetails {
                 if let item = selectedItem {
-                    if item.type == .usable && item.onUse != "" {
-                        MangaButton(title: "Use", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
-                            MangaWorks.runGraceScript(item.onUse)
+                    if item.status == .droppedOnMangaPage {
+                        MangaButton(title: "Take", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
+                            takeItem(item: item)
                         }
                         .padding(.trailing)
+                    } else {
+                        MangaButton(title: "Drop", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
+                            dropItem()
+                        }
+                        .padding(.trailing)
+                        
+                        if item.type == .usable && item.onUse != "" {
+                            MangaButton(title: "Use", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
+                                MangaWorks.runGraceScript(item.onUse)
+                            }
+                            .padding(.trailing)
+                        }
                     }
                 }
             }
@@ -407,13 +431,37 @@ public struct MangaInventoryView: View {
             Spacer()
             
             if let item = selectedItem {
-                if item.onUse != "" {
-                    GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonYImage, title: "Use", scale: MangaPageScreenMetrics.controlButtonScale)
+                if item.status == .droppedOnMangaPage {
+                    GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonXImage, title: "Take", scale: MangaPageScreenMetrics.controlButtonScale)
                         .padding(.leading)
+                } else {
+                    GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonXImage, title: "Drop", scale: MangaPageScreenMetrics.controlButtonScale)
+                        .padding(.leading)
+                    
+                    if item.onUse != "" {
+                        GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonYImage, title: "Use", scale: MangaPageScreenMetrics.controlButtonScale)
+                            .padding(.leading)
+                    }
                 }
             }
         }
         .padding(.top, headerPadding)
+    }
+    
+    /// Allow the play to drop an item they are carrying at a given location.
+    private func dropItem() {
+        if let item = selectedItem {
+            MangaBook.shared.dropItem(id: item.id, in: MangaBook.shared.currentPage.id)
+            MangaBook.shared.returnToLastView()
+        }
+    }
+    
+    /// Takes the given inventory item.
+    /// - Parameter item: The item to take.
+    private func takeItem(item:MangaInventoryItem) {
+        item.status = .inPlayerInventory
+        item.mangaPageID = ""
+        MangaBook.shared.returnToLastView()
     }
     
     /// Draws the page footer.
