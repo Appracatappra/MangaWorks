@@ -39,6 +39,12 @@ open class MangaStateManager {
                         MangaStateManager.readOnTap = value.bool
                     case "expandOnTap":
                         MangaStateManager.expandOnTap = value.bool
+                    case "showFullPageQuicktip":
+                        MangaStateManager.showFullPageQuicktip = value.bool
+                    case "showPanelsQuicktip":
+                        MangaStateManager.showPanelsQuicktip = value.bool
+                    case "showPanoQuicktip":
+                        MangaStateManager.showPanoQuicktip = value.bool
                     default:
                         break
                     }
@@ -74,6 +80,12 @@ open class MangaStateManager {
                     MangaStateManager.readOnTap = !MangaStateManager.readOnTap
                 case "expandOnTap":
                     MangaStateManager.expandOnTap = !MangaStateManager.expandOnTap
+                case "showFullPageQuicktip":
+                    MangaStateManager.showFullPageQuicktip = !MangaStateManager.showFullPageQuicktip
+                case "showPanelsQuicktip":
+                    MangaStateManager.showPanelsQuicktip = !MangaStateManager.showPanelsQuicktip
+                case "showPanoQuicktip":
+                    MangaStateManager.showPanoQuicktip = !MangaStateManager.showPanoQuicktip
                 default:
                     break
                 }
@@ -102,6 +114,12 @@ open class MangaStateManager {
                     value = MangaStateManager.readOnTap
                 case "expandOnTap":
                     value = MangaStateManager.expandOnTap
+                case "showFullPageQuicktip":
+                    value = MangaStateManager.showFullPageQuicktip
+                case "showPanelsQuicktip":
+                    value = MangaStateManager.showPanelsQuicktip
+                case "showPanoQuicktip":
+                    value = MangaStateManager.showPanoQuicktip
                 default:
                     break
                 }
@@ -130,6 +148,12 @@ open class MangaStateManager {
                     value = MangaStateManager.readOnTap
                 case "expandOnTap":
                     value = MangaStateManager.expandOnTap
+                case "showFullPageQuicktip":
+                    value = MangaStateManager.showFullPageQuicktip
+                case "showPanelsQuicktip":
+                    value = MangaStateManager.showPanelsQuicktip
+                case "showPanoQuicktip":
+                    value = MangaStateManager.showPanoQuicktip
                 default:
                     break
                 }
@@ -166,4 +190,13 @@ open class MangaStateManager {
     
     /// If `true`, expand the text when it is tapped on.
     @AppStorage("expandOnTap") public static var expandOnTap: Bool = true
+    
+    /// If `true`, should the Full Page Viewer quick tips when lanuched.
+    @AppStorage("showFullPageQuicktip") public static var showFullPageQuicktip: Bool = true
+    
+    /// If `true`, should the Panels Page Viewer quick tips when lanuched.
+    @AppStorage("showPanelsQuicktip") public static var showPanelsQuicktip: Bool = true
+    
+    /// If `true`, should the Panorama Page Viewer quick tips when lanuched.
+    @AppStorage("showPanoQuicktip") public static var showPanoQuicktip: Bool = true
 }

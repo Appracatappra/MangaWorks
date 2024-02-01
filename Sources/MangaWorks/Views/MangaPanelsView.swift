@@ -317,6 +317,14 @@ public struct MangaPanelsView: View {
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help** or hide any **Tips** currently being displayed.")
                 buttonBUsage(viewID: uniqueID, "Show or hide the **Actions Menu**.")
             })
+            
+            // Display quicktips
+            if MangaStateManager.showPanelsQuicktip {
+                MangaBook.shared.detailTitle = "Quicktips"
+                MangaBook.shared.detailText = "Use the top right hand **Zoom Controls** to adjust **Page Size** then drag to pan around the page.\n\nUse the top **< Prev** and **Next >** buttons to move between pages.\n\nUse the bottom **Action Menu** to select special actions or return to the **Main Menu**.\n\nText can be automatically read aloud when a page loads or when you tap on a **Caption** or **Speech Balloon** based on your **Settings**."
+                MangaBook.shared.showDetailView = true
+                MangaStateManager.showPanelsQuicktip = false
+            }
         }
         .onRotate {orientation in
             screenOrientation = HardwareInformation.correctOrientation(orientation)

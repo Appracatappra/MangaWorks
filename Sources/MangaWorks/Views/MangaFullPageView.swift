@@ -221,6 +221,14 @@ public struct MangaFullPageView: View {
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
                 buttonBUsage(viewID: uniqueID, "Show the **Action Menu**.")
             })
+            
+            // Display quicktips
+            if MangaStateManager.showFullPageQuicktip {
+                MangaBook.shared.detailTitle = "Quicktips"
+                MangaBook.shared.detailText = "Use the top right hand **Zoom Controls** to adjust **Page Size** then drag to pan around the page.\n\nUse the top **< Prev** and **Next >** buttons to move between pages.\n\nUse the bottom **Action Menu** to select special actions or return to the **Main Menu**."
+                MangaBook.shared.showDetailView = true
+                MangaStateManager.showFullPageQuicktip = false
+            }
         }
         .onRotate {orientation in
             screenOrientation = HardwareInformation.correctOrientation(orientation)

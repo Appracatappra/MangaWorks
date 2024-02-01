@@ -39,6 +39,9 @@ public struct MangaDetailsOverlay: View {
     /// If `true` a gamepad is connected to the device.
     @Binding public var isGamepadConnected:Bool
     
+    /// Tracks changes in the manga page orientation.
+    @State private var screenOrientation:UIDeviceOrientation = HardwareInformation.deviceOrientation
+    
     // MARK: - Computed Properties
     /// Returns the padding based on the device.
     private var padding:CGFloat {
@@ -52,12 +55,15 @@ public struct MangaDetailsOverlay: View {
     // MARK: - Control Body
     /// The body of the control.
     public var body: some View {
-        VStack {
+        ZStack {
             if HardwareInformation.isPhone {
-                iPhoneContents()
+                iPhoneContents(screenOrientation: screenOrientation)
             } else {
-                iPadContents()
+                iPadContents(screenOrientation: screenOrientation)
             }
+        }
+        .onRotate {orientation in
+            screenOrientation = HardwareInformation.correctOrientation(orientation)
         }
         .ignoresSafeArea()
         .frame(width: CGFloat(HardwareInformation.screenWidth), height: CGFloat(HardwareInformation.screenHeight))
@@ -68,67 +74,76 @@ public struct MangaDetailsOverlay: View {
     // MARK: - Functions
     /// Draws the iPhone body
     /// - Returns: Returns a view containing the iPhone body.
-    @ViewBuilder func iPhoneContents() -> some View {
-        ScrollView {
-            VStack {
-                Text(detailsTitle)
-                    .font(.largeTitle)
-                    .foregroundColor(Color.white)
-                    .padding(.bottom)
-                
-                Text(markdown: detailsText)
-                    .font(.title3)
-                    .foregroundColor(.white)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, padding)
-            }
-        }
-        .frame(width: CGFloat(HardwareInformation.screenWidth - 4), height: CGFloat(HardwareInformation.screenHeight - HardwareInformation.tipPaddingVertical))
-        
-        if isGamepadConnected {
-            HStack {
-                GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonAImage, title: "Close", scale: MangaPageScreenMetrics.controlButtonScale, enabledColor: MangaWorks.actionForegroundColor)
-            }
-        } else {
-            MangaIconButton(iconName: "x.circle.fill") {
-                SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
-                Execute.onMain {
-                    MangaBook.shared.showDetailView = false
+    @ViewBuilder func iPhoneContents(screenOrientation:UIDeviceOrientation) -> some View {
+        VStack {
+            ScrollView {
+                VStack {
+                    Text(detailsTitle)
+                        .font(.largeTitle)
+                        .foregroundColor(Color.white)
+                        .padding(.bottom)
+                    
+                    Text(markdown: detailsText)
+                        .font(.title3)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, padding)
                 }
             }
-            .padding(.top)
+            .frame(width: CGFloat(HardwareInformation.screenWidth - 4), height: CGFloat(HardwareInformation.screenHeight - HardwareInformation.tipPaddingVertical))
+            
+            if isGamepadConnected {
+                HStack {
+                    GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonAImage, title: "Close", scale: MangaPageScreenMetrics.controlButtonScale, enabledColor: MangaWorks.actionForegroundColor)
+                }
+            } else {
+                MangaIconButton(iconName: "x.circle.fill") {
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
+                    Execute.onMain {
+                        MangaBook.shared.showDetailView = false
+                    }
+                }
+                .padding(.top)
+            }
         }
     }
     
     /// Draws the iPad body.
     /// - Returns: Returns a view containing the iPad body.
-    @ViewBuilder func iPadContents() -> some View {
+    @ViewBuilder func iPadContents(screenOrientation:UIDeviceOrientation) -> some View {
         VStack {
-            Text(detailsTitle)
-                .font(.largeTitle)
-                .foregroundColor(Color.white)
-                .padding(.bottom)
-            
-            Text(markdown: detailsText)
-                .font(.title)
-                .foregroundColor(.white)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, padding)
-        }
-        
-        if isGamepadConnected {
-            HStack {
-                GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonAImage, title: "Close", scale: MangaPageScreenMetrics.controlButtonScale, enabledColor: MangaWorks.actionForegroundColor)
-            }
-        } else {
-            MangaIconButton(iconName: "x.circle.fill") {
-                SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
-                Execute.onMain {
-                    MangaBook.shared.showDetailView = false
+            ScrollView {
+                VStack {
+                    Text(detailsTitle)
+                        .font(.largeTitle)
+                        .foregroundColor(Color.white)
+                        .padding(.bottom)
+                    
+                    Text(markdown: detailsText)
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, padding)
                 }
             }
-            .padding(.top)
+            .padding(.vertical)
+            
+            if isGamepadConnected {
+                HStack {
+                    GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonAImage, title: "Close", scale: MangaPageScreenMetrics.controlButtonScale, enabledColor: MangaWorks.actionForegroundColor)
+                        .padding(.vertical)
+                }
+            } else {
+                MangaIconButton(iconName: "x.circle.fill") {
+                    SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Click_Standard_05", ofType: "mp3"))
+                    Execute.onMain {
+                        MangaBook.shared.showDetailView = false
+                    }
+                }
+                .padding(.vertical)
+            }
         }
+        .ignoresSafeArea()
     }
 }
 

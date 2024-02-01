@@ -373,6 +373,14 @@ public struct MangaPanoramaView: View {
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help** or hide any **Tips** currently being displayed.")
                 buttonBUsage(viewID: uniqueID, "Show or hide the **Actions Menu**.")
             })
+            
+            // Display quicktips
+            if MangaStateManager.showPanoQuicktip {
+                MangaBook.shared.detailTitle = "Quicktips"
+                MangaBook.shared.detailText = "Tap and drag the page to look around in the **3D Space**.\n\nPlace the **Reticle** over **Items** of interest or the **Direction** you want to travel.\n\nWhen an **Item** of intrest or a **Direction** is available, an **Icon** will appear in the center of the **Reticle**.\n\nTap the **Icon** to interact with the **Item** or navigate in a **Direction**.\n\nIcons will appear in the top right hand corner of the **Page** if it contains: **Items**, **Maps** or **Blueprints**.\n\n*See the **Tips & Hints Section** on the **Main Menu** for more details.*\n\nUse the bottom **Action Menu** to select special actions or return to the **Main Menu**.\n\nText can be automatically read aloud when a page loads or when you tap on a **Caption** or **Speech Balloon** based on your **Settings**.\n\nAdditionally, tapping a **Caption** or **Speech Balloon** can expand it to full screen for easier reading, based on **Settings**."
+                MangaBook.shared.showDetailView = true
+                MangaStateManager.showPanoQuicktip = false
+            }
         }
         .onRotate {orientation in
             screenOrientation = HardwareInformation.correctOrientation(orientation)

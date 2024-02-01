@@ -81,6 +81,12 @@ public struct MangaSettingsView: View {
         
         settings.append(MangaPageAction(id: 6, text: "Expand Text When Tapped: @getPreferenceState('expandOnTap')", excute: "call @flipPreference('expandOnTap')"))
         
+        settings.append(MangaPageAction(id: 7, text: "Show Full Page Viewer Quicktips: @getPreferenceState('showFullPageQuicktip')", excute: "call @flipPreference('showFullPageQuicktip')"))
+        
+        settings.append(MangaPageAction(id: 8, text: "Show Panels Viewer Quicktips: @getPreferenceState('showPanelsQuicktip')", excute: "call @flipPreference('showPanelsQuicktip')"))
+        
+        settings.append(MangaPageAction(id: 9, text: "Show Panorama Viewer Quicktips: @getPreferenceState('showPanoQuicktip')", excute: "call @flipPreference('showPanoQuicktip')"))
+        
         // Add app specific settings
         for entry in entries {
             settings.append(entry)
