@@ -33,7 +33,7 @@ import ODRManager
     /// Handle the MangaBook requesting the app to change views.
     public typealias RequestChangeView = (String) -> Void
     
-     /// Handles a generic event for the MangaBook.
+    /// Handles a generic event for the MangaBook.
     public typealias EventHandler = () -> Void
     
     // MARK: - Static Properties
@@ -124,7 +124,7 @@ import ODRManager
             return nil
         }
         
-        // Add returnToLastPage
+        // Add startNewGame
         compiler.register(name: "startNewGame", parameterNames: [], parameterTypes: []) { parameters in
             
             MangaBook.shared.startNewGame()
@@ -574,6 +574,7 @@ import ODRManager
     /// Handle the player saving the game state.
     public var onSaveState:EventHandler? = nil
     
+    // MARK: - Details Overlay
     /// If `true`, show the details overlay in the pano viewer.
     public var showDetailView:Bool = false
     
@@ -673,8 +674,8 @@ import ODRManager
         }
     }
     
-    /// Starts a new game.
-    public func startNewGame() {
+    /// Configures a new game.
+    public func configureNewGame() {
         self.startedReading = true
         self.currentPageID = ""
         self.lastPageStack = []
@@ -683,6 +684,12 @@ import ODRManager
         self.items = []
         self.chapters = []
         self.currentPage = MangaPage(id: "00", pageType: .fullPageImage)
+    }
+    
+    /// Starts a new game.
+    public func startNewGame() {
+        
+        self.configureNewGame()
         
         // Does the hosting app need to setup a new game?
         guard let onStartNewGame else {
@@ -1259,6 +1266,27 @@ import ODRManager
         lastPageStack.remove(at: 0)
         
         return id
+    }
+    
+    /// Returns the last page ID on the calling stact.
+    /// - Returns: Returns the last page id or "" if no last pages exist.
+    public func lastPageID() -> String {
+        
+        guard lastPageStack.count > 0 else {
+            return ""
+        }
+        
+        let id = lastPageStack[0]
+        
+        return id
+    }
+    
+    /// Returns the last page from the calling stack.
+    /// - Returns: Returns the last page or `nil` if no page exists.
+    public func getLastPage() -> MangaPage? {
+        
+        let id = lastPageID()
+        return getPage(id: id)
     }
     
     /// Jumps to a randon location from this location.
