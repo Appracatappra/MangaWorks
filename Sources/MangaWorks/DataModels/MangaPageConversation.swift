@@ -165,16 +165,7 @@ import SimpleSerializer
             id = rightSide.count + 10
         }
         
-        let script:String = """
-        import StandardLib;
-        import StringLib;
-        
-        main {
-            call @playSoundEffect('\(soundEffect)', 3);
-            call @adjustIntState('points', \(points), 0, 10000000);
-            call @changePage('\(nextMangaPageID)');
-        }
-        """
+        let script = MangaPage.composeGraceScript(soundEffect: soundEffect, points: points, pageID: nextMangaPageID)
         
         let action = MangaPageAction(id: id, text: text, condition: condition, excute: script)
         

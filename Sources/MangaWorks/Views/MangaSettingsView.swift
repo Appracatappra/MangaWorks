@@ -140,7 +140,7 @@ public struct MangaSettingsView: View {
     /// Gets the inset for the comic page.
     private var insetHorizontal:CGFloat {
         if HardwareInformation.isPhone {
-            return CGFloat(20.0)
+            return CGFloat(40.0)
         } else {
             return CGFloat(90.0)
         }

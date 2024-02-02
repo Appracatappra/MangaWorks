@@ -132,7 +132,8 @@ public struct MangaWordArtView: View {
                     .font(font.ofSize(fontSize))
                     .foregroundStyle(.linearGradient(colors: gradientColors, startPoint: .top, endPoint: .bottom))
                     .rotationEffect(Angle(degrees: rotationDegrees))
-                    .shadow(color: .black, radius: 5, x: 10, y: 10)
+                    .stroke(color: MangaWorks.wordArtBorderColor, width: 1)
+                    .shadow(color: .black, radius: 5, x: 5, y: 5)
                     .allowsHitTesting(false)
                     .offset(x: CGFloat(xOffset), y: CGFloat(yOffset))
             } else {
@@ -142,6 +143,7 @@ public struct MangaWordArtView: View {
                     .rotationEffect(Angle(degrees: rotationDegrees))
                     .allowsHitTesting(false)
                     .offset(x: CGFloat(xOffset), y: CGFloat(yOffset))
+                    .stroke(color: MangaWorks.wordArtBorderColor, width: 1)
             }
         }
     }

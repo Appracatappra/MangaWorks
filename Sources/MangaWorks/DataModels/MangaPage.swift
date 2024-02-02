@@ -91,6 +91,45 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         return text
     }
     
+    /// Creates a Grace Script Program from the provided elements.
+    /// - Parameters:
+    ///   - soundEffect: The sound effect to play.
+    ///   - Points: The game points to accrue.
+    ///   - pageID: The ID of the Manga Page to display.
+    ///   - visibility: A change in the layer visibility.
+    /// - Returns: Returns a Grace Script build from the provided parts.
+    public static func composeGraceScript(soundEffect:String = "", points:Int = 0, pageID:String = "", visibility:MangaLayerManager.ElementVisibility = .displayNothing) -> String {
+        var script:String = ""
+        
+        // Open script
+        script = "import StandardLib; import StringLib; main {"
+        
+        // Has sound effects?
+        if soundEffect != "" {
+            script += "call @playSoundEffect('\(soundEffect)', 3); "
+        }
+        
+        // Modifies points?
+        if points != 0 {
+            script += "call @adjustIntState('Points', \(points), 0, 10000000); "
+        }
+        
+        // Change page?
+        if pageID != "" {
+            script += "call @changePage('\(pageID)');"
+        }
+        
+        // Change layer visibility?
+        if visibility != .displayNothing {
+            script += "call @changeLayerVisibility(\(visibility.rawValue)); call @handleLayerChange();"
+        }
+        
+        // Close script
+        script += "}";
+        
+        return script
+    }
+    
     // MARK: - Enumerations
     /// Defines the type of weather occurring at a given location.
     public enum WeatherSystem: Int {
@@ -681,18 +720,8 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     /// - Returns: Returns self.
     @discardableResult public func addInteraction(action:MangaPageInteraction.ActionType, title:String, pitch:Float = PanoramaManager.emptyPoint, yaw:Float = PanoramaManager.emptyPoint, notebookID:String = "", notebookTitle:String = "", notebookEntry:String = "", notebookImage:String = "", soundEffect:String = "", visibility:MangaLayerManager.ElementVisibility = .displayNothing, nextMangaPageID:String = "", points:Int = 0, condition:String = "") -> MangaPage {
         
-        let script:String = """
-        import StandardLib;
-        import StringLib;
-        
-        main {
-            call @playSoundEffect('\(soundEffect)', 3);
-            call @adjustIntState('points', \(points), 0, 10000000);
-            call @changePage('\(nextMangaPageID)');
-            call @changeLayerVisibility(\(visibility.rawValue));
-            call @handleLayerChange();
-        }
-        """
+        // Assemble script
+        let script = MangaPage.composeGraceScript(soundEffect: soundEffect, points: points, pageID: nextMangaPageID, visibility: visibility)
         
         // Add new interaction point
         interactions.append(MangaPageInteraction(action: action, title: title, displayElement: visibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: script, soundEffect: soundEffect))

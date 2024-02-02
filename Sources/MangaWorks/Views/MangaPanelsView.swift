@@ -230,7 +230,11 @@ public struct MangaPanelsView: View {
 
     /// The adjusted screen height.
     private var screenHeight:CGFloat {
-        return CGFloat(HardwareInformation.screenHeight - 100)
+        if HardwareInformation.isPhone {
+            return CGFloat(HardwareInformation.screenHeight - 150)
+        } else {
+            return CGFloat(HardwareInformation.screenHeight - 100)
+        }
     }
     
     /// The adjusted screen height.

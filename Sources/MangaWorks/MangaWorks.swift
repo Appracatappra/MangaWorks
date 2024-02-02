@@ -59,10 +59,13 @@ open class MangaWorks {
     public static var actionHighlightColor:Color = Color(fromHex: "#EB004F")!
     
     /// The default menu gradient colors.
-    public static var menuGradient:[Color] = [Color(fromHex: "8D43C3")!, Color(fromHex: "8D43C3")!]
+    public static var menuGradient:[Color] = [Color(fromHex: "#502670")!, Color(fromHex: "#8D43C3")!, Color(fromHex: "#F88C00")!]
+    
+    /// The default border on word art text.
+    public static var wordArtBorderColor:Color = .black
     
     /// The default menu background color.
-    public static var menuBackgroundColor: Color = Color(fromHex: "#502670")!
+    public static var menuBackgroundColor: Color = Color(fromHex: "#290541")!
     
     /// The default control button gradient colors.
     public static var controlButtonGradient:[Color] = [Color(fromHex: "#533169")!, Color(fromHex: "#533169")!]

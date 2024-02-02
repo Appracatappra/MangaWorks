@@ -1320,6 +1320,11 @@ import ODRManager
             newPageID = popLastPageID()
         case "[CURRENT]":
             newPageID = "\(currentPage.chapter)|\(currentPage.id)"
+            
+            // If the new page ID contains an asterisk, this is an error. Attempt to pop the last page off the stack.
+            if newPageID.contains("*") {
+                newPageID = popLastPageID()
+            }
         case "[RANDOM]":
             newPageID = jumpToRandomPage()
         case "[COVER]":
@@ -1337,7 +1342,9 @@ import ODRManager
         
         // Anything to process?
         guard newPageID != "" else {
+            // Something has gone horribly wrong, jump back to the cover so the user can attempt recover.
             Debug.error(subsystem: "MangaWorks", category: "Display Page", "ERROR: Unable to load \(id).")
+            changeView(viewID: "[COVER]")
             return
         }
         
