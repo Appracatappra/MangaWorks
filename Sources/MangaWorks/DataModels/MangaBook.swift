@@ -207,6 +207,19 @@ import ODRManager
             return nil
         }
         
+        // Add currentPageHasHints.
+        compiler.register(name: "currentPageHasHints", parameterNames: [], parameterTypes: [], returnType: .bool) { parameters in
+            var value = ""
+            
+            if MangaBook.shared.currentPage.hints.count == 0 {
+                value = "false"
+            } else {
+                value = "true"
+            }
+            
+            return GraceVariable(name: "result", value: value, type: .bool)
+        }
+        
         // Add hasGameStarted
         compiler.register(name: "hasGameStarted", parameterNames: [], parameterTypes: [], returnType: .bool) { parameters in
             var value = ""

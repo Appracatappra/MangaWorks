@@ -2,7 +2,7 @@
 //  SwiftUIView.swift
 //  
 //
-//  Created by Kevin Mullins on 1/11/24.
+//  Created by Kevin Mullins on 2/2/24.
 //
 
 import SwiftUI
@@ -12,20 +12,18 @@ import LogManager
 import GraceLanguage
 import SwiftUIGamepad
 
-public struct MangaAboutView: View {
+public struct MangaHintsView: View {
     
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
     ///   - uniqueID: The unique ID of the container used to tie in gamepad support.
-    ///   - aboutInfo: The app about information to display.
     ///   - backgroundColor: The background color of the page.
     ///   - backgroundImage: The background image to display behind the menu.
     ///   - isGamepadRequired: If `true`, a gamepad is required to run the app.
     ///   - isAttachedToGameCenter: If `true`, the app is attached to Game Center.
-    public init(uniqueID: String = "ActionMenu", aboutInfo: MangaAbout = MangaAbout(), backgroundColor: Color = MangaWorks.menuBackgroundColor, backgroundImage: String = "", isGamepadRequired: Bool = false, isAttachedToGameCenter: Bool = false) {
+    public init(uniqueID:String = "HintsView", backgroundColor: Color = MangaWorks.menuBackgroundColor, backgroundImage:String = "", isGamepadRequired:Bool = false, isAttachedToGameCenter:Bool = false) {
         self.uniqueID = uniqueID
-        self.aboutInfo = aboutInfo
         self.backgroundColor = backgroundColor
         self.backgroundImage = backgroundImage
         self.isGamepadRequired = isGamepadRequired
@@ -34,10 +32,7 @@ public struct MangaAboutView: View {
     
     // MARK: - Properties
     /// The unique ID of the container used to tie in gamepad support.
-    public var uniqueID:String = "ActionMenu"
-    
-    /// The app about information to display.
-    public var aboutInfo:MangaAbout = MangaAbout()
+    public var uniqueID:String = "HintsView"
     
     /// The background color of the page.
     public var backgroundColor: Color = MangaWorks.menuBackgroundColor
@@ -60,6 +55,9 @@ public struct MangaAboutView: View {
     
     /// Tracks changes in the manga page orientation.
     @State private var screenOrientation:UIDeviceOrientation = HardwareInformation.deviceOrientation
+    
+    /// Tracks the current level of hints that have been revealed.
+    @State private var index:Int = 0
     
     // MARK: - Computed Properties
     /// Returns the size of the footer text.
@@ -186,6 +184,14 @@ public struct MangaAboutView: View {
         }
     }
     
+    var hintPadding:CGFloat {
+        if HardwareInformation.isPhone {
+            return 20
+        } else {
+            return 50
+        }
+    }
+    
     // MARK: - Control Body
     /// The body of the control.
     public var body: some View {
@@ -216,8 +222,12 @@ public struct MangaAboutView: View {
             connectGamepad(viewID: uniqueID, handler: { controller, gamepadInfo in
                 isGamepadConnected = true
                 buttonAUsage(viewID: uniqueID, "Show or hide **Gamepad Help**.")
-                buttonBUsage(viewID: uniqueID, "Close **About Menu**.")
+                buttonBUsage(viewID: uniqueID, "Close **Hint Menu**.")
+                buttonXUsage(viewID: uniqueID, "Reveal Hint.")
             })
+            
+            let tag = MangaBook.shared.currentPage.hintTag
+            index = MangaBook.shared.getStateInt(key: tag)
         }
         .onRotate {orientation in
             screenOrientation = HardwareInformation.correctOrientation(orientation)
@@ -241,6 +251,11 @@ public struct MangaAboutView: View {
                 MangaBook.shared.changeView(viewID: "[COVER]")
             }
         }
+        .onGamepadButtonX(viewID: uniqueID) { isPressed in
+            if isPressed {
+                revealNextHint()
+            }
+        }
         #if os(tvOS)
         .onMoveCommand { direction in
             //Debug.info(subsystem: "MangaPageContainerView", category: "mainContents", "AppleTV Move: \(direction)")
@@ -255,6 +270,36 @@ public struct MangaAboutView: View {
     }
     
     // MARK: - Functions
+    /// Reveals the next available hint.
+    private func revealNextHint() {
+        
+        if index < (MangaBook.shared.currentPage.hints.count - 1) {
+            let hint = MangaBook.shared.currentPage.hints[index]
+            
+            if hint.beforeReveal != "" {
+                if !MangaWorks.evaluateCondition(hint.beforeReveal) {
+                    return
+                }
+            }
+            
+            if hint.pointCost > 0 {
+                var points = MangaBook.shared.getStateInt(key: "Points")
+                points -= hint.pointCost
+                MangaBook.shared.setStateInt(key: "Points", value: points)
+            }
+            
+            // Adjust index
+            index += 1
+            let tag = MangaBook.shared.currentPage.hintTag
+            MangaBook.shared.setStateInt(key: tag, value: index)
+            MangaBook.shared.requestSaveState()
+            
+            if hint.onReveal != "" {
+                MangaWorks.runGraceScript(hint.onReveal)
+            }
+        }
+    }
+    
     /// Draws the body of the menu.
     /// - Returns: Returns a view with the body of the menu.
     @ViewBuilder func pageBodyContents(screenOrientation:UIDeviceOrientation) -> some View {
@@ -266,16 +311,58 @@ public struct MangaAboutView: View {
             }
             
             VStack {
-                Text(markdown: aboutInfo.aboutName)
+                Text(markdown: "Hints")
                     .font(ComicFonts.Troika.ofSize(48))
-                    .foregroundColor(.black)
+                    .foregroundColor(.white)
                     .padding(.top)
+                
+                ScrollView {
+                    VStack {
+                        ForEach(MangaBook.shared.currentPage.hints) { hint in
+                            if hint.id <= index {
+                                Text(markdown: "\(hint.id + 1)) \(MangaWorks.expandMacros(in: hint.text))")
+                                    .font(ComicFonts.Komika.ofSize(32))
+                                    .foregroundColor(.white)
+                                    .multilineTextAlignment(.center)
+                                    .padding(.horizontal, hintPadding)
+                            }
+                        }
+                        
+                        Text(markdown: "Hint \(index + 1) of \(MangaBook.shared.currentPage.hints.count)")
+                            .font(ComicFonts.Komika.ofSize(18))
+                            .foregroundColor(.white)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, hintPadding)
+                    }
+                }
+                .frame(width: MangaPageScreenMetrics.screenWidth - insetHorizontal)
                 
                 // The right side menus.
                 if isGamepadConnected {
-                    GamepadMenuView(id: "AboutItems", alignment: .trailing, menu: buildGamepadMenu(), fontName: ComicFonts.Komika.rawValue, fontSize: menuSize, gradientColors: MangaWorks.menuGradient, selectedColors: MangaWorks.menuSelectedGradient, shadowed: false, maxEntries: 8, boxWidth: cardWidth, padding: 0)
+                    HStack {
+                        GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonAImage, title: "Close", scale: MangaPageScreenMetrics.controlButtonScale, enabledColor: .white)
+                        
+                        if index < (MangaBook.shared.currentPage.hints.count - 1) {
+                            GamepadControlTip(iconName: GamepadManager.gamepadOne.gampadInfo.buttonBImage, title: "Next Hint", scale: MangaPageScreenMetrics.controlButtonScale, enabledColor: .white)
+                        }
+                    }
                 } else {
-                    touchMenu()
+                    if index < (MangaBook.shared.currentPage.hints.count - 1) {
+                        IconButton(icon: "rectangle.stack.badge.play.fill", text: "Reveal Next Hint") {
+                            revealNextHint()
+                        }
+                    }
+                }
+                
+                if index < (MangaBook.shared.currentPage.hints.count - 1) {
+                    let nextIndex = index + 1
+                    let hint = MangaBook.shared.currentPage.hints[nextIndex]
+                    
+                    Text(markdown: "Next Hint Costs: \(hint.pointCost) Points")
+                        .font(ComicFonts.Komika.ofSize(24))
+                        .foregroundColor(.white)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
                 }
                 
                 Spacer()
@@ -306,7 +393,7 @@ public struct MangaAboutView: View {
     @ViewBuilder func pageheader() -> some View {
         HStack {
             MangaButton(title: "Close", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
-                MangaBook.shared.changeView(viewID: "[COVER]")
+                MangaBook.shared.changeView(viewID: "[CURRENT]")
             }
             .padding(.leading)
             
@@ -333,7 +420,7 @@ public struct MangaAboutView: View {
         HStack {
             
             ZStack {
-                Text(aboutInfo.programName)
+                Text("Hints")
                     .font(ComicFonts.Komika.ofSize(footerTextSize))
                     .foregroundColor(.black)
                     .padding(.leading)
@@ -343,7 +430,7 @@ public struct MangaAboutView: View {
             Spacer()
             
             ZStack {
-                Text(aboutInfo.copyright)
+                Text("")
                     .font(ComicFonts.Komika.ofSize(footerTextSize))
                     .foregroundColor(.black)
                     .padding(.trailing)
@@ -353,45 +440,8 @@ public struct MangaAboutView: View {
         .padding(.bottom, footerPadding)
     }
     
-    /// Creates the right side touch menu for the cover.
-    /// - Returns: Returns a view containing the right side touch menu.
-    @ViewBuilder func touchMenu() -> some View {
-        ScrollView {
-            VStack {
-                ForEach(aboutInfo.entries) {action in
-                    if MangaWorks.evaluateCondition(action.condition) {
-                        Text(markdown: MangaWorks.expandMacros(in: action.text))
-                            .foregroundColor(.black)
-                            .font(ComicFonts.Komika.ofSize(textSize))
-                        .padding(.bottom, menuPadding)
-                    }
-                }
-                
-                if aboutInfo.logoImage != "" {
-                    ScaledImageView(imageName: aboutInfo.logoImage, scale: 0.5)
-                }
-            }
-        }
-    }
-    
-    /// Creates the menu for an attached gamepad.
-    /// - Returns: Returns a `GamepadMenu` containing all of the menu items.
-    func buildGamepadMenu() -> GamepadMenu {
-        
-        let menu = GamepadMenu(style: .cards)
-        
-        for action in MangaBook.shared.actionMenuItems {
-            if MangaWorks.evaluateCondition(action.condition) {
-                menu.addItem(title: MangaWorks.expandMacros(in: action.text)) {
-                    MangaWorks.runGraceScript(action.excute)
-                }
-            }
-        }
-        
-        return menu
-    }
 }
 
 #Preview {
-    MangaAboutView(aboutInfo: MangaAbout(programName: "Escape From Mystic Manor", copyright: "Copyright ® 2024 by Appracatappra, LLC.", logoImage: "AppraConjured").addEntry(text: "Many of the Figures and Environments 3D Models used throughout **Reed/Wright Cycle** were purchased from Daz 3D and rendered into the final still images used in the game.").addEntry(text: "Many of the sound effects and music used throughout **Reed/Wright Cycle** were acquired from FreeSoung.org under their free license with no attribution required."))
+    MangaHintsView()
 }

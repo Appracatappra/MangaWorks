@@ -495,6 +495,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     ///   - prefetchResourceTag: The ODR tag to prefetch.
     ///   - hintTag: The hint tag.
     public init(id:String, pageType:PageType, imageName:String = "", chapter:String = "", title:String = "", pageNumber:Int = 0, previousPage:String = "", nextPage:String = "", showStats:Bool = false, endGame:Bool = false, suppressReadings:Bool = false, map:String = "", blueprint:String = "", loadResourceTag:String = "", releaseResourceTag:String = "", prefetchResourceTag:String = "", hintTag:String = "") {
+        
         // Initialize
         self.id = id
         self.pageType = pageType
@@ -597,13 +598,14 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     /// Adds a new revealable hint to this location.
     /// - Parameters:
     ///   - text: The text of the hint.
-    ///   - karmaCost: The amount of karma that the hint will cost.
-    ///   - creditCost: The amount of credit that the hint will cost.
+    ///   - pointCost: The amount of points that the hint will cost.
+    ///   - beforeReveal: The Grace Script to run before revealing this hint.
+    ///   - onReveal: The grace script to run when this hint is revealed.
     /// - Returns: Returns self.
-    @discardableResult public func addHint(text:String, pointCost:Int = 0, creditCost:Int = 0) -> MangaPage {
+    @discardableResult public func addHint(text:String, pointCost:Int = 0, beforeReveal:String = "", onReveal:String = "") -> MangaPage {
         
         // Add new hint
-        hints.append(MangaPageHint(id:hints.count, text: text, pointCost: pointCost, creditCost: creditCost))
+        hints.append(MangaPageHint(id:hints.count, text: text, pointCost: pointCost, beforeReveal: beforeReveal, onReveal: onReveal))
         
         return self
     }

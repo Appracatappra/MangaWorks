@@ -26,8 +26,11 @@ import SimpleSerializer
     /// The point cost for the hint.
     public var pointCost:Int = 0
     
-    /// The credit cost for the hint.
-    public var creditCost:Int = 0
+    /// The Grace Script to run before revealing this hint.
+    public var beforeReveal:String = ""
+    
+    /// The grace script to run when this hint is revealed.
+    public var onReveal:String = ""
     
     // MARK: - Computed Properties
     /// Returns the object as a serialized string.
@@ -36,7 +39,8 @@ import SimpleSerializer
             .append(id)
             .append(text)
             .append(pointCost)
-            .append(creditCost)
+            .append(beforeReveal, isBase64Encoded: true)
+            .append(onReveal, isBase64Encoded: true)
         
         return serializer.value
     }
@@ -47,12 +51,14 @@ import SimpleSerializer
     ///   - id: The unique ID of the hint.
     ///   - text: The text of the hint.
     ///   - pointCost: The point cost for the hint.
-    ///   - creditCost: The credit cost for the hint.
-    public init(id:Int, text:String = "", pointCost:Int = 0, creditCost:Int = 0) {
+    ///   - beforeReveal: The Grace Script to run before revealing this hint.
+    ///   - onReveal: The grace script to run when this hint is revealed.
+    public init(id:Int, text:String = "", pointCost:Int = 0, beforeReveal:String = "", onReveal:String = "") {
         self.id = id
         self.text = text
         self.pointCost = pointCost
-        self.creditCost = creditCost
+        self.beforeReveal = beforeReveal
+        self.onReveal = onReveal
     }
     
     /// Creates a new instance.
@@ -63,6 +69,7 @@ import SimpleSerializer
         self.id = deserializer.int()
         self.text = deserializer.string()
         self.pointCost = deserializer.int()
-        self.creditCost = deserializer.int()
+        self.beforeReveal = deserializer.string(isBase64Encoded: true)
+        self.onReveal = deserializer.string(isBase64Encoded: true)
     }
 }

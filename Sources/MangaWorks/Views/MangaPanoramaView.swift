@@ -665,6 +665,12 @@ public struct MangaPanoramaView: View {
             Spacer()
             
             HStack {
+                if MangaBook.shared.currentPage.hints.count > 0 {
+                    Image(systemName: "questionmark.circle.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(MangaWorks.actionForegroundColor)
+                }
+                
                 if MangaBook.shared.pageHasItems(mangaPageID: page.id) {
                     Image(systemName: "giftcard.fill")
                         .font(.system(size: 18))
