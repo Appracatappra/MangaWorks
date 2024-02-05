@@ -4,6 +4,10 @@
 
 `MangaWorks` provides a collection of common controls for rendering interactive Manga `SwiftUI`.
 
+> **IMPORTANT!** If you using the **MangaWorks Game Engine** in a **Commercially Available App** ("NON FREE"), any **Free App** that includes **In-App Purchases**, or any **Free APP** that makes money off of **In-App Ads**, you will need to **Purchase a Licensed Copy** of the **MangaWorks Game Engine** from Appracatappra, LLC.
+>
+> The **MangaWorks Game Engine** may be used for free, without purchasing a license, under the following conditions: Independent Developers releasing a **Free App** (without any **In-App Purchase** or **Ad Supported Revenue**), **Non-Released Apps** for **Evaluation** and **Development** and **TestFlight Apps** released for **Development** and **Testing**.
+
 ## Support
 
 If you find `MangaWorks` useful and would like to help support its continued development and maintenance, please consider making a small donation, especially if you are using it in a commercial product:
