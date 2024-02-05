@@ -519,9 +519,9 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         self.hintTag = hintTag
         self.map = (map != "") ? map : MangaPage.defaultMap
         self.blueprints = (blueprint != "") ? blueprint : MangaPage.defaultBlueprint
-        self.loadResourceTag = MangaPage.defaultReleaseResourceTag
-        self.releaseResourceTag = MangaPage.defaultReleaseResourceTag
-        self.prefetchResourceTag = MangaPage.defaultPrefetchResourceTag
+        self.loadResourceTag = (loadResourceTag != "") ? loadResourceTag : MangaPage.defaultLoadResourceTag
+        self.releaseResourceTag = (releaseResourceTag != "") ? releaseResourceTag : MangaPage.defaultReleaseResourceTag
+        self.prefetchResourceTag = (prefetchResourceTag != "") ? prefetchResourceTag : MangaPage.defaultPrefetchResourceTag
     }
     
     /// Creates a new instance.
