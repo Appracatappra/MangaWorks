@@ -87,11 +87,12 @@ import SimpleSerializer
     /// Adds an action that the user can take.
     /// - Parameters:
     ///   - to: The side of the `MangaActionsView` to display the action in.
+    ///   - icon: An optional icon to display with the entry.
     ///   - text: The text of the action.
     ///   - condition: A condition written as a Grace Langauage macro that must be met before this action can be taken.
     ///   - actionHandler: The Grace Language script to execute when the user takes this action.
     /// - Returns: Returns self.
-    @discardableResult public func addAction(to:ActionChoiceSide, text:String, condition:String = "", actionHandler:String = "") -> MangaPageActions {
+    @discardableResult public func addAction(to:ActionChoiceSide, icon:String = "", text:String, condition:String = "", actionHandler:String = "") -> MangaPageActions {
         var id = 0
         
         switch to {
@@ -101,7 +102,7 @@ import SimpleSerializer
             id = rightSide.count + 10
         }
         
-        let action = MangaPageAction(id: id, text: text, condition: condition, excute: actionHandler)
+        let action = MangaPageAction(id: id, icon: icon, text: text, condition: condition, excute: actionHandler)
         
         switch to {
         case .left:
@@ -116,13 +117,14 @@ import SimpleSerializer
     /// Adds an action that the user can take.
     /// - Parameters:
     ///   - to: The side of the `MangaActionsView` to display the action in.
+    ///   - icon: An optional icon to display with the entry.
     ///   - text: The text of the action.
     ///   - soundEffect: An optional sound effect to play when the user takes the action.
     ///   - condition: A condition written as a Grace Langauage macro that must be met before this action can be taken.
     ///   - points: Optionally adjust the points if the user takes this action.
     ///   - nextMangaPageID: The next manga page to display if the user takes this action.
     /// - Returns: Returns self.
-    @discardableResult public func addAction(to:ActionChoiceSide, text:String, soundEffect:String = "", condition:String = "", points:Int = 0, nextMangaPageID:String) -> MangaPageActions {
+    @discardableResult public func addAction(to:ActionChoiceSide, icon:String = "", text:String, soundEffect:String = "", condition:String = "", points:Int = 0, nextMangaPageID:String) -> MangaPageActions {
         var id = 0
         
         switch to {
@@ -134,7 +136,7 @@ import SimpleSerializer
         
         let script = MangaPage.composeGraceScript(soundEffect: soundEffect, points: points, pageID: nextMangaPageID)
         
-        let action = MangaPageAction(id: id, text: text, condition: condition, excute: script)
+        let action = MangaPageAction(id: id, icon: icon, text: text, condition: condition, excute: script)
         
         switch to {
         case .left:

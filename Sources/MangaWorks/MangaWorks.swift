@@ -34,6 +34,15 @@ open class MangaWorks {
     }
     
     // MARK: Static Properties
+    /// The default font color for About Page Heder Items.
+    public static var aboutHeaderColor:Color = .white
+    
+    /// The default font color for About Page Body Items.
+    public static var aboutBodyColor:Color = .white
+    
+    /// The default font color for About Page Body Icon.
+    public static var aboutIconColor:Color = .white
+    
     /// The default font color for Manga Actions.
     public static var actionFontColor:Color = .white
     

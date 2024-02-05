@@ -77,14 +77,15 @@ import Observation
     // MARK: - Functions
     /// Adds an entry to the about box.
     /// - Parameters:
+    ///   - icon: An optional icon to display with the entry.
     ///   - text: The text of the entry to add.
     ///   - condition: A condition that must evaluate to `true` written as a Grace Language macro.
     ///   - excute: The Grace Language script to run when the user takes this action.
     /// - Returns: Returns Self.
-    @discardableResult public func addEntry(text:String, condition:String = "", excute:String = "") -> MangaAbout {
+    @discardableResult public func addEntry(icon:String = "", text:String, condition:String = "", excute:String = "") -> MangaAbout {
         let id = entries.count
         
-        let entry = MangaPageAction(id: id, text: text, condition: condition, excute: excute)
+        let entry = MangaPageAction(id: id, icon: icon, text: text, condition: condition, excute: excute)
         entries.append(entry)
         
         return self

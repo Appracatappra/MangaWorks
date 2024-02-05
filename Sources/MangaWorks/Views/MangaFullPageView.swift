@@ -13,6 +13,7 @@ import GraceLanguage
 import SwiftUIGamepad
 import SpriteKit
 import SoundManager
+import ODRManager
 
 /// Displays a full page image as the main contents of the page.
 public struct MangaFullPageView: View {
@@ -213,6 +214,18 @@ public struct MangaFullPageView: View {
             // Display gamepad required.
             if isGamepadRequired && !isGamepadConnected {
                 GamepadRequiredOverlay()
+            }
+            
+            // Display On-Demand Resource Loading.
+            if OnDemandResources.isLoadingResouces {
+                ODRContentLoadingOverlay(onLoadedSuccessfully: {
+                    // Handle the load completing ...
+                    OnDemandResources.isLoadingResouces = false
+                }, onCancelDownload: {
+                    // Handle the user wanting to cancel the download ...
+                    OnDemandResources.isLoadingResouces = false
+                    MangaBook.shared.changeView(viewID: "[COVER]")
+                })
             }
         }
         .onAppear {

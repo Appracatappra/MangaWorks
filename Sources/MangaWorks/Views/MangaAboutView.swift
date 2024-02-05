@@ -126,6 +126,29 @@ public struct MangaAboutView: View {
         }
     }
     
+    private var iconSize:Float {
+        switch HardwareInformation.screenWidth {
+        case 744:
+            return 24
+        case 1024:
+            return 24
+        default:
+            //Debug.log(">>>> Screen Width: \(HardwareInformation.screenWidth)")
+            if HardwareInformation.isPhone {
+                return 20
+            } else if HardwareInformation.isPad {
+                switch HardwareInformation.deviceOrientation {
+                case .landscapeLeft, .landscapeRight:
+                    return 20
+                default:
+                    return 32
+                }
+            } else {
+                return 24
+            }
+        }
+    }
+    
     /// The card width.
     private var cardWidth:Float {
         return Float(HardwareInformation.screenHalfWidth - 100)
@@ -268,8 +291,9 @@ public struct MangaAboutView: View {
             VStack {
                 Text(markdown: aboutInfo.aboutName)
                     .font(ComicFonts.Troika.ofSize(48))
-                    .foregroundColor(.black)
+                    .foregroundColor(MangaWorks.aboutHeaderColor)
                     .padding(.top)
+                    .stroke(color: .black)
                 
                 // The right side menus.
                 if isGamepadConnected {
@@ -360,9 +384,18 @@ public struct MangaAboutView: View {
             VStack {
                 ForEach(aboutInfo.entries) {action in
                     if MangaWorks.evaluateCondition(action.condition) {
-                        Text(markdown: MangaWorks.expandMacros(in: action.text))
-                            .foregroundColor(.black)
-                            .font(ComicFonts.Komika.ofSize(textSize))
+                        HStack {
+                            let icon = MangaWorks.expandMacros(in: action.icon)
+                            if icon != "" {
+                                Image(systemName: icon)
+                                    .font(.system(size: CGFloat(iconSize)))
+                                    .foregroundColor(MangaWorks.aboutIconColor)
+                            }
+                            
+                            Text(markdown: MangaWorks.expandMacros(in: action.text))
+                                .foregroundColor(MangaWorks.aboutBodyColor)
+                                .font(ComicFonts.Komika.ofSize(textSize))
+                        }
                         .padding(.bottom, menuPadding)
                     }
                 }

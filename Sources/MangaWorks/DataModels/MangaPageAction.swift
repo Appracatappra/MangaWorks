@@ -17,6 +17,9 @@ import SimpleSerializer
     /// The unique ID of the action.
     public var id:Int = 0
     
+    /// An optional icon to display with the entry.
+    public var icon:String = ""
+    
     /// The text description of the action.
     public var text:String = ""
     
@@ -36,6 +39,7 @@ import SimpleSerializer
     public var serialized: String {
         let serializer = Serializer(divider: Divider.action)
             .append(id)
+            .append(icon)
             .append(text)
             .append(condition, isBase64Encoded: true)
             .append(excute, isBase64Encoded: true)
@@ -47,12 +51,14 @@ import SimpleSerializer
     /// Creates a new instance.
     /// - Parameters:
     ///   - id: The unique ID of the action.
+    ///   - icon: An optional icon to display with the entry.
     ///   - text: The text description of the action.
     ///   - condition: A condition that must evaluate to `true` written as a Grace Language macro.
     ///   - excute: The Grace Language script to run when the user takes this action.
-    public init(id:Int, text:String, condition:String = "", excute:String = "") {
+    public init(id:Int, icon:String = "", text:String, condition:String = "", excute:String = "") {
         // Initialize
         self.id = id
+        self.icon = icon
         self.text = text
         self.excute = excute
         self.condition = condition
@@ -64,6 +70,7 @@ import SimpleSerializer
         let deserializer = Deserializer(text: value, divider: Divider.action)
         
         self.id = deserializer.int()
+        self.icon = deserializer.string()
         self.text = deserializer.string()
         self.condition = deserializer.string(isBase64Encoded: true)
         self.excute = deserializer.string(isBase64Encoded: true)
