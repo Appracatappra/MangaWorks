@@ -63,6 +63,9 @@ public struct MangaPanelsView: View {
     /// Holds a buffer that allows the image to be fully scrollable and the zoom level changes.
     @State private var zoomBuffer:CGFloat = CGFloat(0.0)
     
+    /// HACK: I need this key to force a redraw of the entire SwiftUI view chain.
+    @State var redrawKey:String = ""
+    
     // MARK: - Computed Properties
     /// Returns the size of the footer text.
     private var footerTextSize:Float {
@@ -285,44 +288,8 @@ public struct MangaPanelsView: View {
     /// The body of the control.
     public var body: some View {
         ZStack {
-            MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: false, borderColor: borderColor, backgroundColor: backgroundColor) {
-                pageBodyContents(orientation: screenOrientation, layerVisibility: MangaBook.shared.layerVisibility)
-            }
-            #if os(iOS)
-            .statusBar(hidden: true)
-            #endif
-            
-            MangaPageOverlayView(uniqueID: uniqueID) {
-                pageOverlayContents()
-            }
-            
-            // Display details.
-            if MangaBook.shared.showDetailView {
-                MangaDetailsOverlay(detailsTitle: MangaBook.shared.detailTitle, detailsText: MangaBook.shared.detailText, isGamepadConnected: $isGamepadConnected)
-                    .ignoresSafeArea()
-            }
-            
-            // Display gamepad help
-            if showGamepadHelp {
-                GamepadHelpOverlay()
-            }
-            
-            // Display gamepad required.
-            if isGamepadRequired && !isGamepadConnected {
-                GamepadRequiredOverlay()
-            }
-            
-            // Display On-Demand Resource Loading.
-            if OnDemandResources.isLoadingResouces {
-                ODRContentLoadingOverlay(onLoadedSuccessfully: {
-                    // Handle the load completing ...
-                    OnDemandResources.isLoadingResouces = false
-                }, onCancelDownload: {
-                    // Handle the user wanting to cancel the download ...
-                    OnDemandResources.isLoadingResouces = false
-                    MangaBook.shared.changeView(viewID: "[COVER]")
-                })
-            }
+            // HACK: I'm updating `redrawkey` when I need to force the entire view to redraw.
+            outerContentContainer(reloadKey: redrawKey)
         }
         .onAppear {
             // Connect to gamepad
@@ -393,6 +360,51 @@ public struct MangaPanelsView: View {
     }
     
     // MARK: - Functions
+    /// Holds the outer most contents of the view.
+    /// - Parameter reloadKey: Change this key when you want the entire view to redraw.
+    /// - Returns: A View containing the main contents of the screen.
+    @ViewBuilder func outerContentContainer(reloadKey:String) -> some View {
+        MangaPageContainerView(uniqueID: uniqueID, isGamepadConnected: isGamepadConnected, isFullPage: false, borderColor: borderColor, backgroundColor: backgroundColor) {
+            pageBodyContents(orientation: screenOrientation, layerVisibility: MangaBook.shared.layerVisibility)
+        }
+        #if os(iOS)
+        .statusBar(hidden: true)
+        #endif
+        
+        MangaPageOverlayView(uniqueID: uniqueID) {
+            pageOverlayContents()
+        }
+        
+        // Display details.
+        if MangaBook.shared.showDetailView {
+            MangaDetailsOverlay(detailsTitle: MangaBook.shared.detailTitle, detailsText: MangaBook.shared.detailText, isGamepadConnected: $isGamepadConnected)
+                .ignoresSafeArea()
+        }
+        
+        // Display gamepad help
+        if showGamepadHelp {
+            GamepadHelpOverlay()
+        }
+        
+        // Display gamepad required.
+        if isGamepadRequired && !isGamepadConnected {
+            GamepadRequiredOverlay()
+        }
+        
+        // Display On-Demand Resource Loading.
+        if OnDemandResources.isLoadingResouces {
+            ODRContentLoadingOverlay(onLoadedSuccessfully: {
+                // Handle the load completing ...
+                OnDemandResources.isLoadingResouces = false
+                redrawKey = UUID().uuidString
+            }, onCancelDownload: {
+                // Handle the user wanting to cancel the download ...
+                OnDemandResources.isLoadingResouces = false
+                MangaBook.shared.changeView(viewID: "[COVER]")
+            })
+        }
+    }
+    
     /// Draws the contents of the page.
     /// - Parameter orientation: The current screen orientation.
     /// - Returns: Returns a view containing the body.
