@@ -1349,6 +1349,9 @@ import ODRManager
         case "[BATTLE]":
             changeView(viewID: "[BATTLE]")
             return
+        case "[STOREFRONT]":
+            changeView(viewID: "[STOREFRONT]")
+            return
         default:
             break
         }
@@ -1438,9 +1441,6 @@ import ODRManager
         
         // Execute any startup scripts
         MangaWorks.runGraceScript(page.onLoadAction)
-        
-        // Are there any monsters on this page?
-        
         
         // Request the app to show the page
         if isMonsterOnPage(mangaPageID: page.id) {

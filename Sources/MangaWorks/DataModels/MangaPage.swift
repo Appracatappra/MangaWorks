@@ -50,6 +50,20 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     public static var defaultBlueprint:String = ""
     
     // MARK: - Static Functions
+    /// Return all of the default variables to there default settings.
+    public static func resetDefaults() {
+        MangaPage.defaultBackgroundMusic = ""
+        MangaPage.defaultBackgroundSound = ""
+        MangaPage.defaultWeather = .clear
+        MangaPage.defaultChapter = ""
+        MangaPage.defaultLoadResourceTag = ""
+        MangaPage.defaultReleaseResourceTag = ""
+        MangaPage.defaultPrefetchResourceTag = ""
+        MangaPage.defaultHasFunctionsMenu = true
+        MangaPage.defaultMap = ""
+        MangaPage.defaultBlueprint = ""
+    }
+    
     // !!!: Text To Speach
     /// Reads the given text in the given voice.
     /// - Parameters:
