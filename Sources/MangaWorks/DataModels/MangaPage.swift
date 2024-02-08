@@ -740,7 +740,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         let script = MangaPage.composeGraceScript(soundEffect: soundEffect, points: points, pageID: nextMangaPageID, visibility: visibility)
         
         // Add new interaction point
-        interactions.append(MangaPageInteraction(action: action, title: title, displayElement: visibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: script, soundEffect: soundEffect))
+        interactions.append(MangaPageInteraction(action: action, title: title, displayElement: visibility, pitch: pitch, yaw: yaw, notebookID: notebookID, notebookTitle: notebookTitle, notebookEntry: notebookEntry, notebookImage: notebookImage, condition: condition, handler: script))
         
         return self
     }

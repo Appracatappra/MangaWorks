@@ -659,7 +659,7 @@ public struct MangaPanoramaView: View {
         }
         
         if interaction.soundEffect != "" {
-            SoundManager.shared.playSoundEffect(path: interaction.soundEffect, channel: .channel03)
+            SoundManager.shared.playSoundEffect(sound: interaction.soundEffect, channel: .channel03)
         }
         
         MangaWorks.runGraceScript(interaction.handler)
