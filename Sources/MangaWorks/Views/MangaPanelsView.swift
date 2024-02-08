@@ -503,6 +503,33 @@ public struct MangaPanelsView: View {
             
             Spacer()
             
+            HStack {
+                if MangaBook.shared.currentPage.hints.count > 0 {
+                    Image(systemName: "questionmark.circle.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(MangaWorks.actionForegroundColor)
+                }
+                
+                if MangaBook.shared.pageHasItems(mangaPageID: page.id) {
+                    Image(systemName: "giftcard.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(MangaWorks.actionForegroundColor)
+                }
+                
+                if page.map != "" {
+                    Image(systemName: "map.circle")
+                        .font(.system(size: 18))
+                        .foregroundColor(MangaWorks.actionForegroundColor)
+                }
+                
+                if page.blueprints != "" {
+                    Image(systemName: "building.2.crop.circle")
+                        .font(.system(size: 18))
+                        .foregroundColor(MangaWorks.actionForegroundColor)
+                }
+            }
+            .padding(.trailing, 30)
+            
             if page.nextPage != "" {
                 MangaButton(title: "Next >", fontSize: MangaPageScreenMetrics.controlButtonFontSize) {
                     SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Flag2_TurnPage", ofType: "mp3"), channel: .channel03)

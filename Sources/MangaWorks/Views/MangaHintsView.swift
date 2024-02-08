@@ -313,8 +313,9 @@ public struct MangaHintsView: View {
             VStack {
                 Text(markdown: "Hints")
                     .font(ComicFonts.Troika.ofSize(48))
-                    .foregroundColor(.white)
+                    .foregroundColor(MangaWorks.aboutHeaderColor)
                     .padding(.top)
+                    .stroke(color: .black)
                 
                 ScrollView {
                     VStack {
@@ -322,7 +323,7 @@ public struct MangaHintsView: View {
                             if hint.id <= index {
                                 Text(markdown: "\(hint.id + 1)) \(MangaWorks.expandMacros(in: hint.text))")
                                     .font(ComicFonts.Komika.ofSize(32))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(MangaWorks.aboutBodyColor)
                                     .multilineTextAlignment(.center)
                                     .padding(.horizontal, hintPadding)
                             }
@@ -330,7 +331,7 @@ public struct MangaHintsView: View {
                         
                         Text(markdown: "Hint \(index + 1) of \(MangaBook.shared.currentPage.hints.count)")
                             .font(ComicFonts.Komika.ofSize(18))
-                            .foregroundColor(.white)
+                            .foregroundColor(MangaWorks.aboutIconColor)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, hintPadding)
                     }
@@ -360,7 +361,7 @@ public struct MangaHintsView: View {
                     
                     Text(markdown: "Next Hint Costs: \(hint.pointCost) Points")
                         .font(ComicFonts.Komika.ofSize(24))
-                        .foregroundColor(.white)
+                        .foregroundColor(MangaWorks.aboutHeaderColor)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal)
                 }

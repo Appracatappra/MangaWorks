@@ -120,7 +120,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         
         // Has sound effects?
         if soundEffect != "" {
-            script += "call @playSoundEffect('\(soundEffect)', 3); "
+            script += "call @playSoundEffect('\(soundEffect)', 4); "
         }
         
         // Modifies points?
@@ -130,7 +130,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         
         // Change page?
         if pageID != "" {
-            script += "call @changePage('\(pageID)');"
+            script += "call @changePage('\(pageID)'); "
         }
         
         // Change layer visibility?
