@@ -486,6 +486,29 @@ import ODRManager
             
             return nil
         }
+        
+        // Add pageHasNPC
+        compiler.register(name: "pageHasNPC", parameterNames: [], parameterTypes: [], returnType: .bool) { parameters in
+            var value = ""
+            
+            value = "\(MangaBook.shared.currentPage.hasNPC)"
+            
+            return GraceVariable(name: "result", value: value, type: .bool)
+        }
+        
+        // Add triggerNPCConversation
+        compiler.register(name: "triggerNPCConversation", parameterNames: [], parameterTypes: []) { parameters in
+            
+            let npc = MangaBook.shared.currentPage.npc
+            if npc.id != "" {
+                if npc.theme == 0 || npc.theme == MangaBook.shared.getStateInt(key: "Theme") {
+                    let avatar = MangaBook.shared.getStateString(key: npc.id)
+                    MangaBook.shared.displayPage(id: "\(npc.conversationPage)\(avatar)")
+                }
+            }
+            
+            return nil
+        }
     }
     
     // MARK: - Enumerations

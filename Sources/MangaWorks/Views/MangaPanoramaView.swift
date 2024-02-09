@@ -703,6 +703,12 @@ public struct MangaPanoramaView: View {
                         .foregroundColor(MangaWorks.actionForegroundColor)
                 }
                 
+                if MangaBook.shared.currentPage.hasNPC {
+                    Image(systemName: "person.circle.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(MangaWorks.actionForegroundColor)
+                }
+                
                 if page.map != "" {
                     Image(systemName: "map.circle")
                         .font(.system(size: 18))

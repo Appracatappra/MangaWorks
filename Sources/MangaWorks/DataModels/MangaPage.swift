@@ -342,6 +342,9 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     /// Holds any note attached to this location.
     public var note:MangaNotebookEntry = MangaNotebookEntry()
     
+    /// Holds a potential NPC conversation for this location.
+    public var npc:MangaPageNPC = MangaPageNPC(theme: 0, id: "", conversationPage: "")
+    
     /// The last caption read.
     public var lastReadCaptions:String = ""
     
@@ -390,6 +393,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
             .append(map)
             .append(blueprints)
             .append(note)
+            .append(npc)
         
         return serializer.value
     }
@@ -489,6 +493,24 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         }
     }
     
+    /// If `true` there is a NPC conversation at this location.
+    public var hasNPC:Bool {
+        
+        if npc.id != "" {
+            let theme = MangaBook.shared.getStateInt(key: "Theme")
+            if npc.theme == 0 || npc.theme == theme {
+                let npcID = MangaBook.shared.getStateString(key: npc.id)
+                if npcID != "" {
+                    if !MangaBook.shared.getStateBool(key: "\(npc.id)Dead") {
+                        return true
+                    }
+                }
+            }
+        }
+        
+        return false
+    }
+    
     // MARK: - Initializers
     /// Creates a new instance.
     /// - Parameters:
@@ -581,6 +603,7 @@ open class MangaPage: Identifiable, SimpleSerializeable {
         self.map = deserializer.string()
         self.blueprints = deserializer.string()
         self.note = deserializer.child()
+        self.npc = deserializer.child()
         
         // Finalize
         if let conversationA {
@@ -788,6 +811,19 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     ///   - entry: The body of the entry.
     @discardableResult public func addNote(notebookID: String = "", image: String = "", title: String = "", entry: String = "") -> MangaPage {
         note = MangaNotebookEntry(notebookID: notebookID, image: image, title: title, entry: entry)
+        
+        return self
+    }
+    
+    // !!!: NPC Conversations
+    /// Adds an NPC conversation to this page.
+    /// - Parameters:
+    ///   - theme: The theme that the NPC should be triggered for. Zero will match any theme.
+    ///   - id: The unique ID of the NPC.
+    ///   - conversationPage: The address of the page that holds the conversation.
+    /// - Returns: self.
+    @discardableResult public func addNPC(theme: Int, id: String, conversationPage: String) -> MangaPage {
+        npc = MangaPageNPC(theme: theme, id: id, conversationPage: conversationPage)
         
         return self
     }
