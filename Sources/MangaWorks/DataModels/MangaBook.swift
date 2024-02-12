@@ -864,7 +864,7 @@ import ODRManager
     /// Takes the given item from available inventory and places it in the player's inventory.
     /// - Parameters:
     ///   - id: The ID of the item to take.
-    ///   - key: The optional trigger location  that the item has come from.
+    ///   - key: The optional trigger location that the item has come from.
     ///   - addToInventory: If `true`, the selected item is added to the player's inventory, else it is discarded.
     ///   - allowReuse: If `true`, an item can be taken again, else it cannot.
     /// - Returns: Returns the item pulled if found, else returns `nil`.
@@ -1076,7 +1076,11 @@ import ODRManager
             
             // Yes, request the chapter be built
             if let onRequestExternalChapter {
-                return onRequestExternalChapter(id)
+                let chapter = onRequestExternalChapter(id)
+                if let chapter {
+                    chapters.append(chapter)
+                }
+                return chapter
             }
         }
         
@@ -1424,6 +1428,13 @@ import ODRManager
                 Debug.info(subsystem: "MasterDataStore", category: "On Demand Resource", "Loading: \(OnDemandResources.loadResourceTag)")
                 OnDemandResources.lastResourceLoadError = ""
                 OnDemandResources.isLoadingResouces = true
+            
+                // Prerequest the display of the page so that the ORD loading status is visible.
+                if let onRequestDisplayPage = self.onRequestDisplayPage {
+                    Execute.onMain {
+                        onRequestDisplayPage(page)
+                    }
+                }
             }, onSuccess: {
                 Debug.info(subsystem: "MasterDataStore", category: "On Demand Resource", "Content Loaded: \(OnDemandResources.loadResourceTag)")
                 OnDemandResources.lastResourceLoadError = ""
