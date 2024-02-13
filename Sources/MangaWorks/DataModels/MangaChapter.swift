@@ -117,7 +117,7 @@ import Observation
                                 if count >= 30 {
                                  count = 0
                                 }
-                                MangaBook.shared.setStateInt(key: trigger, value: count)
+                                MangaBook.shared.setState(key: trigger, value: count)
                             }
                         }
                     }

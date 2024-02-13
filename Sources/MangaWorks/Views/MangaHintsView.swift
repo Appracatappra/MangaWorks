@@ -136,14 +136,14 @@ public struct MangaHintsView: View {
     
     /// Gets the inset for the comic page.
     private var insetHorizontal:CGFloat {
-        switch HardwareInformation.screenWidth {
-        case 375:
-            return CGFloat(80.0)
-        default:
-            if HardwareInformation.isPhone {
-                return CGFloat(50.0)
-            } else {
-                return CGFloat(90.0)
+        if HardwareInformation.isPhone {
+            return 50
+        } else {
+            switch HardwareInformation.deviceOrientation {
+            case .landscapeLeft, .landscapeRight:
+                return 100
+            default:
+               return 90
             }
         }
     }
@@ -189,6 +189,36 @@ public struct MangaHintsView: View {
             return 20
         } else {
             return 50
+        }
+    }
+    
+    var headingSize:Float {
+        if HardwareInformation.isPhone {
+            return 32
+        } else if HardwareInformation.isPad {
+            switch HardwareInformation.deviceOrientation {
+            case .landscapeLeft, .landscapeRight:
+                return 32
+            default:
+                return 48
+            }
+        } else {
+            return 48
+        }
+    }
+    
+    var hintBodySize:Float {
+        if HardwareInformation.isPhone {
+            return 14
+        } else if HardwareInformation.isPad {
+            switch HardwareInformation.deviceOrientation {
+            case .landscapeLeft, .landscapeRight:
+                return 16
+            default:
+                return 18
+            }
+        } else {
+            return 18
         }
     }
     
@@ -285,13 +315,13 @@ public struct MangaHintsView: View {
             if hint.pointCost > 0 {
                 var points = MangaBook.shared.getStateInt(key: "Points")
                 points -= hint.pointCost
-                MangaBook.shared.setStateInt(key: "Points", value: points)
+                MangaBook.shared.setState(key: "Points", value: points)
             }
             
             // Adjust index
             index += 1
             let tag = MangaBook.shared.currentPage.hintTag
-            MangaBook.shared.setStateInt(key: tag, value: index)
+            MangaBook.shared.setState(key: tag, value: index)
             MangaBook.shared.requestSaveState()
             
             if hint.onReveal != "" {
@@ -312,7 +342,7 @@ public struct MangaHintsView: View {
             
             VStack {
                 Text(markdown: "Hints")
-                    .font(ComicFonts.Troika.ofSize(48))
+                    .font(ComicFonts.Troika.ofSize(headingSize))
                     .foregroundColor(MangaWorks.aboutHeaderColor)
                     .padding(.top)
                     .stroke(color: .black)
@@ -330,13 +360,14 @@ public struct MangaHintsView: View {
                         }
                         
                         Text(markdown: "Hint \(index + 1) of \(MangaBook.shared.currentPage.hints.count)")
-                            .font(ComicFonts.Komika.ofSize(18))
+                            .font(ComicFonts.Komika.ofSize(hintBodySize))
                             .foregroundColor(MangaWorks.aboutIconColor)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, hintPadding)
                     }
+                    .frame(width: MangaPageScreenMetrics.screenHalfWidth - insetHorizontal)
                 }
-                .frame(width: MangaPageScreenMetrics.screenWidth - insetHorizontal)
+                //.frame(width: MangaPageScreenMetrics.screenWidth - insetHorizontal)
                 
                 // The right side menus.
                 if isGamepadConnected {

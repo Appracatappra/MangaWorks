@@ -252,7 +252,7 @@ import ODRManager
                             } else if num > upperLimit.int {
                                 num = upperLimit.int
                             }
-                            MangaBook.shared.setStateInt(key: key.string, value: num)
+                            MangaBook.shared.setState(key: key.string, value: num)
                         }
                     }
                 }
@@ -1605,7 +1605,7 @@ import ODRManager
     /// - Parameters:
     ///   - key: The key of the state to set.
     ///   - value: The new value.
-    public func setStateInt(key:String, value:Int) {
+    public func setState(key:String, value:Int) {
         setStateString(key: key, value: "\(value)")
     }
     
