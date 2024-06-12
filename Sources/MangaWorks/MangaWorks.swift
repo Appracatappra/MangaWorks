@@ -35,82 +35,82 @@ open class MangaWorks {
     
     // MARK: Static Properties
     /// The default font color for About Page Heder Items.
-    public static var aboutHeaderColor:Color = .white
+    public nonisolated(unsafe) static var aboutHeaderColor:Color = .white
     
     /// The default font color for About Page Body Items.
-    public static var aboutBodyColor:Color = .white
+    public nonisolated(unsafe) static var aboutBodyColor:Color = .white
     
     /// The default font color for About Page Body Icon.
-    public static var aboutIconColor:Color = .white
+    public nonisolated(unsafe) static var aboutIconColor:Color = .white
     
     /// The default font color for Manga Actions.
-    public static var actionFontColor:Color = .white
+    public nonisolated(unsafe) static var actionFontColor:Color = .white
     
     /// The default action title color.
-    public static var actionTitleColor:Color = Color(fromHex: "#1F0A39")!
+    public nonisolated(unsafe) static var actionTitleColor:Color = Color(fromHex: "#1F0A39")!
     
     /// The default background color for Manga Actions.
-    public static var actionBackgroundColor:Color = Color(fromHex: "#8D52AF")!
+    public nonisolated(unsafe) static var actionBackgroundColor:Color = Color(fromHex: "#8D52AF")!
     
     /// The default selected color for Manga Actions.
-    public static var actionSelectedBackgroundColor:Color = Color(fromHex: "#EB244F")!
+    public nonisolated(unsafe) static var actionSelectedBackgroundColor:Color = Color(fromHex: "#EB244F")!
     
     /// The default border color for Manga Actions.
-    public static var actionBorderColor:Color = Color(fromHex: "#533169")!
+    public nonisolated(unsafe) static var actionBorderColor:Color = Color(fromHex: "#533169")!
     
     /// The default selected border color for Manga Actions.
-    public static var actionSelectedBorderColor:Color = .white
+    public nonisolated(unsafe) static var actionSelectedBorderColor:Color = .white
     
     /// The default foreground color for Manga Actions.
-    public static var actionForegroundColor:Color = Color(fromHex: "#8D52AF")!
+    public nonisolated(unsafe) static var actionForegroundColor:Color = Color(fromHex: "#8D52AF")!
     
     /// The default highlight color for Manga Actions.
-    public static var actionHighlightColor:Color = Color(fromHex: "#EB004F")!
+    public nonisolated(unsafe) static var actionHighlightColor:Color = Color(fromHex: "#EB004F")!
     
     /// The default menu gradient colors.
-    public static var menuGradient:[Color] = [Color(fromHex: "#502670")!, Color(fromHex: "#8D43C3")!, Color(fromHex: "#F88C00")!]
+    public nonisolated(unsafe) static var menuGradient:[Color] = [Color(fromHex: "#502670")!, Color(fromHex: "#8D43C3")!, Color(fromHex: "#F88C00")!]
     
     /// The default border on word art text.
-    public static var wordArtBorderColor:Color = .black
+    public nonisolated(unsafe) static var wordArtBorderColor:Color = .black
     
     /// The default menu background color.
-    public static var menuBackgroundColor: Color = Color(fromHex: "#290541")!
+    public nonisolated(unsafe) static var menuBackgroundColor: Color = Color(fromHex: "#290541")!
     
     /// The default control button gradient colors.
-    public static var controlButtonGradient:[Color] = [Color(fromHex: "#533169")!, Color(fromHex: "#533169")!]
+    public nonisolated(unsafe) static var controlButtonGradient:[Color] = [Color(fromHex: "#533169")!, Color(fromHex: "#533169")!]
     
     /// The default menu selected gradient colors.
-    public static var menuSelectedGradient:[Color] = [Color(fromHex: "#EB004F")!, Color(fromHex: "#EB004F")!]
+    public nonisolated(unsafe) static var menuSelectedGradient:[Color] = [Color(fromHex: "#EB004F")!, Color(fromHex: "#EB004F")!]
     
     /// The default control enabled  color.
-    public static var controlEnabledColor: Color = Color(fromHex: "#EB004F")!
+    public nonisolated(unsafe) static var controlEnabledColor: Color = Color(fromHex: "#EB004F")!
     
     /// The default control disabled color.
-    public static var controlDisabledColor: Color = .gray
+    public nonisolated(unsafe) static var controlDisabledColor: Color = .gray
     
     /// The default control foreground color.
-    public static var controlForegroundColor: Color = Color(fromHex: "#8D52AF")!
+    public nonisolated(unsafe) static var controlForegroundColor: Color = Color(fromHex: "#8D52AF")!
     
     /// The default control background color.
-    public static var controlBackgroundColor: Color = Color(fromHex: "#8D52AF")!
+    public nonisolated(unsafe) static var controlBackgroundColor: Color = Color(fromHex: "#8D52AF")!
     
     /// The default control selected background color.
-    public static var controlBackgroundSelectedColor: Color = Color(fromHex: "#EB244F")!
+    public nonisolated(unsafe) static var controlBackgroundSelectedColor: Color = Color(fromHex: "#EB244F")!
     
     /// The default control border color.
-    public static var controlBorderColor: Color = Color(fromHex: "#533169")!
+    public nonisolated(unsafe) static var controlBorderColor: Color = Color(fromHex: "#533169")!
     
     /// The default conversation foreground color.
-    public static var conversationForegroundColor: Color = .white
+    public nonisolated(unsafe) static var conversationForegroundColor: Color = .white
     
     /// The default conversation background color.
-    public static var conversationBackgroundColor: Color = .black.opacity(0.68)
+    public nonisolated(unsafe) static var conversationBackgroundColor: Color = .black.opacity(0.68)
     
     /// The default avatar image used in input screens.
-    public static var inputAvatarImage:String = ""
+    public nonisolated(unsafe) static var inputAvatarImage:String = ""
     
     /// The default background image used in input controls.
-    public static var inputBackgroundImage:String = ""
+    public nonisolated(unsafe) static var inputBackgroundImage:String = ""
     
     // MARK: - Static Functions
     /// Gets the path to the requested resource stored in the Swift Package's Bundle.

@@ -20,34 +20,34 @@ open class MangaPage: Identifiable, SimpleSerializeable {
     
     // MARK: - Static Properties
     /// Defines the default background music that will be applied to any new location created.
-    public static var defaultBackgroundMusic:String = ""
+    public nonisolated(unsafe) static var defaultBackgroundMusic:String = ""
     
     /// Defines the default background sound that will be applied to any new location created.
-    public static var defaultBackgroundSound:String = ""
+    public nonisolated(unsafe) static var defaultBackgroundSound:String = ""
     
     /// Defines the default weather that will be applied to any new location created.
-    public static var defaultWeather:WeatherSystem = .clear
+    public nonisolated(unsafe) static var defaultWeather:WeatherSystem = .clear
     
     /// Defines the default level that will be applied to any new location created.
-    public static var defaultChapter:String = ""
+    public nonisolated(unsafe) static var defaultChapter:String = ""
     
     /// Defines the default resource tag that all locations will be loaded from.
-    public static var defaultLoadResourceTag:String = ""
+    public nonisolated(unsafe) static var defaultLoadResourceTag:String = ""
     
     /// Defines the default resource tag that will be released for all locations.
-    public static var defaultReleaseResourceTag:String = ""
+    public nonisolated(unsafe) static var defaultReleaseResourceTag:String = ""
     
     /// Defines the default resource tag that will be prefetched for all locations.
-    public static var defaultPrefetchResourceTag:String = ""
+    public nonisolated(unsafe) static var defaultPrefetchResourceTag:String = ""
     
     /// Defines the default for showning the functions menu in all locations.
-    public static var defaultHasFunctionsMenu:Bool = true
+    public nonisolated(unsafe) static var defaultHasFunctionsMenu:Bool = true
     
     /// Defines the default map for all locations.
-    public static var defaultMap:String = ""
+    public nonisolated(unsafe) static var defaultMap:String = ""
     
     /// Defines the default blueprint for all locations.
-    public static var defaultBlueprint:String = ""
+    public nonisolated(unsafe)static var defaultBlueprint:String = ""
     
     // MARK: - Static Functions
     /// Return all of the default variables to there default settings.

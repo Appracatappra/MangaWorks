@@ -38,7 +38,7 @@ import ODRManager
     
     // MARK: - Static Properties
     /// A shared instance of the `MangaBook` object.
-    public static var shared:MangaBook = MangaBook()
+    public nonisolated(unsafe) static let shared:MangaBook = MangaBook()
     
     /// If `true`, the collection of `MangaChapters` will be included in the serialized results.
     public static var serializeStateOnly:Bool = true
