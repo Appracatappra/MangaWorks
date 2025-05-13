@@ -31,7 +31,7 @@ import SimpleSerializer
     
     // MARK: - Computed Properties
     /// Returns a `MangaActionView` for this action.
-    public var view:MangaActionView {
+    @MainActor public var view:MangaActionView {
         return MangaActionView(text: text, action: excute)
     }
     

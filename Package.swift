@@ -1,4 +1,4 @@
-// swift-tools-version: 6.0
+// swift-tools-version: 6.1
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
 import PackageDescription
@@ -32,7 +32,10 @@ let package = Package(
         .target(
             name: "MangaWorks",
             dependencies: ["LogManager", "SwiftletUtilities", "SoundManager", "SimpleSerializer", "GraceLanguage", "SwiftUIKit", "SpeechManager", "SwiftUIGamepad", "SwiftUIPanoramaViewer", "ODRManager"],
-            resources: [.process("Resources"), .process("Fonts"), .process("Sprites"), .process("Dice")]
+            resources: [.process("Resources"), .process("Fonts"), .process("Sprites"), .process("Dice")],
+            swiftSettings: [
+                .swiftLanguageMode(.v6)
+            ]
         ),
         .testTarget(
             name: "MangaWorksTests",

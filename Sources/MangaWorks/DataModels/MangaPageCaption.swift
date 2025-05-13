@@ -67,7 +67,7 @@ import SimpleSerializer
     
     // MARK: - Computed Properties
     /// Returns a `MangaCaptionView` representing the caption.
-    public var view:some View {
+    @MainActor public var view:some View {
         animation.reset()
         return MangaCaptionView(caption: caption, font:font, fontSize: fontSize * HardwareInformation.deviceRatioWidth, fontColor: fontColor, backgroundColor: backgroundColor, boxWidth: boxWidth * HardwareInformation.deviceRatioWidth, xOffset: xOffset * HardwareInformation.deviceRatioWidth, yOffset: yOffset * HardwareInformation.deviceRatioHeight).environmentObject(animation)
     }

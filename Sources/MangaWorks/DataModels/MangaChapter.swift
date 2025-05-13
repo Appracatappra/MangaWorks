@@ -47,7 +47,9 @@ import Observation
         // Add handleLayerChange
         compiler.register(name: "handleLayerChange", parameterNames: [], parameterTypes: []) { parameters in
             
-            MangaChapter.handleLayerChange()
+            Task {@MainActor in
+                MangaChapter.handleLayerChange()
+            }
             
             return nil
         }
@@ -129,7 +131,7 @@ import Observation
     }
     
     /// Handles the layer changing on a page.
-    public static func handleLayerChange() {
+    @MainActor public static func handleLayerChange() {
         let page = MangaBook.shared.currentPage
         
         Execute.onMain {

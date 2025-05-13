@@ -64,7 +64,7 @@ import SimpleSerializer
     
     // MARK: - Computed Properties
     /// Returns a `MangaWordArtView` representing this word art object.
-    public var view:some View {
+    @MainActor public var view:some View {
         animation.reset()
         return MangaWordArtView(title: title, font: font, fontSize: fontSize * HardwareInformation.deviceRatioWidth, gradientColors: gradientColors, rotationDegrees: rotationDegrees, shadowed: shadowed, xOffset: xOffset * HardwareInformation.deviceRatioWidth, yOffset: yOffset * HardwareInformation.deviceRatioWidth).environmentObject(animation)
     }

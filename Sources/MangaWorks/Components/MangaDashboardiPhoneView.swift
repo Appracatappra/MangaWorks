@@ -192,7 +192,9 @@ public struct MangaDashboardiPhoneView: View {
             // Setup time view
             updateTime()
             timer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) { timer in
-                updateTime()
+                Task {@MainActor in
+                    updateTime()
+                }
             }
         }
         .onDisappear {

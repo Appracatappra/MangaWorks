@@ -171,7 +171,7 @@ import SimpleSerializer
     
     // MARK: - Computed Properties
     /// Returns a `MangaSheechBalloonView` representing the speech balloon.
-    public var view:some View {
+    @MainActor public var view:some View {
         animation.reset()
         return MangaSheechBalloonView(type: type, caption: caption, tail:tail, font: font, fontSize: fontSize * HardwareInformation.deviceRatioWidth, fontColor: fontColor, boxWidth: boxWidth * HardwareInformation.deviceRatioWidth, xOffset: xOffset * HardwareInformation.deviceRatioWidth, yOffset: yOffset * HardwareInformation.deviceRatioHeight).environmentObject(animation)
     }

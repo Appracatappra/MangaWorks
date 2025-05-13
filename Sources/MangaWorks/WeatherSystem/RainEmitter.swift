@@ -14,7 +14,7 @@ import SwiftUIPanoramaViewer
 import SpriteKit
 
 // KKM - This doesn't work for some reason, even though I'm fully recreating the emitter in code..
-open class RainEmitter {
+@MainActor open class RainEmitter {
     
     public static var emitter:SKEmitterNode {
         let emitter = SKEmitterNode()

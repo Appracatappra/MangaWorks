@@ -222,16 +222,16 @@ open class MangaLayerManager {
     
     // MARK: - Static Properties
     /// The current layout pattern for the Caption Layer.
-    public static var captionLayout:String = ""
+    nonisolated(unsafe) public static var captionLayout:String = ""
     
     /// The current layout pattern for the Balloon Layer.
-    public static var balloonLayout:String = ""
+    nonisolated(unsafe) public static var balloonLayout:String = ""
     
     /// The current layout pattern for the Detail Image Layer.
-    public static var detailImageLayout:String = ""
+    nonisolated(unsafe) public static var detailImageLayout:String = ""
     
     /// The current layout pattern for the Word Art Layer.
-    public static var wordArtLayout:String = ""
+    nonisolated(unsafe) public static var wordArtLayout:String = ""
     
     // MARK: - Static Functions
     /// Updates the Caption Layout based on the current panorama rotation. If the Caption Layout changed, call the given change handler.
@@ -292,7 +292,7 @@ open class MangaLayerManager {
     ///   - layverVisibility: The layver visibility to generate the overlay for.
     ///   - padding: The padding between the elements and the page edge.
     /// - Returns: A `View` containing the fully laid out overlay.
-    @ViewBuilder public static func detailImageOverlay(page:MangaPage, layerVisibility:ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0, padding:CGFloat) -> some View {
+    @ViewBuilder @MainActor public static func detailImageOverlay(page:MangaPage, layerVisibility:ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0, padding:CGFloat) -> some View {
         VStack {
             // Top Row
             HStack {
@@ -419,7 +419,7 @@ open class MangaLayerManager {
     ///   - height: The height of the container to build the overlay for.
     ///   - padding: The outer edge padding for the overlay.
     /// - Returns: The generated view.
-    @ViewBuilder public static func panelsOverlay(page:MangaPage, width:CGFloat, height:CGFloat, panelGutter:CGFloat) -> some View {
+    @ViewBuilder @MainActor public static func panelsOverlay(page:MangaPage, width:CGFloat, height:CGFloat, panelGutter:CGFloat) -> some View {
         let panelWidth:CGFloat = width / 3.0//(width - (panelGutter * 2.0)) / 3.0
         let panelHeight:CGFloat = height / 4.0 //(height - (panelGutter * 3.0)) / 4.0
         let x = CGFloat(0)
@@ -503,7 +503,7 @@ open class MangaLayerManager {
     ///   - layerVisibility: The layer visibility to generate the overlay for.
     ///   - padding: The padding between the elements and the page edge.
     /// - Returns: A `View` containing the fully laid out overlay.
-    @ViewBuilder public static func wordArtOverlay(page:MangaPage, layerVisibility:ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0, padding:CGFloat) -> some View {
+    @ViewBuilder @MainActor public static func wordArtOverlay(page:MangaPage, layerVisibility:ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0, padding:CGFloat) -> some View {
         VStack {
             
             // Top Row
@@ -624,7 +624,7 @@ open class MangaLayerManager {
     ///   - rotation: The Panorama Rotation to generate the overlay for.
     ///   - padding: The padding between the elements and the page edge.
     /// - Returns: A `View` containing the fully laid out overlay.
-    @ViewBuilder public static func captionOverlay(page:MangaPage, layerVisibility:ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0, padding:CGFloat) -> some View {
+    @ViewBuilder @MainActor public static func captionOverlay(page:MangaPage, layerVisibility:ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0, padding:CGFloat) -> some View {
         VStack {
             // Top Row
             HStack {
@@ -744,8 +744,7 @@ open class MangaLayerManager {
     ///   - rotation: The Panorama Rotation to generate the overlay for.
     ///   - padding: The padding between the elements and the page edge.
     /// - Returns: A `View` containing the fully laid out overlay.
-    @ViewBuilder
-    static func balloonOverlay(page:MangaPage, layerVisibility:ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0, padding:CGFloat) -> some View {
+    @ViewBuilder @MainActor static func balloonOverlay(page:MangaPage, layerVisibility:ElementVisibility = .empty, pitch:Float = 0.0, yaw:Float = 0.0, padding:CGFloat) -> some View {
         
         VStack {
             // Top Row

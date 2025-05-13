@@ -41,10 +41,10 @@ import ODRManager
     public nonisolated(unsafe) static let shared:MangaBook = MangaBook()
     
     /// If `true`, the collection of `MangaChapters` will be included in the serialized results.
-    public static var serializeStateOnly:Bool = true
+    nonisolated(unsafe) public static var serializeStateOnly:Bool = true
     
     /// If `true` show hints on Manga Pages where they exist.
-    public static var showHints:Bool = false
+    nonisolated(unsafe) public static var showHints:Bool = false
     
     // MARK: - Static Functions
     /// Registers `MangaBook` functions with the Grace Language so they are available in MangaWorks Grace Scripts.
@@ -1465,9 +1465,14 @@ import ODRManager
             SoundManager.shared.playSoundEffect(path: MangaWorks.pathTo(resource: "Jingle_Win_Synth_00", ofType: "mp3"), channel: .channel04)
         }
         
+        // Capture Page
+        nonisolated(unsafe) let page = page
+        
         // Read page?
-        if MangaStateManager.autoReadPage {
-            page.readText(invisibleText: false)
+        Task {@MainActor in
+            if MangaStateManager.autoReadPage {
+                page.readText(invisibleText: false)
+            }
         }
         
         // Start the sound effects for the current page.

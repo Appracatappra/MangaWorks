@@ -93,22 +93,22 @@ import SimpleSerializer
     
     // MARK: - Computed Properties
     /// The calculated image scale width.
-    private var imageWidthScaleDraw:CGFloat {
+    @MainActor private var imageWidthScaleDraw:CGFloat {
         return CGFloat(imageWidthScale * HardwareInformation.deviceRatioWidth)
     }
     
     /// The calculated image scale height.
-    private var imageHeightScaleDraw:CGFloat {
+    @MainActor private var imageHeightScaleDraw:CGFloat {
         return CGFloat(imageHeightScale * HardwareInformation.deviceRatioHeight)
     }
     
     /// The calculated panel horizontal offset.
-    private var offsetHorizontalDraw:CGFloat {
+    @MainActor private var offsetHorizontalDraw:CGFloat {
         return offsetHorizontal * CGFloat(HardwareInformation.deviceRatioWidth)
     }
     
     /// The calculated panel vertical offset.
-    private var offsetVerticalDraw:CGFloat {
+    @MainActor private var offsetVerticalDraw:CGFloat {
         return offsetVertical * CGFloat(HardwareInformation.deviceRatioHeight)
     }
     
@@ -187,7 +187,7 @@ import SimpleSerializer
     }
     
     // MARK: - Functions
-    public func draw(mainContext:GraphicsContext, x:CGFloat, y:CGFloat, width:CGFloat, height:CGFloat) {
+    @MainActor public func draw(mainContext:GraphicsContext, x:CGFloat, y:CGFloat, width:CGFloat, height:CGFloat) {
         let origin = CGPoint(x: x, y: y)
         var imageOrigin = CGPoint(x: x, y: y)
         let size = CGSize(width: width * widthScale, height: height * heightScale)

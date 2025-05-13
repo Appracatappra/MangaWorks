@@ -67,7 +67,7 @@ import SimpleSerializer
     
     // MARK: - Computed Properties
     /// Returns a `MangaImageView` representing the image.
-    public var view:some View {
+    @MainActor public var view:some View {
         animation.reset()
         return MangaImageView(imageName: imageName, width: width * HardwareInformation.deviceRatioWidth, height: height * HardwareInformation.deviceRatioHeight, scale: scale * HardwareInformation.deviceRatioWidth, hasBackground: hasBackground, background: backgroundColor, shadowed: shadowed, xOffset: xOffset * HardwareInformation.deviceRatioWidth, yOffset: yOffset * HardwareInformation.deviceRatioHeight).environmentObject(animation)
     }

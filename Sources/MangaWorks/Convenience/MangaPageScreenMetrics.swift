@@ -18,7 +18,7 @@ import Observation
 import ODRManager
 
 /// Defines some common screne metrics for a `MangaPage` based on the device the app is running on.
-open class MangaPageScreenMetrics {
+@MainActor open class MangaPageScreenMetrics {
     
     // MARK: - Static Properties
     /// The screen width as a `CGFloat`.

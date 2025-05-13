@@ -12,7 +12,7 @@ import GraceLanguage
 import SoundManager
 
 /// Handles game specific states for Manga based games.
-open class MangaStateManager {
+@MainActor open class MangaStateManager {
     
     // MARK: - Static Functions
     /// Registers `MangaChapter` functions with the Grace Language so they are available in MangaWorks Grace Scripts.

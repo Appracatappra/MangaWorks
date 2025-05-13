@@ -233,9 +233,11 @@ open class MangaWorks {
     public static func registerGraceFunctions() {
         
         // Register all the required scripts
-        SoundManager.registerGraceFunctions()
-        MangaStateManager.registerGraceFunctions()
-        MangaBook.registerGraceFunctions()
-        MangaChapter.registerGraceFunctions()
+        Task {@MainActor in
+            SoundManager.registerGraceFunctions()
+            MangaStateManager.registerGraceFunctions()
+            MangaBook.registerGraceFunctions()
+            MangaChapter.registerGraceFunctions()
+        }
     }
 }
